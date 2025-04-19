@@ -16,5 +16,33 @@ CREATE TABLE IF NOT EXISTS Draw (
 	FOREIGN KEY(lottery_id) REFERENCES Lottery(id)
 );
 
+-- Результат тиража
+CREATE TABLE IF NOT EXISTS DrawResult (
+	id SERIAL PRIMARY KEY,
+	draw_id INT,
+	winningCombination INT[] NOT NULL,
+	resultTime DATE,
+	FOREIGN KEY(draw_id) REFERENCES Draw(id)
+);
+
+-- Создаём тип пользователя
+DO $$
+BEGIN
+	CREATE TYPE customer_type as ENUM('admin', 'user');
+EXCEPTION
+	WHEN duplicate_object THEN
+		RAISE NOTICE 'customer_type already exists';
+END$$
+LANGUAGE plpgsql;
+
+-- Пользователи 
+CREATE TABLE IF NOT EXISTS Customers (
+	id SERIAL PRIMARY KEY,
+	role customer_type NOT NULL,
+	username VARCHAR(50) NOT NULL UNIQUE, -- здесь храним login. telegram или email
+	info JSONB  -- это поле выполняет роль смешанного типа, для пользователя тут может храниться баланс, а для админов хэш пароля например 
+);
+
+
 
 
