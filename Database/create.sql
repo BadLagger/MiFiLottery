@@ -63,3 +63,13 @@ CREATE TABLE IF NOT EXISTS Invoice (
 	status VARCHAR(15) NOT NULL CHECK(status IN ('created', 'paid', 'failed', 'cancelled', 'refunded')),
 	FOREIGN KEY(user_id) REFERENCES Customers(id)
 );
+
+-- Платёж
+CREATE TABLE IF NOT EXISTS Payment (
+	id SERIAL PRIMARY KEY,
+	invoice_id INT,
+	amount INT NOT NULL CHECK (amount > 0),
+	status VARCHAR(10) NOT NULL CHECK(status in('success', 'failed'))
+	paymentTime INT DEFAULT 0,
+	FOREIGN KEY(invoice_id) REFERENCES Invoice(id)
+);
