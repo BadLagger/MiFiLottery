@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS Ticket (
 	data JSONB, -- пока непонятно, что тут будет
 	status VARCHAR(10) NOT NULL CHECK(status IN ('pending', 'win', 'lose')),
 	FOREIGN KEY(user_id) REFERENCES Customers(id),
-	FOREIGN KEY(draw_id) REFERENCES Draw(id)
+	FOREIGN KEY(draw_id) REFERENCES Draw(id),
 );
 
 
