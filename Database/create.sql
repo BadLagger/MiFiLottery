@@ -54,4 +54,12 @@ CREATE TABLE IF NOT EXISTS Ticket (
 	FOREIGN KEY(draw_id) REFERENCES Draw(id)
 );
 
-
+-- Инвойс
+CREATE TABLE IF NOT EXISTS Invoice (
+	id SERIAL PRIMARY KEY,
+	user_id INT,
+	register_time DATE,
+	ticket_data JSONB, -- уточнить какие именно данные
+	status VARCHAR(15) NOT NULL CHECK(status IN ('created', 'paid', 'failed', 'cancelled', 'refunded')),
+	FOREIGN KEY(user_id) REFERENCES Customers(id)
+);
