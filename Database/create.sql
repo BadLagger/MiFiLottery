@@ -4,14 +4,14 @@ CREATE TABLE IF NOT EXISTS Lottery (
 	lottery_type VARCHAR(10) NOT NULL CHECK (lottery_type IN ('auto', '5in36')),
 	ticket_price DECIMAL(8, 2) NOT NULL CHECK(ticket_price > 0),
 	min_ticket INT CHECK(min_ticket >= 0) DEFAULT 0,
-	price_pool_percantage INT NOT NULL CHECK(price_pool_percantage >= 0 AND price_pool_percantage <= 100)
+	price_pool_percentage INT NOT NULL CHECK(price_pool_percentage >= 0 AND price_pool_percentage <= 100)
 );
 
 -- Тираж
 CREATE TABLE IF NOT EXISTS Draw (
     id SERIAL PRIMARY KEY,
 	lottery_id INT,
-	startTime DATE,
+	startTime TIMESTAMP,
 	status VARCHAR(15) NOT NULL CHECK(status IN ('planned', 'active', 'completed', 'cancelled')),
 	FOREIGN KEY(lottery_id) REFERENCES Lottery(id)
 );
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS Payment (
 	id SERIAL PRIMARY KEY,
 	invoice_id INT,
 	amount INT NOT NULL CHECK (amount > 0),
-	status VARCHAR(10) NOT NULL CHECK(status in('success', 'failed'))
+	status VARCHAR(10) NOT NULL CHECK(status in('success', 'failed')),
 	paymentTime INT DEFAULT 0,
 	FOREIGN KEY(invoice_id) REFERENCES Invoice(id)
 );
