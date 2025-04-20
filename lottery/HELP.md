@@ -28,9 +28,3 @@ While most of the inheritance is fine, it also inherits unwanted elements like `
 To prevent this, the project POM contains empty overrides for these elements.
 If you manually switch to a different parent and actually want the inheritance, you need to remove those overrides.
 
-# Developers Notes:
-Для того чтобы всё запустилось необходимо задать переменные окружения для jdbc:
-
-DB_HOST - URL к БД. Например: localhost:5432/Lottery
-DB_USERNAME - имя пользователя для подключения к БД
-DB_PASSWORD - пароль к БД (если без пароля, то надо оставить пустым)
