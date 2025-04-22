@@ -12,12 +12,12 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Entity
 @Table(name="lotterytype")
-public class LotteryEntity {
+public class LotteryType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false)
     private String description;
 
     @Column(nullable = false, precision = 8, scale = 2)

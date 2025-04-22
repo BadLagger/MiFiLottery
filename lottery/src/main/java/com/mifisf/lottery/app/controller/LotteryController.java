@@ -1,6 +1,6 @@
 package com.mifisf.lottery.app.controller;
 
-import com.mifisf.lottery.app.entity.LotteryEntity;
+import com.mifisf.lottery.app.entity.LotteryType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.mifisf.lottery.app.service.LotteryService;
@@ -8,6 +8,7 @@ import com.mifisf.lottery.app.service.LotteryService;
 import java.util.List;
 
 @RestController
+
 public class LotteryController {
     private final LotteryService service;
 
@@ -17,7 +18,7 @@ public class LotteryController {
     }
 
     @GetMapping("/lottery")
-    public List<LotteryEntity> getAllLotteries() {
+    public List<LotteryType> getAllLotteries() {
         return service.findAll();
     }
 }
