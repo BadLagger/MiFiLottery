@@ -11,14 +11,14 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="Lottery")
+@Table(name="lotterytype")
 public class LotteryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 10)
-    private String lotteryType;
+    private String description;
 
     @Column(nullable = false, precision = 8, scale = 2)
     private BigDecimal ticketPrice;
@@ -27,5 +27,5 @@ public class LotteryEntity {
     private Integer minTicket;
 
     @Column(nullable = false)
-    private Integer pricePoolPercentage;
+    private Double pricePoolPercentage;
 }
