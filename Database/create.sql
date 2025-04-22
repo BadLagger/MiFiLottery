@@ -7,13 +7,25 @@ CREATE TABLE IF NOT EXISTS LotteryType (
 	price_pool_percentage DOUBLE PRECISION NOT NULL CHECK(price_pool_percentage >= 0. AND price_pool_percentage <= 1.)
 );
 
+-- Создаём статус тиража
+DO $$
+BEGIN
+	CREATE TYPE draw_status as ENUM('planned', 'active', 'completed', 'cancelled');
+EXCEPTION
+	WHEN duplicate_object THEN
+		RAISE NOTICE 'draw_status already exists';
+END$$
+LANGUAGE plpgsql;
+
 -- Тираж
 CREATE TABLE IF NOT EXISTS Draw (
     id SERIAL PRIMARY KEY,
-	lottery_id INT,
-	startTime TIMESTAMP,
-	status VARCHAR(15) NOT NULL CHECK(status IN ('planned', 'active', 'completed', 'cancelled')),
-	FOREIGN KEY(lottery_id) REFERENCES LotteryType(id)
+	name TEXT NOT NULL,
+	lottery_type_id INT NOT NULL,
+	startTime TIMESTAMP NOT NULL,
+	duration INT NOT NULL,
+	status draw_status NOT NULL,
+	FOREIGN KEY(lottery_type_id) REFERENCES LotteryType(id)
 );
 
 -- Результат тиража
