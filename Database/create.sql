@@ -1,10 +1,10 @@
 -- Лотерея
-CREATE TABLE IF NOT EXISTS Lottery (
+CREATE TABLE IF NOT EXISTS LotteryType (
 	id SERIAL PRIMARY KEY,
-	lottery_type VARCHAR(10) NOT NULL CHECK (lottery_type IN ('auto', '5in36')),
+	description TEXT NOT NULL,
 	ticket_price DECIMAL(8, 2) NOT NULL CHECK(ticket_price > 0),
 	min_ticket INT CHECK(min_ticket >= 0) DEFAULT 0,
-	price_pool_percentage INT NOT NULL CHECK(price_pool_percentage >= 0 AND price_pool_percentage <= 100)
+	price_pool_percentage DOUBLE PRECISION NOT NULL CHECK(price_pool_percentage >= 0. AND price_pool_percentage <= 1.)
 );
 
 -- Тираж
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS Draw (
 	lottery_id INT,
 	startTime TIMESTAMP,
 	status VARCHAR(15) NOT NULL CHECK(status IN ('planned', 'active', 'completed', 'cancelled')),
-	FOREIGN KEY(lottery_id) REFERENCES Lottery(id)
+	FOREIGN KEY(lottery_id) REFERENCES LotteryType(id)
 );
 
 -- Результат тиража
