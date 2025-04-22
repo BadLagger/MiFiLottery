@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS LotteryType (
 -- Создаём статус тиража
 DO $$
 BEGIN
-	CREATE TYPE draw_status as ENUM('planned', 'active', 'completed', 'cancelled');
+	CREATE TYPE draw_status as ENUM('PLANNED', 'ACTIVE', 'COMPLETED', 'CANCELLED');
 EXCEPTION
 	WHEN duplicate_object THEN
 		RAISE NOTICE 'draw_status already exists';
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS Draw (
     id SERIAL PRIMARY KEY,
 	name TEXT NOT NULL,
 	lottery_type_id INT NOT NULL,
-	startTime TIMESTAMP NOT NULL,
+	start_time TIMESTAMP NOT NULL,
 	duration INT NOT NULL,
 	status draw_status NOT NULL,
 	FOREIGN KEY(lottery_type_id) REFERENCES LotteryType(id)
