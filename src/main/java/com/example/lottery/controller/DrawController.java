@@ -1,5 +1,6 @@
 package com.example.lottery.controller;
 
+import com.example.lottery.dto.DrawStatus;
 import com.example.lottery.entity.Draw;
 import com.example.lottery.entity.DrawResult;
 import com.example.lottery.service.DrawService;
@@ -23,13 +24,13 @@ public class DrawController {
     public List<Draw> getAllDraws() { return drawService.findAll();}
 
     @GetMapping("/draws/active")
-    public List<Draw> getActiveDraws() { return drawService.findByStatus(Draw.DrawStatus.ACTIVE);}
+    public List<Draw> getActiveDraws() { return drawService.findByStatus(DrawStatus.ACTIVE);}
 
     /* Get Active or Planned draws */
     @GetMapping("/draws/available")
     public List<Draw> getAvailableDraws() {
-        var  result = drawService.findByStatus(Draw.DrawStatus.ACTIVE);
-        result.addAll(drawService.findByStatus(Draw.DrawStatus.PLANNED));
+        var  result = drawService.findByStatus(DrawStatus.ACTIVE);
+        result.addAll(drawService.findByStatus(DrawStatus.PLANNED));
         return result;
     }
 

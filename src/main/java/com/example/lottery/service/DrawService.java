@@ -1,5 +1,6 @@
 package com.example.lottery.service;
 
+import com.example.lottery.dto.DrawStatus;
 import com.example.lottery.entity.Draw;
 import com.example.lottery.entity.DrawResult;
 import com.example.lottery.repository.DrawRepository;
@@ -20,7 +21,7 @@ public class DrawService {
 
     public List<Draw> findAll() {return drawRepository.findAll();}
 
-    public List<Draw> findByStatus(Draw.DrawStatus status) {
+    public List<Draw> findByStatus(DrawStatus status) {
         return drawRepository.findByStatus(status.toString());
     }
 
