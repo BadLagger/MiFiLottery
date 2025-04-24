@@ -16,12 +16,7 @@ public class LotteryApplication {
 	@Bean
 	public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
 		return args -> {
-			System.out.println("Start APP 55!!!");
-
-			/*String[] beanNames = ctx.getBeanDefinitionNames();
-			Arrays.sort(beanNames);
-			for (String beanName : beanNames)
-				System.out.println(beanName);*/
+			System.out.println("Start APP !!!");
 		};
 	}
 }
