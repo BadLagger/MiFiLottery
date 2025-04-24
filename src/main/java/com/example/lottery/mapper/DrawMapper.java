@@ -8,8 +8,8 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface DrawMapper {
-    DrawDto toDto(Draw draw);
+    /*DrawDto toDto(Draw draw);
     List<DrawDto> toDtoList(List<Draw> draws);
 
-    Draw toEntity(DrawDto drawDto);
+    Draw toEntity(DrawDto drawDto);*/
 }

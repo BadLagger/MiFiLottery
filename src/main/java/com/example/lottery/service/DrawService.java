@@ -1,36 +1,32 @@
 package com.example.lottery.service;
 
 import com.example.lottery.entity.Draw;
+import com.example.lottery.entity.DrawResult;
 import com.example.lottery.repository.DrawRepository;
+import com.example.lottery.repository.DrawResultRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.Optional;
 
 @Service
 public class DrawService {
-//    private final DrawRepository drawRepository;
-//
-//    public DrawService(DrawRepository drawRepository) {
-//        this.drawRepository = drawRepository;
-//    }
-//
-//    public List<Draw> getActiveDraws() {
-//        return drawRepository.findByStatus(Draw.Status.ACTIVE);
-//    }
-//
+    @Autowired
+    private DrawRepository drawRepository;
 
-    private final AtomicLong idGenerator = new AtomicLong(1);
-    public Draw createDraw(Draw draw) {
-        //return drawRepository.save(draw);
-        draw.setId(idGenerator.getAndIncrement());
-        if (draw.getStatus() == null) {
-            draw.setStatus(Draw.Status.PLANNED);
-        }
-        if (draw.getStartTime() == null) {
-            draw.setStartTime(LocalDateTime.now().plusMinutes(5));
-        }
-        return draw;
+    @Autowired
+    private DrawResultRepository drawResultRepository;
+
+    public List<Draw> findAll() {return drawRepository.findAll();}
+
+    public List<Draw> findByStatus(Draw.DrawStatus status) {
+        return drawRepository.findByStatus(status.toString());
+    }
+
+    public Optional<Draw> findById(Long id) { return drawRepository.findById(id); }
+
+    public DrawResult findResultByDrawId(Long id) {
+        return  drawResultRepository.findByDraw(drawRepository.findById(id).orElse(null));
     }
 }
