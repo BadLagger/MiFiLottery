@@ -3,6 +3,7 @@ package com.mifisf.lottery.app.controller;
 import com.mifisf.lottery.app.entity.Draw;
 import com.mifisf.lottery.app.service.DrawService;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,5 +30,10 @@ public class DrawController {
         var  result = service.findByStatus(Draw.DrawStatus.ACTIVE);
         result.addAll(service.findByStatus(Draw.DrawStatus.PLANNED));
         return result;
+    }
+
+    @GetMapping("/draws/{id}")
+    public Draw getDrawsById(@PathVariable Long id) {
+        return service.findById(id).orElse(null);
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class DrawService {
@@ -17,4 +18,6 @@ public class DrawService {
     public List<Draw> findByStatus(Draw.DrawStatus status) {
         return repository.findByStatus(status.toString());
     }
+
+    public Optional<Draw> findById(Long id) { return repository.findById(id); }
 }
