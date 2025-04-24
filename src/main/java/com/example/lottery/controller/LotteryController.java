@@ -1,9 +1,9 @@
-package com.mifisf.lottery.app.controller;
+package com.example.lottery.controller;
 
-import com.mifisf.lottery.app.entity.LotteryType;
+import com.example.lottery.entity.LotteryType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.mifisf.lottery.app.service.LotteryService;
+import com.example.lottery.service.LotteryService;
 
 import java.util.List;
 

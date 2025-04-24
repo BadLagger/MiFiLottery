@@ -1,8 +1,8 @@
-package com.mifisf.lottery.app.controller;
+package com.example.lottery.controller;
 
-import com.mifisf.lottery.app.entity.Draw;
-import com.mifisf.lottery.app.entity.DrawResult;
-import com.mifisf.lottery.app.service.DrawService;
+import com.example.lottery.entity.Draw;
+import com.example.lottery.entity.DrawResult;
+import com.example.lottery.service.DrawService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;

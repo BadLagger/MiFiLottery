@@ -1,6 +1,6 @@
-package com.mifisf.lottery.app.repository;
+package com.example.lottery.repository;
 
-import com.mifisf.lottery.app.entity.LotteryType;
+import com.example.lottery.entity.LotteryType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface LotteryRepository extends JpaRepository<LotteryType, Long> {

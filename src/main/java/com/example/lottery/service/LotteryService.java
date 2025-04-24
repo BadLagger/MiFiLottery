@@ -1,9 +1,9 @@
-package com.mifisf.lottery.app.service;
+package com.example.lottery.service;
 
-import com.mifisf.lottery.app.entity.LotteryType;
+import com.example.lottery.entity.LotteryType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.mifisf.lottery.app.repository.LotteryRepository;
+import com.example.lottery.repository.LotteryRepository;
 
 import java.util.List;
 

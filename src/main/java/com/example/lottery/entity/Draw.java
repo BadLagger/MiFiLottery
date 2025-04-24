@@ -1,4 +1,4 @@
-package com.mifisf.lottery.app.entity;
+package com.example.lottery.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

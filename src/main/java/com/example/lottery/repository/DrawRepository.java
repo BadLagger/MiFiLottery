@@ -1,6 +1,6 @@
-package com.mifisf.lottery.app.repository;
+package com.example.lottery.repository;
 
-import com.mifisf.lottery.app.entity.Draw;
+import com.example.lottery.entity.Draw;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

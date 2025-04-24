@@ -1,4 +1,4 @@
-package com.mifisf.lottery.app.config;
+package com.example.lottery.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
