@@ -1,61 +1,45 @@
 package com.example.lottery.controller;
 
-import com.example.lottery.dto.DrawDto;
 import com.example.lottery.entity.Draw;
-import com.example.lottery.mapper.DrawMapper;
+import com.example.lottery.entity.DrawResult;
 import com.example.lottery.service.DrawService;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-@RequiredArgsConstructor
-@Tag(name = "Draws", description = "Управление лотерейными тиражами")
 public class DrawController {
+    public final DrawService drawService;
 
-    private final DrawService drawService;
-    private final DrawMapper drawMapper;
-
-
-    @GetMapping
-    public String checkWork(){
-        return "Работает";
+    public DrawController(DrawService drawService) {
+        this.drawService = drawService;
     }
 
-    @PostMapping
-    public ResponseEntity<DrawDto> checkPostWork(@RequestBody DrawDto drawDto){
-         Draw saved = drawService.createDraw(drawMapper.toEntity(drawDto));
-         return ResponseEntity.ok(drawMapper.toDto(saved));
-    }
-
-    @PostMapping("/admin/draws")
-    public ResponseEntity<DrawDto> createDraw(@RequestBody DrawDto drawDto) {
-        // Draw saved = drawService.create(drawMapper.toEntity(drawDto));
-       // return ResponseEntity.ok(drawMapper.toDto(saved));
-        return null;
-        //todo вернуть нормальный return
-    }
+    @GetMapping("/draws/all")
+    public List<Draw> getAllDraws() { return drawService.findAll();}
 
     @GetMapping("/draws/active")
-    public ResponseEntity<List<DrawDto>> getActiveDraws() {
-       // List<Draw> draws = drawService.getActive();
-        //return ResponseEntity.ok(drawMapper.toDtoList(draws));
-        return null;
-        //todo вернуть нормальный return
+    public List<Draw> getActiveDraws() { return drawService.findByStatus(Draw.DrawStatus.ACTIVE);}
+
+    /* Get Active or Planned draws */
+    @GetMapping("/draws/available")
+    public List<Draw> getAvailableDraws() {
+        var  result = drawService.findByStatus(Draw.DrawStatus.ACTIVE);
+        result.addAll(drawService.findByStatus(Draw.DrawStatus.PLANNED));
+        return result;
     }
 
-    @PutMapping("/admin/draws/{id}/cancel")
-    public ResponseEntity<Void> cancelDraw(@PathVariable Long id) {
-       // drawService.cancel(id);
-        return ResponseEntity.noContent().build();
+    @GetMapping("/draws/{id}")
+    public Draw getDrawsById(@PathVariable Long id) {
+        return drawService.findById(id).orElse(null);
     }
 
     @GetMapping("/draws/{id}/results")
-    public ResponseEntity<String> getResults(@PathVariable Long id) {
-        return ResponseEntity.ok("Mock result for draw " + id);
+    public DrawResult getDrawIdResults(@PathVariable Long id) {
+        return drawService.findResultByDrawId(id);
     }
 }
