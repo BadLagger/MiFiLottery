@@ -22,4 +22,12 @@ public class DrawController {
 
     @GetMapping("/draws/active")
     public List<Draw> getActiveDraws() { return service.findByStatus(Draw.DrawStatus.ACTIVE);}
+
+    /* Get Active or Planned draws */
+    @GetMapping("/draws/available")
+    public List<Draw> getAvailableDraws() {
+        var  result = service.findByStatus(Draw.DrawStatus.ACTIVE);
+        result.addAll(service.findByStatus(Draw.DrawStatus.PLANNED));
+        return result;
+    }
 }
