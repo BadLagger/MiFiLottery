@@ -1,5 +1,6 @@
 package com.example.lottery.entity;
 
+import com.example.lottery.dto.DrawStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,10 +36,4 @@ public class Draw {
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "draw_status")
     private DrawStatus status;
-
-    public enum DrawStatus {
-
-        PLANNED, ACTIVE, COMPLETED, CANCELLED
-
-    }
 }
