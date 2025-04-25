@@ -50,6 +50,10 @@ public class DrawService {
         return  drawResultRepository.findByDraw(drawRepository.findById(id).orElse(null));
     }
 
+    public Draw save(Draw draw) {
+        return drawRepository.save(draw);
+    }
+
     public Draw createDraw(DrawRequestDto request) {
         LotteryType lotteryType = lotteryTypeRepository.findById(request.lotteryTypeId()).orElseThrow(() -> new IllegalArgumentException("Type of lottery not found"));
         Draw draw = drawMapper.toEntity(request, lotteryType, DrawStatus.PLANNED);
