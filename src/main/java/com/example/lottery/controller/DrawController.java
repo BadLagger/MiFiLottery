@@ -1,23 +1,23 @@
 package com.example.lottery.controller;
 
 import com.example.lottery.dto.DrawRequestDto;
-import com.example.lottery.dto.DrawResultDto;
 import com.example.lottery.dto.DrawStatus;
 import com.example.lottery.entity.Draw;
 import com.example.lottery.entity.DrawResult;
 import com.example.lottery.service.DrawService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.FutureOrPresent;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,6 +60,7 @@ public class DrawController {
     @PostMapping("/admin/draws")
     public ResponseEntity<Draw> createDraw(@Valid @RequestBody DrawRequestDto request) throws MethodArgumentNotValidException {
 
+        // Проверка Duration
         if (request.duration() == null) {
             request = new DrawRequestDto(
                     request.name(),
@@ -72,9 +73,15 @@ public class DrawController {
             }
         }
 
+        // Проверка на дублирующие значения тиража
+        if (drawService.existsSameLotteryOnDay(request.lotteryTypeId(), request.startTime())) {
+            throw new IllegalArgumentException("Draw with the same type exists in this day!");
+        }
+
         Draw draw= drawService.createDraw(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(draw);
     }
+
 
     // Обработчик ошибок
     @ExceptionHandler(IllegalArgumentException.class)

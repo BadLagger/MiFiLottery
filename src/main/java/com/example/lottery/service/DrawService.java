@@ -11,9 +11,13 @@ import com.example.lottery.repository.DrawRepository;
 import com.example.lottery.repository.DrawResultRepository;
 import com.example.lottery.repository.LotteryTypeRepository;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,5 +54,13 @@ public class DrawService {
         LotteryType lotteryType = lotteryTypeRepository.findById(request.lotteryTypeId()).orElseThrow(() -> new IllegalArgumentException("Type of lottery not found"));
         Draw draw = drawMapper.toEntity(request, lotteryType, DrawStatus.PLANNED);
         return drawRepository.save(draw);
+    }
+
+    public boolean existsSameLotteryOnDay(Long lotteryTypeId, LocalDateTime startTime) {
+        LocalDate date = startTime.toLocalDate();
+        LocalDateTime startTimeAtMidnight = date.atStartOfDay();
+        LocalDateTime endOfDay = startTimeAtMidnight.plusDays(1).minusNanos(1);
+
+        return drawRepository.existsByLotteryType_IdAndStartTimeBetween(lotteryTypeId, startTimeAtMidnight, endOfDay);
     }
 }
