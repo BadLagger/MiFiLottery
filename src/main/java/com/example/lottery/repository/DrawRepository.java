@@ -1,5 +1,6 @@
 package com.example.lottery.repository;
 
+import com.example.lottery.dto.DrawStatus;
 import com.example.lottery.entity.Draw;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,4 +17,7 @@ public interface DrawRepository extends JpaRepository<Draw, Long> {
     List<Draw> findByStatus(@Param("status") String status);
 
     boolean existsByLotteryType_IdAndStartTimeBetween(Long lotteryTypeId, LocalDateTime startTimeAtMidnight, LocalDateTime endOfDay);
+
+    @Query("SELECT d FROM Draw d WHERE d.status = :status AND d.startTime < :time ORDER BY d.startTime ASC")
+    List<Draw> findByStatusAndStartTimeBeforeTimeOrdered(@Param("status") DrawStatus status, @Param("time") LocalDateTime time);
 }

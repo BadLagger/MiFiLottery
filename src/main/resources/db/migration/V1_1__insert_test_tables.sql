@@ -12,7 +12,8 @@ INSERT INTO Users (name, telegram, balance, role_id) VALUES
                                                          ('Admin', 'iamadmin', 0, 1);
 
 INSERT INTO Draw(lottery_type_id, name, start_time, duration, status) VALUES
-                                                                          (1, 'Lottery1', TIMESTAMPADD(SQL_TSI_HOUR, 2, CURRENT_TIMESTAMP), 5, 'PLANNED'), -- добавляем 2 часа
-                                                                          (1, 'Lottery2', TIMESTAMPADD(SQL_TSI_HOUR, 10, CURRENT_TIMESTAMP), 7, 'PLANNED'), -- добавляем 10 часов
-                                                                          (1, 'Lottery3', TIMESTAMPADD(SQL_TSI_HOUR, -1, CURRENT_TIMESTAMP), 2, 'ACTIVE'), -- добавляем 1 час
-                                                                          (1, 'Lottery4', TIMESTAMPADD(SQL_TSI_HOUR, -3, CURRENT_TIMESTAMP), 3, 'COMPLETED'); -- вычитаем 3 часа
+      (1, 'Lottery1', TIMESTAMPADD(SQL_TSI_HOUR, 2, CURRENT_TIMESTAMP), 5, 'PLANNED'), -- добавляем 2 часа
+      (1, 'Lottery2', TIMESTAMPADD(SQL_TSI_HOUR, 10, CURRENT_TIMESTAMP), 7, 'PLANNED'), -- добавляем 10 часов
+      (1, 'ShouldBeCompletedAfter2MinutesAfterStart', TIMESTAMPADD(SQL_TSI_HOUR, -1, CURRENT_TIMESTAMP), 62, 'ACTIVE'), -- добавляем 1 час
+      (1, 'ShouldBeCompletedAfterStart', TIMESTAMPADD(SQL_TSI_DAY, -1, CURRENT_TIMESTAMP), 2, 'ACTIVE'),
+      (1, 'Lottery4', TIMESTAMPADD(SQL_TSI_HOUR, -3, CURRENT_TIMESTAMP), 3, 'COMPLETED'); -- вычитаем 3 часа
