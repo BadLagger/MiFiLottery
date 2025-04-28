@@ -1,5 +1,6 @@
 package com.example.lottery.service;
 
+import ch.qos.logback.core.CoreConstants;
 import com.example.lottery.dto.DrawRequestDto;
 import com.example.lottery.dto.DrawStatus;
 import com.example.lottery.entity.Draw;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
@@ -52,9 +54,8 @@ public class DrawService {
     public void init() {
         System.out.println("Init DrawService bgn");
 
-        //int poolMaxSize = (int)lotteryTypeRepository.count();
-        //System.out.format("Max size of lottery types: %d\n", poolMaxSize);
-
+        // Пока что максимальное количество потоков прибито гвоздями, но по хорошему надо сделать его гибким - maxPoolSize = maxLotteryTypes * maxNumberOfLOtteryTypesInDay (то есть максимальное кол-во потоков равно количеству типов лотерей плюс максимальное кол-во лотереи каждого типа в сутки)
+        // Возможно рациональней использовать ProjectLoom ?
         executorActive = Executors.newScheduledThreadPool(maxPoolSize);
         executorPlanned = Executors.newScheduledThreadPool(maxPoolSize);
         sсheduledActiveFutures = new ConcurrentHashMap<>();
@@ -153,7 +154,26 @@ public class DrawService {
         LocalDateTime startTimeAtMidnight = date.atStartOfDay();
         LocalDateTime endOfDay = startTimeAtMidnight.plusDays(1).minusNanos(1);
 
-        return drawRepository.existsByLotteryType_IdAndStartTimeBetween(lotteryTypeId, startTimeAtMidnight, endOfDay);
+        // Проверка на тип лотереи в течении этих суток без учёта статуса (Первоначальная реализация)
+        //return drawRepository.existsByLotteryType_IdAndStartTimeBetween(lotteryTypeId, startTimeAtMidnight, endOfDay);
+
+        // Проверка(отладка) списка тиражей со статусами
+        /*var draws = drawRepository.findByLotteryType_IdAndStartTimeBetweenAndStatusIn(lotteryTypeId,
+                startTimeAtMidnight,
+                endOfDay,
+                Arrays.asList(DrawStatus.ACTIVE, DrawStatus.PLANNED));
+
+        System.out.format("Dublicated draws: %d\n", draws.size());
+        for (var draw : draws) {
+            System.out.format("name: %s status: %s\n", draw.getName(), draw.getStatus());
+        }*/
+
+        // Проверка на тип лотереи в течении этих суток с учётом статусов ACTIVE и PLANNED
+        return drawRepository.existsByLotteryType_IdAndStartTimeBetweenAndStatusIn(lotteryTypeId,
+                startTimeAtMidnight,
+                endOfDay,
+                Arrays.asList(DrawStatus.ACTIVE, DrawStatus.PLANNED));
+
     }
 
     // Запускаемся в начале каждых суток и устанавливаем в планировщик задачи
