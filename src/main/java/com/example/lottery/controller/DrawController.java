@@ -79,7 +79,8 @@ public class DrawController {
             throw new IllegalArgumentException("Draw with the same type exists in this day!");
         }
 
-        Draw draw= drawService.createDraw(request);
+        System.out.println("Try to create draw");
+        Draw draw = drawService.createDraw(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(draw);
     }
 
@@ -99,12 +100,9 @@ public class DrawController {
             throw new IllegalArgumentException("Draw already completed or cancelled");
         }
         // Меняем статус тиража на CANCELLED
-        existingDraw.setStatus(DrawStatus.CANCELLED);
+        drawService.setCancel(existingDraw);
 
-        // Сохраняем измененный тираж
-        Draw cancelledDraw = drawService.save(existingDraw);
-
-        return ResponseEntity.ok(cancelledDraw); // Возвращаем обновленную версию тиража
+        return ResponseEntity.ok(existingDraw); // Возвращаем обновленную версию тиража
     }
 
 
