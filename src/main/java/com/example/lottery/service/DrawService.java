@@ -1,7 +1,6 @@
 package com.example.lottery.service;
 
 import com.example.lottery.dto.DrawRequestDto;
-import com.example.lottery.dto.DrawResultDto;
 import com.example.lottery.dto.DrawStatus;
 import com.example.lottery.entity.Draw;
 import com.example.lottery.entity.DrawResult;
@@ -13,6 +12,7 @@ import com.example.lottery.repository.LotteryTypeRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -41,8 +41,8 @@ public class DrawService {
     private ScheduledExecutorService executorPlanned = null;
     private ScheduledExecutorService executorActive = null;
 
-    private ConcurrentHashMap<Long, ScheduledFuture<?>> sheduledActiveFutures = null;
-    private ConcurrentHashMap<Long, ScheduledFuture<?>> sheduledPlannedFutures = null;
+    private ConcurrentHashMap<Long, ScheduledFuture<?>> sсheduledActiveFutures = null;
+    private ConcurrentHashMap<Long, ScheduledFuture<?>> sсheduledPlannedFutures = null;
 
     public DrawService(DrawMapper drawMapper) {
         this.drawMapper = drawMapper;
@@ -57,8 +57,8 @@ public class DrawService {
 
         executorActive = Executors.newScheduledThreadPool(maxPoolSize);
         executorPlanned = Executors.newScheduledThreadPool(maxPoolSize);
-        sheduledActiveFutures = new ConcurrentHashMap<>();
-        sheduledPlannedFutures = new ConcurrentHashMap<>();
+        sсheduledActiveFutures = new ConcurrentHashMap<>();
+        sсheduledPlannedFutures = new ConcurrentHashMap<>();
         checkActiveDraws();
         checkPlannedDraws();
 
@@ -84,7 +84,10 @@ public class DrawService {
     public Draw createDraw(DrawRequestDto request) {
         LotteryType lotteryType = lotteryTypeRepository.findById(request.lotteryTypeId()).orElseThrow(() -> new IllegalArgumentException("Type of lottery not found"));
         Draw draw = drawMapper.toEntity(request, lotteryType, DrawStatus.PLANNED);
-        setPlanned(draw);
+        LocalDateTime tomorrow = LocalDateTime.now().plusDays(1).truncatedTo(ChronoUnit.DAYS);
+        // Если Тираж запланирован на сегодня, то добавляем его в планировщик
+        if (draw.getStartTime().isBefore(tomorrow))
+            setPlanned(draw);
         return draw;
     }
 
@@ -100,7 +103,7 @@ public class DrawService {
         long delayMs = ChronoUnit.MILLIS.between(LocalDateTime.now(), draw.getStartTime().plusMinutes(draw.getDuration()));
         addToActiveTasks(draw, delayMs);
         // Удаляем из списка планировщика запланированных задач
-        sheduledPlannedFutures.remove(draw.getId());
+        sсheduledPlannedFutures.remove(draw.getId());
     }
 
     public void setPlanned(Draw draw) {
@@ -113,16 +116,16 @@ public class DrawService {
     public void setComplete(Draw draw) {
         System.out.format("Draw: %s set complete\n", draw.getName());
         setStatus(draw, DrawStatus.COMPLETED);
-        sheduledActiveFutures.remove(draw.getId());
+        sсheduledActiveFutures.remove(draw.getId());
     }
     public void setCancel(Draw draw) {
         // Проверяем список активных задач
-        var future = sheduledActiveFutures.remove(draw.getId());
+        var future = sсheduledActiveFutures.remove(draw.getId());
         if (future != null) {
             future.cancel(false);
         } else {
             // Проверяем список запланированных задач
-            future = sheduledPlannedFutures.remove(draw.getId());
+            future = sсheduledPlannedFutures.remove(draw.getId());
             if (future != null) {
                 future.cancel(false);
             }
@@ -133,12 +136,12 @@ public class DrawService {
 
     public void addToActiveTasks(Draw draw, long delayMs) {
         var future = executorActive.schedule(()-> setComplete(draw), delayMs, TimeUnit.MILLISECONDS);
-        sheduledActiveFutures.put(draw.getId(), future);
+        sсheduledActiveFutures.put(draw.getId(), future);
     }
 
     public void addToPlannedTasks(Draw draw, long delayMs) {
         var future = executorPlanned.schedule(() -> setActive(draw), delayMs, TimeUnit.MILLISECONDS);
-        sheduledPlannedFutures.put(draw.getId(), future);
+        sсheduledPlannedFutures.put(draw.getId(), future);
     }
 
     public boolean existsSameLotteryOnDay(Long lotteryTypeId, LocalDateTime startTime) {
@@ -147,6 +150,14 @@ public class DrawService {
         LocalDateTime endOfDay = startTimeAtMidnight.plusDays(1).minusNanos(1);
 
         return drawRepository.existsByLotteryType_IdAndStartTimeBetween(lotteryTypeId, startTimeAtMidnight, endOfDay);
+    }
+
+    // Запускаемся в начале каждых суток и устанавливаем в планировщик задачи
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void dailyDrawChecking() {
+        System.out.println("Daily checking for draws status");
+        checkActiveDraws();
+        checkPlannedDraws();
     }
 
     private void checkActiveDraws(){
