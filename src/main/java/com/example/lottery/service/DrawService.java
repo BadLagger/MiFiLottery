@@ -88,6 +88,10 @@ public class DrawService {
         // Если Тираж запланирован на сегодня, то добавляем его в планировщик
         if (draw.getStartTime().isBefore(tomorrow))
             setPlanned(draw);
+        else {
+            // Если запланирован не на сегодня, то сохраняем только в БД
+            setStatus(draw, DrawStatus.PLANNED);
+        }
         return draw;
     }
 

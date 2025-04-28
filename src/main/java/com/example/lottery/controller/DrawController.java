@@ -79,6 +79,7 @@ public class DrawController {
             throw new IllegalArgumentException("Draw with the same type exists in this day!");
         }
 
+        System.out.println("Try to create draw");
         Draw draw = drawService.createDraw(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(draw);
     }
