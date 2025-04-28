@@ -17,10 +17,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.*;
 
 @Service
 public class DrawService {
@@ -41,6 +41,8 @@ public class DrawService {
     private ScheduledExecutorService executorPlanned = null;
     private ScheduledExecutorService executorActive = null;
 
+    private ConcurrentHashMap<Long, ScheduledFuture<?>> sheduledActiveFutures = null;
+
     public DrawService(DrawMapper drawMapper) {
         this.drawMapper = drawMapper;
     }
@@ -54,6 +56,7 @@ public class DrawService {
 
         executorActive = Executors.newScheduledThreadPool(maxPoolSize);
         executorPlanned = Executors.newScheduledThreadPool(maxPoolSize);
+        sheduledActiveFutures = new ConcurrentHashMap<>();
         checkActiveDraws();
         checkPlannedDraws();
 
@@ -82,9 +85,29 @@ public class DrawService {
         return drawRepository.save(draw);
     }
 
-    public void setStatusComplete(Draw draw) {
-        draw.setStatus(DrawStatus.COMPLETED);
+    public void setStatus(Draw draw, DrawStatus status) {
+        draw.setStatus(status);
         drawRepository.save(draw);
+    }
+
+    public void setComplete(Draw draw) {
+        System.out.format("Draw: %s set complete\n", draw.getName());
+        setStatus(draw, DrawStatus.COMPLETED);
+        sheduledActiveFutures.remove(draw.getId());
+    }
+
+    public void addToActiveTasks(Draw draw, long delayMs) {
+        var future = executorActive.schedule(()-> setComplete(draw), delayMs, TimeUnit.MILLISECONDS);
+        sheduledActiveFutures.put(draw.getId(), future);
+    }
+
+    public void setCancel(Draw draw) {
+        var future = sheduledActiveFutures.remove(draw.getId());
+        if (future != null) {
+            future.cancel(false);
+        }
+        System.out.format("Draw: %s set cancelled\n", draw.getName());
+        setStatus(draw, DrawStatus.CANCELLED);
     }
 
     public boolean existsSameLotteryOnDay(Long lotteryTypeId, LocalDateTime startTime) {
@@ -96,28 +119,32 @@ public class DrawService {
     }
 
     private void checkActiveDraws(){
-        // Получаем завтрашнюю дату
-        LocalDateTime tomorrow = LocalDateTime.now().plusDays(1);
+        // Получаем дату равную началу следующих суток
+        LocalDateTime tomorrow = LocalDateTime.now().plusDays(1).truncatedTo(ChronoUnit.DAYS);
 
+        // Получаем все записи из БД с тиражами, которые имеют активный статус и имеют до начала следующих суток, при этом все записи упорядочены по дате от самых старых до самых свежих
         List<Draw> draws = drawRepository.findByStatusAndStartTimeBeforeTimeOrdered(DrawStatus.ACTIVE, tomorrow);
         System.out.format("Get Active draws: %d\n", draws.size());
+        // Проверка каждой записи
         for (var draw : draws) {
-            var now = LocalDateTime.now();
-            var drawStartTime = draw.getStartTime();
-            var drawDuration = draw.getDuration();
+            var nowTime = LocalDateTime.now();
+
+            // получаем время окончания тиража
+            var drawEndTime = draw.getStartTime().plusMinutes(draw.getDuration());
 
             System.out.format("id: %d name: %s status: %s\n", draw.getId(), draw.getName(), draw.getStatus());
 
-            /*if (drawStartTime.plusMinutes(drawDuration).isBefore(now)) {
-                System.out.println("Set complete");
-                setStatusComplete(draw);
-                continue;
-            }*/
-
-           // if ()
+            // Если время окончания тиража уже вышло, то завершаем тираж
+            if (drawEndTime.isBefore(nowTime)) {
+                setComplete(draw);
+            } else {
+                // Если тираж ещё актуален, то добавляем его в планировщик
+                System.out.println("Add to active tasks");
+                long delayMs = ChronoUnit.MILLIS.between(LocalDateTime.now(), drawEndTime);
+                addToActiveTasks(draw, delayMs);
+            }
         }
     }
-
 
     private void checkPlannedDraws(){
 

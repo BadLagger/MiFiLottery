@@ -99,12 +99,9 @@ public class DrawController {
             throw new IllegalArgumentException("Draw already completed or cancelled");
         }
         // Меняем статус тиража на CANCELLED
-        existingDraw.setStatus(DrawStatus.CANCELLED);
+        drawService.setCancel(existingDraw);
 
-        // Сохраняем измененный тираж
-        Draw cancelledDraw = drawService.save(existingDraw);
-
-        return ResponseEntity.ok(cancelledDraw); // Возвращаем обновленную версию тиража
+        return ResponseEntity.ok(existingDraw); // Возвращаем обновленную версию тиража
     }
 
 
