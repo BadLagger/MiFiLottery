@@ -27,5 +27,5 @@ public class LotteryType {
     private Integer minTicket;
 
     @Column(nullable = false)
-    private Double pricePoolPercentage;
+    private Double prizePoolPercentage;
 }
