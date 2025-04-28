@@ -37,7 +37,7 @@ public class DrawService {
 
     private final DrawMapper drawMapper;
 
-    @Value("${app.default.max-po0l-size}")
+    @Value("${app.default.max-pool-size}")
     private Integer maxPoolSize;
 
     private ScheduledExecutorService executorPlanned = null;

@@ -6,7 +6,7 @@ spring:
     url: jdbc:h2:file:./data/testdb;MODE=PostgreSQL
     driver-class-name: org.h2.Driver
     username: sa
-    password: password
+    password:
   #    url: jdbc:postgresql://localhost:5432/lottery
   #    username: postgres
   #    password: postgres
@@ -27,3 +27,10 @@ spring:
 #    properties:
 #      hibernate:
 #        format_sql: true
+
+
+# Default global values
+app:
+  default:
+    draw-duration: 60
+    max-pool-size: 3
