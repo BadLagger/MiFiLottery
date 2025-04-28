@@ -1,30 +1,30 @@
 package com.example.lottery.converter;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Converter(autoApply = true)
 public class JsonNodeConverter implements AttributeConverter<JsonNode, String> {
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper mapper = new ObjectMapper();
 
     @Override
-    public String convertToDatabaseColumn(JsonNode attribute) {
+    public String convertToDatabaseColumn(JsonNode jsonNode) {
         try {
-            return attribute.toString();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            return mapper.writeValueAsString(jsonNode);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Не удалось преобразовать JsonNode в String", e);
         }
     }
 
     @Override
     public JsonNode convertToEntityAttribute(String dbData) {
         try {
-            return objectMapper.readTree(dbData);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            return mapper.readTree(dbData);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Не удалось преобразовать String в JsonNode", e);
         }
     }
 }

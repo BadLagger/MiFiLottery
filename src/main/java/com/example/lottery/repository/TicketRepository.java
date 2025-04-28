@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
-    Ticket save(Ticket ticket);
-    Optional<Ticket> findById(Long id);
-//    List<Ticket> findByUserId(Long userId);
+    List<Ticket> findByUserId(Long userId);
+//    Ticket save(Ticket ticket);
+//    Optional<Ticket> findById(Long id);
 //    List<Ticket> findByDrawId(Long drawId);
 }

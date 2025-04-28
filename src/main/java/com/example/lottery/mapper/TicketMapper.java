@@ -1,65 +1,42 @@
 package com.example.lottery.mapper;
 
-import com.example.lottery.dto.TicketDto;
-import com.example.lottery.dto.TicketStatus;
+import com.example.lottery.dto.TicketCreateDto;
+import com.example.lottery.dto.TicketResponseDto;
 import com.example.lottery.entity.Ticket;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
-import org.mapstruct.Named;
-import org.mapstruct.factory.Mappers;
-
 import java.util.List;
 import java.util.Map;
+import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = ObjectMapper.class)
+@Mapper(componentModel = "spring")
 public interface TicketMapper {
+  ObjectMapper mapper = new ObjectMapper();
 
-  TicketMapper INSTANCE = Mappers.getMapper(TicketMapper.class);
+  @Mapping(target = "data", expression = "java(mapNumbersToJson(dto.getNumbers()))")
+  Ticket toEntity(TicketCreateDto dto);
 
-  @Mapping(source = "data", target = "data", qualifiedByName = "mapDataToJsonNode")
-  @Mapping(source = "userId", target = "userId.id")
-  @Mapping(source = "drawId", target = "drawId.id")
-  @Mapping(source = "status", target = "status", qualifiedByName = "mapStatusToEntity")
-  Ticket toEntity(TicketDto ticketDto);
+  @Mapping(target = "numbers", expression = "java(mapJsonToNumbers(ticket.getData()))")
+  @Mapping(target = "drawId", source = "draw.id")
+  TicketResponseDto toDto(Ticket ticket);
 
-  @Mapping(source = "data", target = "data", qualifiedByName = "mapJsonNodeToData")
-  @Mapping(source = "userId.id", target = "userId")
-  @Mapping(source = "drawId.id", target = "drawId")
-  @Mapping(source = "status", target = "status", qualifiedByName = "mapStatusToDto")
-  TicketDto toDto(Ticket ticket);
-
-  @Named("mapDataToJsonNode")
-  default JsonNode mapDataToJsonNode(Map<String, Object> data) {
+  default String mapNumbersToJson(List<Integer> numbers) {
     try {
-      ObjectMapper objectMapper = new ObjectMapper();
-      return objectMapper.valueToTree(data);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to convert Map to JsonNode", e);
+      return mapper.writeValueAsString(Map.of("numbers", numbers));
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException("Failed to create JSON", e);
     }
   }
 
-  @Named("mapJsonNodeToData")
-  default Map<String, Object> mapJsonNodeToData(JsonNode data) {
+  default List<Integer> mapJsonToNumbers(String json) {
     try {
-      ObjectMapper objectMapper = new ObjectMapper();
-      return objectMapper.convertValue(data, Map.class);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to convert JsonNode to Map", e);
+      return mapper.readValue(json, new TypeReference<Map<String, List<Integer>>>() {})
+              .get("numbers");
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException("Failed to parse JSON", e);
     }
-  }
-
-  @Named("mapStatusToEntity")
-  default Ticket.Status mapStatusToEntity(TicketStatus status) {
-    return status == null ? null : Ticket.Status.valueOf(status.name());
-  }
-
-  @Named("mapStatusToDto")
-  default TicketStatus mapStatusToDto(Ticket.Status status) {
-    return status == null ? null : TicketStatus.valueOf(status.name());
   }
 }

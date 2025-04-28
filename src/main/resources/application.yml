@@ -1,12 +1,12 @@
 server:
-  port: 8082
+  port: 8080
 
 spring:
   datasource:
-    url: jdbc:h2:file:./data/testdb;MODE=PostgreSQL
+    url: jdbc:h2:tcp://localhost:9092/./data/testdb;MODE=PostgreSQL
     driver-class-name: org.h2.Driver
     username: sa
-    password:
+    password: password
   #    url: jdbc:postgresql://localhost:5432/lottery
   #    username: postgres
   #    password: postgres
@@ -23,10 +23,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
-#    show-sql: true
-#    properties:
-#      hibernate:
-#        format_sql: true
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
 
 
 # Default global values

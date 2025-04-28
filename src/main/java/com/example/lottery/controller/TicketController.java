@@ -1,39 +1,42 @@
 package com.example.lottery.controller;
 
-import com.example.lottery.dto.TicketDto;
+import com.example.lottery.dto.TicketCreateDto;
+import com.example.lottery.dto.TicketResponseDto;
 import com.example.lottery.service.TicketService;
-import lombok.AllArgsConstructor;
-import org.apache.coyote.BadRequestException;
+import jakarta.validation.Valid;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/tickets")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TicketController {
+  private final TicketService ticketService;
 
-    private final TicketService ticketService;
+  @PostMapping
+  public ResponseEntity<TicketResponseDto> createTicket(@Valid @RequestBody TicketCreateDto dto
+      //          , @RequestHeader("Authorization") String token
+      ) {
+    Long userId = 1L; // authService.getUserIdFromToken(token);
+    return ResponseEntity.status(HttpStatus.CREATED).body(ticketService.createTicket(dto, userId));
+  }
 
-    /**
-     * Создаёт новый билет.
-     *
-     * @param ticketDto объект DTO с информацией о новом билете
-     * @return созданный билет в виде DTO
-     */
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public TicketDto createTicket(@RequestBody TicketDto ticketDto) throws BadRequestException {
-        return ticketService.createTicket(ticketDto);
-    }
+  @GetMapping("/{id}")
+  public ResponseEntity<TicketResponseDto> getTicket(@PathVariable Long id
+      //          , @RequestHeader("Authorization") String token
+      ) {
+    Long userId = 1L; // authService.getUserIdFromToken(token);
+    return ResponseEntity.ok(ticketService.getTicketById(id, userId));
+  }
 
-    /**
-     * Получает билет по его уникальному идентификатору.
-     *
-     * @param id уникальный идентификатор билета
-     * @return DTO объекта билета
-     */
-    @GetMapping("/{id}")
-    public TicketDto getTicket(@PathVariable Long id) {
-        return ticketService.findTicketById(id);
-    }
+  @GetMapping
+  public ResponseEntity<List<TicketResponseDto>> getUserTickets(
+      //          @RequestHeader("Authorization") String token
+      ) {
+    Long userId = 1L; // authService.getUserIdFromToken(token);
+    return ResponseEntity.ok(ticketService.getUserTickets(userId));
+  }
 }
