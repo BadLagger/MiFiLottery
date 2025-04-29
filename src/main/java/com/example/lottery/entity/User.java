@@ -33,14 +33,14 @@ import java.time.LocalDateTime;
 
     private void setId(Long id) {
         if (id == null || id < 1) {
-            throw new IllegalArgumentException("Некорректный ID");
+            throw new IllegalArgumentException("Invalid ID");
         }
         this.id = id;
     }
 
     public void setUsername(String username) {
         if (username == null || username.isBlank()) {
-            throw new IllegalArgumentException("Username обязателен!");
+            throw new IllegalArgumentException("Username is required!");
         }
         this.username = username;
     }
@@ -48,37 +48,37 @@ import java.time.LocalDateTime;
     public void setPassword(String password) {
 
         if (password == null || password.isBlank()) {
-            throw new IllegalArgumentException("Password обязателен!");
+            throw new IllegalArgumentException("Password is required!");
         }
         if (password.length() < 5 || password.length() > 20) {
-            throw new IllegalArgumentException("Неподходящая длина пароля");
+            throw new IllegalArgumentException("Password length must be between 5 and 20 characters");
         }
         this.password = BCrypt.hashpw(password, BCrypt.gensalt());
 
     }
 
     public void assignRole(Role role) {
-        if (role == null) throw new IllegalArgumentException("Роль не может быть пустой");
+        if (role == null) throw new IllegalArgumentException("Role cannot be null");
         this.role = role;
 
     }
 
     public void setTelegram(String telegram) {
         if (telegram == null) {
-            throw new IllegalArgumentException("Telegram должен начинаться с @");
+            throw new IllegalArgumentException("Telegram must start with @");
         }
         if (!telegram.startsWith("@") || telegram.length() < 5 || telegram.length() > 32) {
-            throw new IllegalArgumentException("Телеграм должен начинаться с @ и иметь 5-32 символа");
+            throw new IllegalArgumentException("Telegram must start with @ and be 5-32 characters long");
         }
         this.telegram = telegram;
     }
 
     public void setBalance(BigDecimal balance) {
         if (balance == null) {
-            throw new IllegalArgumentException("Баланс не может быть null");
+            throw new IllegalArgumentException("Balance cannot be null");
         }
         if (balance.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Баланс не может быть отрицательным");
+            throw new IllegalArgumentException("Balance cannot be negative");
         }
         this.balance = balance;
     }
