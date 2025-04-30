@@ -33,8 +33,8 @@ public class LotteryTypeController {
     rules.setNumberCount(5);
     rules.setMinNumber(1);
     rules.setMaxNumber(36);
-    rules.setSorted(true);
-    rules.setAllowDuplicates(true);
+    rules.setSorted(false);
+    rules.setAllowDuplicates(false);
     dto.setAlgorithmRules(rules);
 
     LotteryType entity = mapper.toEntity(dto);
