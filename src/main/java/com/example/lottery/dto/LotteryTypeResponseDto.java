@@ -1,5 +1,6 @@
 package com.example.lottery.dto;
 
+import com.example.lottery.dto.algorithm.AlgorithmRules;
 import com.example.lottery.entity.AlgorithmType;
 import lombok.Data;
 import java.math.BigDecimal;

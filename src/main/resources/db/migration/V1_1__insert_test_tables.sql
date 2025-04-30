@@ -7,7 +7,7 @@ VALUES (
            1,
            0.6,
            'RANDOM_UNIQUE_NUMBERS',
-           '{"algorithmType":"RANDOM_UNIQUE_NUMBERS","numberCount":5,"minNumber":1,"maxNumber":36,"sorted":true,"allowDuplicates":true}'::jsonb
+           '{"algorithmRules":{"RANDOM_UNIQUE_NUMBERS":{"numberCount":5,"minNumber":1,"maxNumber":36,"sorted":true,"allowDuplicates":true}}}'::jsonb
        );
 
 INSERT INTO Roles (name, description) VALUES

@@ -1,9 +1,14 @@
-package com.example.lottery.dto;
+package com.example.lottery.mapper;
 
+import com.example.lottery.dto.LotteryTypeCreateDto;
+import com.example.lottery.dto.LotteryTypeResponseDto;
+import com.example.lottery.dto.algorithm.AlgorithmRules;
 import com.example.lottery.entity.AlgorithmType;
 import com.example.lottery.entity.LotteryType;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,22 +31,22 @@ public abstract class LotteryTypeMapper {
       expression = "java(getAlgorithmTypeEnum(dto.getAlgorithmRules()))")
   public abstract LotteryType toEntity(LotteryTypeCreateDto dto);
 
-  // Парсинг JSON -> Объект правил
-  protected AlgorithmRules parseRules(String json) {
+  protected String convertRulesToJson(AlgorithmRules rules) {
     try {
-      log.debug("Parsing JSON: {}", json);
-      return objectMapper.readValue(json, AlgorithmRules.class);
+      ObjectNode root = objectMapper.createObjectNode();
+      root.putPOJO("algorithmRules", rules);
+      return objectMapper.writeValueAsString(root);
     } catch (JsonProcessingException e) {
-      throw new RuntimeException("Не могу получить rules из JSON: " + json, e);
+      throw new RuntimeException("Ошибка сериализации правил", e);
     }
   }
 
-  // Конвертация Объекта правил -> JSON
-  protected String convertRulesToJson(AlgorithmRules rules) {
+  public AlgorithmRules parseRules(String json) {
     try {
-      return objectMapper.writeValueAsString(rules);
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException("Не могу сериализовать rules: " + rules, e);
+      JsonNode root = objectMapper.readTree(json);
+      return objectMapper.treeToValue(root.get("algorithmRules"), AlgorithmRules.class);
+    } catch (Exception e) {
+      throw new RuntimeException("Ошибка парсинга правил", e);
     }
   }
 

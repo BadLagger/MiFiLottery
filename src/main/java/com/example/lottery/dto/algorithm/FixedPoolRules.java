@@ -1,4 +1,4 @@
-package com.example.lottery.dto;
+package com.example.lottery.dto.algorithm;
 
 import jakarta.validation.constraints.*;
 import java.util.List;

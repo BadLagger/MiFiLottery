@@ -1,9 +1,11 @@
-package com.example.lottery.dto;
+package com.example.lottery.dto.algorithm;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RandomUniqueRules implements AlgorithmRules {
   @Min(1)
   @Max(100)

@@ -5,10 +5,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
+import lombok.RequiredArgsConstructor;
 
 @Converter(autoApply = true)
+@RequiredArgsConstructor
 public class JsonNodeConverter implements AttributeConverter<JsonNode, String> {
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper;
 
     @Override
     public String convertToDatabaseColumn(JsonNode jsonNode) {
