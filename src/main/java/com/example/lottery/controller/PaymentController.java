@@ -26,4 +26,9 @@ public class PaymentController {
         );
         return ResponseEntity.ok(payment);
     }
+
+    @GetMapping
+    public String checkWork(){
+        return "Работает";
+    }
 }

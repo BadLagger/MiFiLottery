@@ -9,14 +9,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
 public class InvoiceRepository {
-    private final Map<UUID, Invoice> storage = new ConcurrentHashMap<>();
+    private final Map<Long, Invoice> storage = new ConcurrentHashMap<>();
 
     public Invoice save(Invoice invoice) {
         storage.put(invoice.getId(), invoice);
         return invoice;
     }
 
-    public Optional<Invoice> findById(UUID id) {
+    public Optional<Invoice> findById(Long id) {
         return Optional.ofNullable(storage.get(id));
     }
 
@@ -26,8 +26,8 @@ public class InvoiceRepository {
 
     public List<Invoice> findByStatus(InvoiceStatus status) {
         List<Invoice> result = new ArrayList<>();
-        for (Invoice inv : storage.values()) {
-            if (inv.getStatus() == status) result.add(inv);
+        for (Invoice invoice : storage.values()) {
+            if (invoice.getStatus() == status) result.add(invoice);
         }
         return result;
     }

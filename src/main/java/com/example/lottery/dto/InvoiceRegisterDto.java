@@ -5,6 +5,6 @@ import java.util.UUID;
 
 @Data
 public class InvoiceRegisterDto {
-    private UUID userId;
+    private Long userId;
     private List<String> ticketData;
 }

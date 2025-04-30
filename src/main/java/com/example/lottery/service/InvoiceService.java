@@ -17,28 +17,28 @@ public class InvoiceService {
         this.invoiceRepository = repo;
     }
 
-    public Invoice registerInvoice(UUID userId, List<String> ticketData, String paymentLink) {
-        Invoice inv = new Invoice();
-        inv.setId(UUID.randomUUID());
-        inv.setUserId(userId);
-        inv.setTicketData(ticketData);
-        inv.setRegisterTime(LocalDateTime.now());
-        inv.setPaymentLink(paymentLink);
-        inv.setStatus(InvoiceStatus.UNPAID);
-        inv.setCancelled(0);
-        invoiceRepository.save(inv);
-        return inv;
+    public Invoice registerInvoice(Long userId, List<String> ticketData, String paymentLink) {
+        Invoice invoice = new Invoice();
+        //invoice.setId(UUID.randomUUID());
+        invoice.setUserId(userId);
+        invoice.setTicketData(ticketData);
+        invoice.setRegisterTime(LocalDateTime.now());
+        invoice.setPaymentLink(paymentLink);
+        invoice.setStatus(InvoiceStatus.UNPAID);
+        invoice.setCancelled(0);
+        invoiceRepository.save(invoice);
+        return invoice;
     }
 
-    public Optional<Invoice> getById(UUID id) {
+    public Optional<Invoice> getById(Long id) {
         return invoiceRepository.findById(id);
     }
 
     // Запрос на оплату (POST /api/payments) «блокирует» инвойс – переводит в статус PENDING
-    public boolean blockPending(UUID invoiceId) {
-        Optional<Invoice> opt = invoiceRepository.findById(invoiceId);
-        if (opt.isPresent()) {
-            Invoice invoice = opt.get();
+    public boolean blockPending(Long invoiceId) {
+        Optional<Invoice> optionalInvoice = invoiceRepository.findById(invoiceId);
+        if (optionalInvoice.isPresent()) {
+            Invoice invoice = optionalInvoice.get();
             if (invoice.getStatus() == InvoiceStatus.UNPAID && invoice.getCancelled() == 0) {
                 invoice.setStatus(InvoiceStatus.PENDING);
                 invoiceRepository.save(invoice);
@@ -49,7 +49,7 @@ public class InvoiceService {
     }
 
     // Обновить статус при успешной оплате
-    public void markPaid(UUID invoiceId) {
+    public void markPaid(Long invoiceId) {
         Optional<Invoice> optionalInvoice = invoiceRepository.findById(invoiceId);
         if (optionalInvoice.isPresent()) {
             Invoice invoice = optionalInvoice.get();
@@ -60,7 +60,7 @@ public class InvoiceService {
 
 
     // Обновить статус при неудачной оплате
-    public void markUnpaid(UUID invoiceId) {
+    public void markUnpaid(Long invoiceId) {
         Optional<Invoice> optionalInvoice = invoiceRepository.findById(invoiceId);
         if (optionalInvoice.isPresent()) {
             Invoice invoice = optionalInvoice.get();
@@ -70,13 +70,13 @@ public class InvoiceService {
     }
 
     // Отмена инвойса (если не оплачен и не в Pending)
-    public boolean cancelInvoice(UUID invoiceId) {
+    public boolean cancelInvoice(Long invoiceId) {
         Optional<Invoice> optionalInvoice = invoiceRepository.findById(invoiceId);
         if (optionalInvoice.isPresent()) {
             Invoice invoice = optionalInvoice.get();
             if (invoice.getCancelled() == 0 && invoice.getStatus() == InvoiceStatus.UNPAID) {
                 invoice.setCancelled(1);
-                invoice.setStatus(InvoiceStatus.UNPAID); // или специальный статус, если нужно
+                invoice.setStatus(InvoiceStatus.UNPAID);
                 invoiceRepository.save(invoice);
                 return true;
             }
@@ -85,10 +85,11 @@ public class InvoiceService {
     }
 
     // Рефанд после завершения тиража (по бизнес-логике)
-    public void refundInvoice(UUID invoiceId) {
+    public void refundInvoice(Long invoiceId) {
         Optional<Invoice> optionalInvoice = invoiceRepository.findById(invoiceId);
         if (optionalInvoice.isPresent()) {
             Invoice invoice = optionalInvoice.get();
+            //возврат ДС на баланс добавить
             invoice.setStatus(InvoiceStatus.REFUNDED);
             invoiceRepository.save(invoice);
         }

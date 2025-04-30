@@ -1,8 +1,8 @@
 package com.example.lottery.service;
 
-import com.example.lottery.dto.DrawResultDto;
 import com.example.lottery.dto.DrawStatus;
 import com.example.lottery.dto.InvoiceStatus;
+import com.example.lottery.dto.PaymentStatus;
 import com.example.lottery.entity.*;
 import com.example.lottery.payment.MockPaymentProcessor;
 import com.example.lottery.repository.InvoiceRepository;
@@ -27,8 +27,7 @@ public class PaymentService {
         this.mockPaymentProcessor = mockPaymentProcessor;
     }
 
-    //String drawStatus поменять на DrawStatus
-    public Payment processPayment(UUID invoiceId, BigDecimal amount, String cardNumber, String cvc, DrawStatus drawStatus) {
+    public Payment processPayment(Long invoiceId, BigDecimal amount, String cardNumber, String cvc, DrawStatus drawStatus) {
         Optional<Invoice> optionalInvoice = invoiceRepository.findById(invoiceId);
         if (optionalInvoice.isEmpty()) throw new IllegalArgumentException("Invoice not found!");
 
@@ -38,9 +37,9 @@ public class PaymentService {
             throw new IllegalStateException("Invoice already paid or cancelled!");
         }
 
-        // Проверяем статус тиража билета (drawStatus). Операция разрешена только если "ACTIVE".
+        // Проверяем статус тиража билета (drawStatus
         if (!"ACTIVE".equals(drawStatus)) {
-            throw new IllegalStateException("Draw is not ACTIVE. Payment not allowed.");
+            throw new IllegalStateException("Draw is not ACTIVE. Payment is not alowed.");
         }
 
         // Переводим инвойс в статус PENDING (блокируем)
@@ -48,10 +47,10 @@ public class PaymentService {
         if (!blocked) throw new IllegalStateException("Invoice cannot be blocked or is not UNPAID.");
 
         // Мок-оплата
-        DrawResultDto.PaymentStatus paymentStatus = mockPaymentProcessor.process(cardNumber, cvc);
+        PaymentStatus paymentStatus = mockPaymentProcessor.process(cardNumber, cvc);
 
         Payment payment = new Payment();
-        payment.setId(UUID.randomUUID());
+//        payment.setId(UUID.randomUUID());
         payment.setInvoiceId(invoiceId);
         payment.setAmount(amount);
         payment.setPaymentTime(LocalDateTime.now());
@@ -59,7 +58,7 @@ public class PaymentService {
 
         paymentRepository.save(payment);
 
-        if (paymentStatus == DrawResultDto.PaymentStatus.SUCCESS) {
+        if (paymentStatus == PaymentStatus.SUCCESS) {
             invoiceService.markPaid(invoiceId);
         } else {
             invoiceService.markUnpaid(invoiceId); // возвращаем обратно

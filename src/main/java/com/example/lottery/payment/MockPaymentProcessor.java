@@ -1,6 +1,6 @@
 package com.example.lottery.payment;
 
-import com.example.lottery.dto.DrawResultDto;
+import com.example.lottery.dto.PaymentStatus;
 import org.springframework.stereotype.Component;
 import java.util.Random;
 
@@ -8,11 +8,11 @@ import java.util.Random;
 public class MockPaymentProcessor {
     private final Random random = new Random();
 
-    public DrawResultDto.PaymentStatus process(String cardNumber, String cvc) {
+    public PaymentStatus process(String cardNumber, String cvc) {
         if (!"123".equals(cvc)) {
-            return DrawResultDto.PaymentStatus.FAILED;
+            return PaymentStatus.FAILED;
         }
-        // 80% шанс успеха при cvc=123
-        return random.nextInt(100) < 80 ? DrawResultDto.PaymentStatus.SUCCESS : DrawResultDto.PaymentStatus.FAILED;
+        // 80% шанс успешной оплаты при cvc=123
+        return random.nextInt(100) < 80 ? PaymentStatus.SUCCESS : PaymentStatus.FAILED;
     }
 }

@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
 public class PaymentRepository {
-    private final Map<UUID, Payment> storage = new ConcurrentHashMap<>();
+    private final Map<Long, Payment> storage = new ConcurrentHashMap<>();
 
     public Payment save(Payment payment) {
         storage.put(payment.getId(), payment);

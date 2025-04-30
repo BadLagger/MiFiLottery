@@ -8,8 +8,4 @@ public record DrawResultDto(
         String winningCombination,
         LocalDateTime resultTime
 ) {
-    public enum PaymentStatus {
-        SUCCESS,
-        FAILED
-    }
 }

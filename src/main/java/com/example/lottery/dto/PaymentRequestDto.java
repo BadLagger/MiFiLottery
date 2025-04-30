@@ -6,7 +6,7 @@ import java.util.UUID;
 
 @Data
 public class PaymentRequestDto {
-    private UUID invoiceId;
+    private Long invoiceId;
     private BigDecimal amount;
     private String cardNumber;
     private String cvc;

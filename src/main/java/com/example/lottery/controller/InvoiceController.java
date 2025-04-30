@@ -25,15 +25,20 @@ public class InvoiceController {
     }
 
     @PostMapping("/{id}/cancel")
-    public ResponseEntity<String> cancelInvoice(@PathVariable UUID id) {
+    public ResponseEntity<String> cancelInvoice(@PathVariable Long id) {
         boolean cancelled = invoiceService.cancelInvoice(id);
         return ResponseEntity.ok(cancelled ? "Invoice cancelled" : "Cannot cancel invoice");
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Invoice> getInvoice(@PathVariable UUID id) {
+    public ResponseEntity<Invoice> getInvoice(@PathVariable Long id) {
         return invoiceService.getById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping
+    public String checkWork(){
+        return "Работает";
     }
 }
