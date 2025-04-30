@@ -3,7 +3,8 @@ server:
 
 spring:
   datasource:
-    url: jdbc:h2:tcp://localhost:9092/./data/testdb;MODE=PostgreSQL
+    url: jdbc:h2:file:./data/testdb;MODE=PostgreSQL
+#    url: jdbc:h2:tcp://localhost:9092/./data/testdb;MODE=PostgreSQL
     driver-class-name: org.h2.Driver
     username: sa
     password: password
@@ -27,6 +28,24 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+  jackson:
+    serialization:
+      WRITE_ENUMS_USING_TO_STRING: true
+    deserialization:
+      READ_ENUMS_USING_TO_STRING: true
+
+logging:
+  level:
+    com.example.lottery: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+#  file:
+#    name: ./logs/lottery.log
 
 
 # Default global values

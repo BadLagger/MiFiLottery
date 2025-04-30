@@ -1,0 +1,3 @@
+package com.example.lottery.service;
+
+public interface TicketGenerator {}
