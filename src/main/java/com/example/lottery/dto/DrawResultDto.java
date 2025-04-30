@@ -7,4 +7,9 @@ public record DrawResultDto(
         Long drawId,
         String winningCombination,
         LocalDateTime resultTime
-) {}
+) {
+    public enum PaymentStatus {
+        SUCCESS,
+        FAILED
+    }
+}
