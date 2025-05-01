@@ -11,6 +11,7 @@ import com.example.lottery.repository.DrawRepository;
 import com.example.lottery.repository.DrawResultRepository;
 import com.example.lottery.repository.LotteryTypeRepository;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,15 +26,16 @@ import java.util.Optional;
 import java.util.concurrent.*;
 
 @Service
+@RequiredArgsConstructor
 public class DrawService {
-    @Autowired
-    private DrawRepository drawRepository;
+    //@Autowired
+    private final DrawRepository drawRepository;
 
-    @Autowired
-    private DrawResultRepository drawResultRepository;
+    //@Autowired
+    private final DrawResultRepository drawResultRepository;
 
-    @Autowired
-    private LotteryTypeRepository lotteryTypeRepository;
+    //@Autowired
+    private final LotteryTypeRepository lotteryTypeRepository;
 
     private final DrawMapper drawMapper;
 
@@ -45,10 +47,6 @@ public class DrawService {
 
     private ConcurrentHashMap<Long, ScheduledFuture<?>> sсheduledActiveFutures = null;
     private ConcurrentHashMap<Long, ScheduledFuture<?>> sсheduledPlannedFutures = null;
-
-    public DrawService(DrawMapper drawMapper) {
-        this.drawMapper = drawMapper;
-    }
 
     @PostConstruct
     public void init() {
