@@ -8,11 +8,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 
-//@SpringBootApplication
-@SpringBootApplication(exclude = {
-        DataSourceAutoConfiguration.class,
-        HibernateJpaAutoConfiguration.class
-})
+@SpringBootApplication
+//@SpringBootApplication(exclude = {
+//        DataSourceAutoConfiguration.class,
+//        HibernateJpaAutoConfiguration.class
+//})
 //todo убрать потом exclude, так как он отключает подключение к бд
 public class LotteryApplication {
     public static void main(String[] args) {
