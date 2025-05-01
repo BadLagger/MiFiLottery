@@ -21,7 +21,7 @@ public class Payment {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "invoice_id")
+    @JoinColumn(name = "invoice_id", nullable = false)
     private Long invoiceId;
 
     private BigDecimal amount;

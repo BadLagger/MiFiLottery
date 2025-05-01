@@ -1,10 +1,13 @@
 package com.example.lottery.entity;
 
 import com.example.lottery.dto.InvoiceStatus;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,10 +23,14 @@ public class Invoice {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User userId;
 
-    private List<String> ticketData; //JSON каждого билета как String
-cd
+    @OneToOne
+    @JoinColumn(name = "ticket_data")
+    private JsonNode ticketData;  // например {"numbers": [1, 5, 10, 15, 20]}
+
     private LocalDateTime registerTime;
 
     private String paymentLink;
@@ -31,5 +38,5 @@ cd
     @Enumerated(EnumType.STRING)
     private InvoiceStatus status;
 
-    private int cancelled; // 0 - не отменен, 1 - отменен   по окончании тиража все неоплаченные инвойсы становятся cancelled
+    private int cancelled; // 0 - не отменен, 1 - отменен  по окончании тиража все неоплаченные инвойсы становятся cancelled
 }
