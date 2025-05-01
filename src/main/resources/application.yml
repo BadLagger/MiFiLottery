@@ -1,9 +1,18 @@
+# \\todo надо не забыть прицепить переменные окружения при подключении к внешней БД
+#spring.datasource.url=jdbc:postgresql://${DB_HOST}
+#spring.datasource.username=${DB_USERNAME}
+#spring.datasource.password=${DB_PASSWORD}
+#spring.datasource.driver-class-name=org.postgresql.Driver
+
 server:
   port: 8082
 
 spring:
+  application:
+    name: lottery
   datasource:
     url: jdbc:h2:file:./data/testdb;MODE=PostgreSQL
+    platform: h2
     driver-class-name: org.h2.Driver
     username: sa
     password: password
@@ -21,9 +30,17 @@ spring:
     locations: classpath:/db/migration
 
   jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true
+    generate-ddl: false
     hibernate:
       ddl-auto: none
 #    show-sql: true
 #    properties:
 #      hibernate:
 #        format_sql: true
+
+app:
+  default:
+    draw-duration: 60
+    max-pool-size: 3
