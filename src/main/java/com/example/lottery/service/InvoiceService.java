@@ -4,6 +4,7 @@ package com.example.lottery.service;
 import com.example.lottery.dto.InvoiceDto;
 import com.example.lottery.dto.InvoiceStatus;
 import com.example.lottery.entity.*;
+import com.example.lottery.mapper.InvoiceMapper;
 import com.example.lottery.repository.InvoiceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,29 +17,30 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class InvoiceService {
     private final InvoiceRepository invoiceRepository;
+    private final InvoiceMapper invoiceMapper;
 
     public InvoiceDto createInvoice(Invoice invoice) {
         invoice.setRegisterTime(LocalDateTime.now());
         invoice.setStatus(InvoiceStatus.UNPAID);
         Invoice saved = invoiceRepository.save(invoice);
-        return toDto(saved);
+        return invoiceMapper.toDto(saved);
     }
 
     public List<InvoiceDto> getInvoicesByStatus(InvoiceStatus status) {
         return invoiceRepository.findByStatus(status).stream()
-                .map((this::toDto))
+                .map((invoiceMapper::toDto))
                 .collect(Collectors.toList());
     }
 
     public Optional<InvoiceDto> getInvoiceById(Long id) {
-        return invoiceRepository.findById(id).map(this::toDto);
+        return invoiceRepository.findById(id).map(invoiceMapper::toDto);
     }
 
     public InvoiceDto updateInvoiceStatus(Long id, InvoiceStatus status, int cancelled) {
         Invoice invoice = invoiceRepository.findById(id).orElseThrow();
         invoice.setStatus(status);
         invoice.setCancelled(cancelled);
-        return toDto(invoiceRepository.save(invoice));
+        return invoiceMapper.toDto(invoiceRepository.save(invoice));
     }
 
     public void setPending(Long invoiceId) {
@@ -74,7 +76,7 @@ public class InvoiceService {
         }
     }
 
-    private InvoiceDto toDto(Invoice invoice) {
+    /*private InvoiceDto toDto(Invoice invoice) {
         return new InvoiceDto(
                 invoice.getId(),
                 invoice.getUser() == null ? null : invoice.getUser().getId(),
@@ -85,93 +87,6 @@ public class InvoiceService {
                 invoice.getCancelled()
         );
     }
-
+*/
 
 }
-
-/*
-public class InvoiceService {
-    private final InvoiceRepository invoiceRepository;
-
-    public InvoiceService(InvoiceRepository repo) {
-        this.invoiceRepository = repo;
-    }
-
-    public Invoice registerInvoice(Long userId, List<String> ticketData, String paymentLink) {
-        Invoice invoice = new Invoice();
-        //invoice.setId(UUID.randomUUID());
-        invoice.setUserId(userId);
-        invoice.setTicketData(ticketData);
-        invoice.setRegisterTime(LocalDateTime.now());
-        invoice.setPaymentLink(paymentLink);
-        invoice.setStatus(InvoiceStatus.UNPAID);
-        invoice.setCancelled(0);
-        invoiceRepository.save(invoice);
-        return invoice;
-    }
-
-    public Optional<Invoice> getById(Long id) {
-        return invoiceRepository.findById(id);
-    }
-
-    // Запрос на оплату (POST /api/payments) «блокирует» инвойс – переводит в статус PENDING
-    public boolean blockPending(Long invoiceId) {
-        Optional<Invoice> optionalInvoice = invoiceRepository.findById(invoiceId);
-        if (optionalInvoice.isPresent()) {
-            Invoice invoice = optionalInvoice.get();
-            if (invoice.getStatus() == InvoiceStatus.UNPAID && invoice.getCancelled() == 0) {
-                invoice.setStatus(InvoiceStatus.PENDING);
-                invoiceRepository.save(invoice);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // Обновить статус при успешной оплате
-    public void markPaid(Long invoiceId) {
-        Optional<Invoice> optionalInvoice = invoiceRepository.findById(invoiceId);
-        if (optionalInvoice.isPresent()) {
-            Invoice invoice = optionalInvoice.get();
-            invoice.setStatus(InvoiceStatus.PAID);
-            invoiceRepository.save(invoice);
-        }
-    }
-
-
-    // Обновить статус при неудачной оплате
-    public void markUnpaid(Long invoiceId) {
-        Optional<Invoice> optionalInvoice = invoiceRepository.findById(invoiceId);
-        if (optionalInvoice.isPresent()) {
-            Invoice invoice = optionalInvoice.get();
-            invoice.setStatus(InvoiceStatus.UNPAID);
-            invoiceRepository.save(invoice);
-        }
-    }
-
-    // Отмена инвойса (если не оплачен и не в Pending)
-    public boolean cancelInvoice(Long invoiceId) {
-        Optional<Invoice> optionalInvoice = invoiceRepository.findById(invoiceId);
-        if (optionalInvoice.isPresent()) {
-            Invoice invoice = optionalInvoice.get();
-            if (invoice.getCancelled() == 0 && invoice.getStatus() == InvoiceStatus.UNPAID) {
-                invoice.setCancelled(1);
-                invoice.setStatus(InvoiceStatus.UNPAID);
-                invoiceRepository.save(invoice);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // Рефанд после завершения тиража (по бизнес-логике)
-    public void refundInvoice(Long invoiceId) {
-        Optional<Invoice> optionalInvoice = invoiceRepository.findById(invoiceId);
-        if (optionalInvoice.isPresent()) {
-            Invoice invoice = optionalInvoice.get();
-            //возврат ДС на баланс добавить
-            invoice.setStatus(InvoiceStatus.REFUNDED);
-            invoiceRepository.save(invoice);
-        }
-    }
-}*/
