@@ -1,6 +1,6 @@
 package com.example.lottery.controller;
 
-import com.example.lottery.dto.PaymentRequestDto;
+import com.example.lottery.dto.PaymentDto;
 import com.example.lottery.entity.Payment;
 import com.example.lottery.service.PaymentService;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,7 @@ public class PaymentController {
     }
 
     @PostMapping
-    public ResponseEntity<Payment> makePayment(@RequestBody PaymentRequestDto dto) {
+    public ResponseEntity<Payment> makePayment(@RequestBody PaymentDto dto) {
         Payment payment = paymentService.processPayment(
                 dto.getInvoiceId(),
                 dto.getAmount(),

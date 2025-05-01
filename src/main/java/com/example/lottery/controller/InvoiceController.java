@@ -1,6 +1,6 @@
 package com.example.lottery.controller;
 
-import com.example.lottery.dto.InvoiceRegisterDto;
+import com.example.lottery.dto.InvoiceDto;
 import com.example.lottery.entity.Invoice;
 import com.example.lottery.service.InvoiceService;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ public class InvoiceController {
     }
 
     @PostMapping
-    public ResponseEntity<Invoice> registerInvoice(@RequestBody InvoiceRegisterDto dto) {
+    public ResponseEntity<Invoice> registerInvoice(@RequestBody InvoiceDto dto) {
         // DTO должен содержать userId, ticketData (массив String)
         Invoice invoice = invoiceService.registerInvoice(dto.getUserId(), dto.getTicketData(), UUID.randomUUID().toString());
         return ResponseEntity.ok(invoice);

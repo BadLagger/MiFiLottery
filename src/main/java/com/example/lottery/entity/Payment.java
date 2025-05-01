@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Data
@@ -21,12 +20,13 @@ public class Payment {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "invoice_id", nullable = false)
-    private Long invoiceId;
+    @JoinColumn(name = "invoice_id")
+    private Invoice invoice;
 
     private BigDecimal amount;
 
     private LocalDateTime paymentTime;
 
+    @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 }

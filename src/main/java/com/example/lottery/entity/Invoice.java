@@ -25,18 +25,17 @@ public class Invoice {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User userId;
+    private User user;
 
-    @OneToOne
-    @JoinColumn(name = "ticket_data")
-    private JsonNode ticketData;  // например {"numbers": [1, 5, 10, 15, 20]}
+    @Column(columnDefinition = "jsonb")
+    private JsonNode ticketData;
 
     private LocalDateTime registerTime;
 
     private String paymentLink;
 
     @Enumerated(EnumType.STRING)
-    private InvoiceStatus status;
+    private InvoiceStatus status = InvoiceStatus.UNPAID;
 
     private int cancelled; // 0 - не отменен, 1 - отменен  по окончании тиража все неоплаченные инвойсы становятся cancelled
 }

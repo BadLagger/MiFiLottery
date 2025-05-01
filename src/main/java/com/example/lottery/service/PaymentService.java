@@ -51,7 +51,7 @@ public class PaymentService {
 
         Payment payment = new Payment();
 //        payment.setId(UUID.randomUUID());
-        payment.setInvoiceId(invoiceId);
+        payment.setInvoice(invoiceId);
         payment.setAmount(amount);
         payment.setPaymentTime(LocalDateTime.now());
         payment.setStatus(paymentStatus);
