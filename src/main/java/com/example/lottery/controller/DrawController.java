@@ -7,6 +7,7 @@ import com.example.lottery.entity.DrawResult;
 import com.example.lottery.service.DrawService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.FutureOrPresent;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -24,15 +25,12 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class DrawController {
     public final DrawService drawService;
 
     @Value("${app.default.draw-duration}")
     private Integer defaultDuration;
-
-    public DrawController(DrawService drawService) {
-        this.drawService = drawService;
-    }
 
     @GetMapping("/draws/all")
     public List<Draw> getAllDraws() { return drawService.findAll();}
@@ -50,7 +48,13 @@ public class DrawController {
 
     @GetMapping("/draws/{id}")
     public Draw getDrawsById(@PathVariable Long id) {
-        return drawService.findById(id).orElse(null);
+
+        var result = drawService.findById(id).orElse(null);
+
+        if (result == null)
+            throw new IllegalArgumentException(String.format("User with %d not found", id));
+
+        return result;
     }
 
     @GetMapping("/draws/{id}/results")
@@ -79,7 +83,6 @@ public class DrawController {
             throw new IllegalArgumentException("Draw with the same type exists in this day!");
         }
 
-        System.out.println("Try to create draw");
         Draw draw = drawService.createDraw(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(draw);
     }
@@ -90,7 +93,6 @@ public class DrawController {
         Optional<Draw> existingDrawOptional = drawService.findById(id);
 
         if (existingDrawOptional.isEmpty()) {
-            System.out.println("NotFound");
             return ResponseEntity.notFound().build(); // Если тираж не найден, возвращаем 404
         }
 
@@ -103,23 +105,6 @@ public class DrawController {
         drawService.setCancel(existingDraw);
 
         return ResponseEntity.ok(existingDraw); // Возвращаем обновленную версию тиража
-    }
-
-
-    // Обработчик ошибок
-    @ExceptionHandler(IllegalArgumentException.class)
-    protected ResponseEntity<Object> handleIllegalArguments(IllegalArgumentException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
-    }
-    // Обработчик ошибок
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ResponseEntity<Object> handleValidationErrors(MethodArgumentNotValidException ex) {
-        BindingResult result = ex.getBindingResult();
-        List<FieldError> fieldErrors = result.getFieldErrors();
-        List<String> errors = fieldErrors.stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .collect(Collectors.toList());
-        return ResponseEntity.badRequest().body(errors);
     }
 
 }
