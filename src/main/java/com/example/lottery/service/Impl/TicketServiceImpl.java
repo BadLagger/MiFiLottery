@@ -78,8 +78,8 @@ public class TicketServiceImpl implements TicketService {
         }
       }
 
-      // Проверка уникальности (если нужно)
-      if (!randomRules.isAllowDuplicates() && hasDuplicates(numbers)) {
+      // Проверка уникальности (если нужно) - !randomRules.isAllowDuplicates() &&
+      if (hasDuplicates(numbers)) {
         throw new ValidationException("Числа должны быть уникальны");
       }
 

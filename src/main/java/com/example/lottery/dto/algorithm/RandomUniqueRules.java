@@ -9,16 +9,15 @@ import lombok.Data;
 public class RandomUniqueRules implements AlgorithmRules {
   @Min(1)
   @Max(100)
-  private int numberCount;
+  private Integer numberCount;
 
   @Min(1)
   @Max(1000)
-  private int minNumber;
+  private Integer minNumber;
 
   @Min(2)
   @Max(1000)
-  private int maxNumber;
+  private Integer maxNumber;
 
-  private boolean sorted;
-  private boolean allowDuplicates;
+  private boolean sorted = true;
 }

@@ -1,11 +1,22 @@
 package com.example.lottery.dto.algorithm;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.*;
 import java.util.List;
 import lombok.Data;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FixedPoolRules implements AlgorithmRules {
-  @Size(min = 1, max = 100)
-  private List<@Size(min = 1, max = 100) List<@Min(1) Integer>> pools;
+  @Min(1)
+  private Integer poolSize; // Начальный размер пула
+
+  @Min(1)
+  private Integer numberCount; // Количество чисел в билете
+
+  @Min(1)
+  private Integer minNumber; // Минимальное число
+
+  @Min(2)
+  private Integer maxNumber; // Максимальное число
 }

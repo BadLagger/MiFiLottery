@@ -12,4 +12,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
   @JsonSubTypes.Type(value = RandomUniqueRules.class, name = "RANDOM_UNIQUE_NUMBERS"),
   @JsonSubTypes.Type(value = FixedPoolRules.class, name = "FIXED_POOL")
 })
-public interface AlgorithmRules {}
+public interface AlgorithmRules {
+    Integer getNumberCount();
+
+    Integer getMaxNumber();
+
+    Integer getMinNumber();
+}

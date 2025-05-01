@@ -1,24 +1,36 @@
 package com.example.lottery.service;
 
-import ch.qos.logback.core.CoreConstants;
 import com.example.lottery.dto.DrawRequestDto;
 import com.example.lottery.dto.DrawStatus;
+import com.example.lottery.dto.algorithm.AlgorithmRules;
+import com.example.lottery.dto.algorithm.FixedPoolRules;
 import com.example.lottery.entity.Draw;
 import com.example.lottery.entity.DrawResult;
 import com.example.lottery.entity.LotteryType;
+import com.example.lottery.entity.PreGeneratedTicket;
 import com.example.lottery.mapper.DrawMapper;
+import com.example.lottery.mapper.LotteryTypeMapper;
+import com.example.lottery.mapper.PreGeneratedTicketMapper;
+import com.example.lottery.mapper.utils.MapConverter;
 import com.example.lottery.repository.DrawRepository;
 import com.example.lottery.repository.DrawResultRepository;
 import com.example.lottery.repository.LotteryTypeRepository;
+import com.example.lottery.repository.PreGeneratedTicketRepository;
+import com.example.lottery.service.Impl.FixedPoolTicketGenerator;
+import com.example.lottery.service.utils.UniqueNumbersGenerator;
 import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +47,18 @@ public class DrawService {
     @Autowired
     private LotteryTypeRepository lotteryTypeRepository;
 
+    @Autowired
+    private LotteryTypeMapper lotteryTypeMapper;
+
+    @Autowired
+    private PreGeneratedTicketRepository preGeneratedRepo;
+
+    @Autowired
+    private UniqueNumbersGenerator uniqueNumbersGenerator;
+
+    @Autowired
+    private PreGeneratedTicketMapper preGeneratedMapper;
+
     private final DrawMapper drawMapper;
 
     @Value("${app.default.max-pool-size}")
@@ -45,6 +69,10 @@ public class DrawService {
 
     private ConcurrentHashMap<Long, ScheduledFuture<?>> sсheduledActiveFutures = null;
     private ConcurrentHashMap<Long, ScheduledFuture<?>> sсheduledPlannedFutures = null;
+    @Autowired
+    private MapConverter mapConverter;
+    @Autowired
+    private FixedPoolTicketGenerator fixedPoolTicketGenerator;
 
     public DrawService(DrawMapper drawMapper) {
         this.drawMapper = drawMapper;
@@ -120,6 +148,7 @@ public class DrawService {
 
     public void setComplete(Draw draw) {
         System.out.format("Draw: %s set complete\n", draw.getName());
+//        preGeneratedTicketRepo.deleteByDraw(draw); // Очищаем пул предсозданных билетов
         setStatus(draw, DrawStatus.COMPLETED);
         sсheduledActiveFutures.remove(draw.getId());
     }
@@ -233,5 +262,29 @@ public class DrawService {
             long delayMs = ChronoUnit.MILLIS.between(LocalDateTime.now(), drawStartTime);
             addToPlannedTasks(draw, delayMs);
         }
+    }
+
+
+    // Вызываем этот метод при переходе тиража в статус ACTIVE.
+    @Transactional
+    public void initPoolForDraw(Draw draw) {
+        AlgorithmRules rules = lotteryTypeMapper.parseRules(
+                draw.getLotteryType().getAlgorithmRules()
+        );
+//        if (!(fixedPoolTicketGenerator.supports(rules))) {
+//            throw new IllegalArgumentException(
+//                    "Генератор не поддерживает правила типа: " + rules.getClass().getSimpleName());
+//        }
+        FixedPoolRules fixedPoolRules = (FixedPoolRules) rules;
+
+        List<PreGeneratedTicket> poolTickets = new ArrayList<>();
+        for (int i = 0; i < fixedPoolRules.getPoolSize(); i++) {
+            List<Integer> numbers = uniqueNumbersGenerator.generateNumbers(fixedPoolRules, draw);
+            PreGeneratedTicket pgTicket = new PreGeneratedTicket();
+            pgTicket.setDraw(draw);
+            pgTicket.setNumbers(mapConverter.mapNumbersToJson(numbers));
+            poolTickets.add(pgTicket);
+        }
+        preGeneratedRepo.saveAll(poolTickets);
     }
 }
