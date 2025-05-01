@@ -4,7 +4,9 @@ spring:
       enabled: true
       path: /h2-console
 
-
+  task:
+    scheduling:
+      enabled: true
 
 #server:
 #  port: 8080

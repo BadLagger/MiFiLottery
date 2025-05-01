@@ -16,7 +16,10 @@ public class Draw {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String lotteryType;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="lottery_type_id")
+    private LotteryType lotteryType;
+
     private LocalDateTime startTime;
 
     @Enumerated(EnumType.STRING)
