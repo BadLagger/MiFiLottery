@@ -24,6 +24,7 @@ public class InvoiceService {
         invoice.setStatus(InvoiceStatus.UNPAID);
         Invoice saved = invoiceRepository.save(invoice);
         return invoiceMapper.toDto(saved);
+
     }
 
     public List<InvoiceDto> getInvoicesByStatus(InvoiceStatus status) {
