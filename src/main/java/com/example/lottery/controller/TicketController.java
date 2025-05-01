@@ -17,11 +17,10 @@ public class TicketController {
   private final TicketService ticketService;
 
   @PostMapping
-  public ResponseEntity<TicketResponseDto> createTicket(@Valid @RequestBody TicketCreateDto dto
-      //          , @RequestHeader("Authorization") String token
+  public ResponseEntity<TicketResponseDto> createTicketDraft(@Valid @RequestBody TicketCreateDto dto
+                                                             //          , @RequestHeader("Authorization") String token
       ) {
-    Long userId = 1L; // authService.getUserIdFromToken(token);
-    return ResponseEntity.status(HttpStatus.CREATED).body(ticketService.createTicket(dto, userId));
+    return ResponseEntity.status(HttpStatus.CREATED).body(ticketService.getTicketDraft(dto));
   }
 
   @GetMapping("/{id}")

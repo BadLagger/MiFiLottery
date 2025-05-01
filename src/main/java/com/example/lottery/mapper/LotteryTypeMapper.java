@@ -51,7 +51,7 @@ public abstract class LotteryTypeMapper {
   }
 
   // Определение типа алгоритма
-  protected AlgorithmType getAlgorithmTypeEnum(AlgorithmRules rules) {
+  public AlgorithmType getAlgorithmTypeEnum(AlgorithmRules rules) {
     String className = rules.getClass().getSimpleName();
     return AlgorithmType.fromClassName(className);
   }

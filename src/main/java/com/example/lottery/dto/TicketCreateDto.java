@@ -8,5 +8,5 @@ import lombok.Data;
 public class TicketCreateDto {
   @NotNull private Long drawId; // ID тиража
 
-  @NotNull private List<Integer> numbers; // Выбранные числа (например, [1, 5, 10])
+  private List<Integer> numbers; // Выбранные числа (например, [1, 5, 10])
 }

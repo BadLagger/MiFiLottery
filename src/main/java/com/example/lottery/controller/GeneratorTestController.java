@@ -7,9 +7,12 @@ import com.example.lottery.mapper.LotteryTypeMapper;
 import com.example.lottery.repository.DrawRepository;
 import com.example.lottery.service.DrawService;
 import com.example.lottery.service.Impl.RandomUniqueTicketGenerator;
+import com.example.lottery.service.TicketGenerator;
+import com.example.lottery.service.TicketsFactory;
 import com.example.lottery.service.utils.TicketMaker;
 import com.example.lottery.service.utils.UniqueNumbersGenerator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,29 +27,37 @@ public class GeneratorTestController {
     private final DrawRepository drawRepository;
     private final DrawService drawService;
     private final LotteryTypeMapper lotteryTypeMapper;
+    private final TicketsFactory ticketsFactory;
 
     @GetMapping("/{drawId}")
-    public String testGenerate(@PathVariable Long drawId) {
+    public Ticket testGenerate(@PathVariable Long drawId) {
         // 1. Получаем тираж из базы
         Draw draw = drawRepository.findById(drawId)
                 .orElseThrow(() -> new RuntimeException("Draw not found"));
         AlgorithmRules rules = lotteryTypeMapper.parseRules(draw.getLotteryType().getAlgorithmRules());
 
         // 2. Генерируем билет
-        Ticket ticket = ticketMaker.create(draw, uniqueNumbersGenerator.generateNumbers(rules, draw));
+//        Ticket ticket = ticketMaker.create(draw, uniqueNumbersGenerator.generateNumbers(rules, draw));
+
+        // получаем предсозданный билет из пула
+        Ticket ticket = ticketsFactory.getGenerator(draw).generateTicket();
 
         // пробуем сгенерить пул билетов
-        drawService.initPoolForDraw(draw);
+//        drawService.initPoolForDraw(draw);
+
+
 
         // 3. Возвращаем результат
-        return String.format(
-                "Тест генератора:<br>" +
-                        "Тираж: %s<br>" +
-                        "Тип лотереи: %s<br>" +
-                        "Сгенерированный билет: %s",
-                draw.getName(),
-                draw.getLotteryType().getDescription(),
-                ticket.getData()
-        );
+        return ticket;
+//        return String.format(
+//                "Тест генератора:<br>" +
+//                        "Тираж: %s<br>" +
+//                        "Тип лотереи: %s<br>" +
+//                        "Сгенерированный билет: %s c ID %d",
+//                draw.getName(),
+//                draw.getLotteryType().getDescription(),
+//                ticket.getData(),
+//                ticket.getId()
+//        );
     }
 }
