@@ -28,7 +28,8 @@ public class Invoice {
     private User user;
 
     @Column(columnDefinition = "jsonb")
-    private JsonNode ticketData;
+    @JdbcTypeCode(SqlTypes.JSON)
+    private String ticketData;
 
     private LocalDateTime registerTime;
 

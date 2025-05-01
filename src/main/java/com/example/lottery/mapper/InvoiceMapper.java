@@ -3,6 +3,9 @@ package com.example.lottery.mapper;
 import com.example.lottery.dto.InvoiceDto;
 import com.example.lottery.entity.Invoice;
 import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
 
 @Component
 public class InvoiceMapper {
@@ -32,3 +35,19 @@ public class InvoiceMapper {
         return entity;
     }
 }
+
+
+/*
+@Mapper(componentModel = "spring")
+public interface InvoiceMapper {
+    @Mappings({
+            @Mapping(source = "user.id", target = "userId")
+    })
+    InvoiceDto toDto(Invoice invoice);
+
+    // В обратном преобразовании user нужно селектить вручную (или использовать @MappingTarget + afterMapping)
+    @Mappings({
+            @Mapping(target = "user", ignore = true)
+    })
+    Invoice toEntity(InvoiceDto dto);
+}*/

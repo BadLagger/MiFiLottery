@@ -17,7 +17,7 @@ import java.util.*;
 public class InvoiceController {
     private final InvoiceService invoiceService;
 
-    @PreAuthorize("hasRole('USER')")
+    //@PreAuthorize("hasRole('USER')")
     @PostMapping
     public InvoiceDto create(@RequestBody Invoice invoice) {
         return invoiceService.createInvoice(invoice);
@@ -46,40 +46,3 @@ public class InvoiceController {
     }
 }
 
-
-/*
-@RestController
-@RequestMapping("/api/invoice")
-public class InvoiceController {
-    private final InvoiceService invoiceService;
-
-    public InvoiceController(InvoiceService invoiceService) {
-        this.invoiceService = invoiceService;
-    }
-
-    @PostMapping
-    public ResponseEntity<Invoice> registerInvoice(@RequestBody InvoiceDto dto) {
-        // DTO должен содержать userId, ticketData (массив String)
-        Invoice invoice = invoiceService.registerInvoice(dto.getUserId(), dto.getTicketData(), UUID.randomUUID().toString());
-        return ResponseEntity.ok(invoice);
-    }
-
-    @PostMapping("/{id}/cancel")
-    public ResponseEntity<String> cancelInvoice(@PathVariable Long id) {
-        boolean cancelled = invoiceService.cancelInvoice(id);
-        return ResponseEntity.ok(cancelled ? "Invoice cancelled" : "Cannot cancel invoice");
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Invoice> getInvoice(@PathVariable Long id) {
-        return invoiceService.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping
-    public String checkWork(){
-        return "Работает";
-    }
-}
-*/

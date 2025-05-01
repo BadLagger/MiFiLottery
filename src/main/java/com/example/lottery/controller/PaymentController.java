@@ -35,32 +35,3 @@ public class PaymentController {
         return paymentService.getPaymentById(id);
     }
 }
-
-
-/*
-@RestController
-@RequestMapping("/api/payments")
-public class PaymentController {
-    private final PaymentService paymentService;
-
-    public PaymentController(PaymentService service) {
-        this.paymentService = service;
-    }
-
-    @PostMapping
-    public ResponseEntity<Payment> makePayment(@RequestBody PaymentDto dto) {
-        Payment payment = paymentService.processPayment(
-                dto.getInvoiceId(),
-                dto.getAmount(),
-                dto.getCardNumber(),
-                dto.getCvc(),
-                dto.getDrawStatus()
-        );
-        return ResponseEntity.ok(payment);
-    }
-
-    @GetMapping
-    public String checkWork(){
-        return "Работает";
-    }
-}*/
