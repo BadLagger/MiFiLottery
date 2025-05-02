@@ -20,4 +20,8 @@ public class FixedPoolRules implements AlgorithmRules {
   private Integer maxNumber; // Максимальное число
 
   private boolean sorted = true;
+
+  public Boolean isSorted() {
+    return sorted;
+  };
 }

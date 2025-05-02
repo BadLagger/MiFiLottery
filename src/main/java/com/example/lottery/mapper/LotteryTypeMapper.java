@@ -42,6 +42,12 @@ public interface LotteryTypeMapper {
     ObjectMapper objectMapper = new ObjectMapper();
     try {
       JsonNode root = objectMapper.readTree(json);
+//      JsonNode rulesNode = root.get("algorithmRules");
+
+      // Проверяем, есть ли поле sorted и устанавливаем значение по умолчанию, если его нет
+//      if (rulesNode != null && !rulesNode.has("sorted")) {
+//        ((ObjectNode) rulesNode).put("sorted", true); // Устанавливаем значение по умолчанию
+//      }
       return objectMapper.treeToValue(root.get("algorithmRules"), AlgorithmRules.class);
     } catch (Exception e) {
       throw new RuntimeException("Ошибка парсинга правил", e);

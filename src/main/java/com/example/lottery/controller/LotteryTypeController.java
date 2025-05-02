@@ -3,6 +3,7 @@ package com.example.lottery.controller;
 import com.example.lottery.dto.LotteryTypeCreateDto;
 import com.example.lottery.dto.LotteryTypeResponseDto;
 import com.example.lottery.dto.algorithm.FixedPoolRules;
+import com.example.lottery.dto.algorithm.UserSelectedRules;
 import com.example.lottery.entity.LotteryType;
 import com.example.lottery.mapper.LotteryTypeMapper;
 import com.example.lottery.repository.LotteryTypeRepository;
@@ -27,13 +28,21 @@ public class LotteryTypeController {
     dto.setTicketPrice(new BigDecimal("150.00"));
     dto.setPrizePoolPercentage(0.6);
     dto.setMinTicket(3);
-    dto.setDescription("50 наборов чисел по 4 от 10 до 30");
-    FixedPoolRules rules = new FixedPoolRules();
-    rules.setNumberCount(4);
-    rules.setMinNumber(10);
-    rules.setMaxNumber(30);
-    rules.setPoolSize(50);
+
+    dto.setDescription("6 из 45 выбор пользователя");
+    UserSelectedRules rules = new UserSelectedRules();
+    rules.setNumberCount(6);
+    rules.setMinNumber(1);
+    rules.setMaxNumber(45);
     dto.setAlgorithmRules(rules);
+
+//    dto.setDescription("50 наборов чисел по 4 от 10 до 30");
+//    FixedPoolRules rules = new FixedPoolRules();
+//    rules.setNumberCount(4);
+//    rules.setMinNumber(10);
+//    rules.setMaxNumber(30);
+//    rules.setPoolSize(50);
+//    dto.setAlgorithmRules(rules);
 
     //    RandomUniqueRules rules = new RandomUniqueRules();
     //    dto.setDescription("5 из 36 автогенерация");

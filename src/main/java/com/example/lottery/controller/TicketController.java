@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class TicketController {
   private final TicketService ticketService;
 
-  @PostMapping
+  @PostMapping("/new")
   public ResponseEntity<TicketResponseDto> createTicketDraft(@Valid @RequestBody TicketCreateDto dto
       //          , @RequestHeader("Authorization") String token
       ) {

@@ -109,22 +109,4 @@ public class DrawController {
 
         return ResponseEntity.ok(existingDraw); // Возвращаем обновленную версию тиража
     }
-
-
-    // Обработчик ошибок
-    @ExceptionHandler(IllegalArgumentException.class)
-    protected ResponseEntity<Object> handleIllegalArguments(IllegalArgumentException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
-    }
-    // Обработчик ошибок
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ResponseEntity<Object> handleValidationErrors(MethodArgumentNotValidException ex) {
-        BindingResult result = ex.getBindingResult();
-        List<FieldError> fieldErrors = result.getFieldErrors();
-        List<String> errors = fieldErrors.stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .collect(Collectors.toList());
-        return ResponseEntity.badRequest().body(errors);
-    }
-
 }

@@ -10,6 +10,10 @@ import com.example.lottery.entity.User;
 import com.example.lottery.mapper.LotteryTypeMapper;
 import com.example.lottery.mapper.TicketMapper;
 import com.example.lottery.service.utils.UniqueNumbersGenerator;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -59,6 +63,9 @@ public abstract class AbstractTicketGenerator implements TicketGenerator {
   public TicketResponseDto createDraft(List<Integer> numbers) {
     var draft = new TicketResponseDto();
     draft.setDrawId(draw.getId());
+    if (getRules().isSorted()) {
+      Collections.sort(numbers); // Все числа в наборе по умолчанию отсортированы
+    }
     draft.setNumbers(numbers);
     return draft;
   }

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 @Slf4j
-public class GlobalExceptionHandler2 {
+public class GlobalExceptionHandler {
   @ExceptionHandler(NotFoundException.class)
   public ResponseEntity<AppError> catchResourceNotFoundException(NotFoundException e) {
     log.error(e.getMessage(), e);

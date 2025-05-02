@@ -18,4 +18,8 @@ public class RandomUniqueRules implements AlgorithmRules {
   private Integer maxNumber;
 
   private boolean sorted = true;
+
+  public Boolean isSorted() {
+    return sorted;
+  };
 }

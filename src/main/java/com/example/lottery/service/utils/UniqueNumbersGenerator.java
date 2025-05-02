@@ -23,6 +23,6 @@ public class UniqueNumbersGenerator {
     // TODO: прикрутить проверку на уникальность билета в БД, по типу Рулс определять в какой репе
     // искать дубли в рамках тиража
 
-    return uniqueNumbers.stream().sorted().toList();
+    return new ArrayList<>(uniqueNumbers);
   }
 }

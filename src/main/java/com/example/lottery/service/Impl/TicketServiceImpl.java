@@ -42,6 +42,7 @@ public class TicketServiceImpl implements TicketService {
     TicketGenerator generator = ticketsFactory.getGenerator(draw);
     if (generator instanceof UserSelectedTicketGenerator) {
       validator.validateNumbers(dto.getNumbers(), draw.getLotteryType());
+      return ((UserSelectedTicketGenerator) generator).createDraft(dto.getNumbers());
     }
     return generator.generateTicket();
   }
