@@ -2,11 +2,25 @@ package com.example.lottery.mapper;
 
 import com.example.lottery.dto.PaymentDto;
 import com.example.lottery.entity.Payment;
-import org.springframework.stereotype.Component;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
+@Mapper(componentModel = "spring")
+public interface PaymentMapper {
+    @Mappings({
+            @Mapping(source = "invoice.id", target = "invoiceId")
+    })
+    PaymentDto toDto(Payment payment);
+
+    // В обратном преобразовании invoice нужно селектить вручную
+    @Mappings({
+            @Mapping(target = "invoice", ignore = true)
+    })
+    Payment toEntity(PaymentDto dto);
+}
+
+/*
 @Component
 public class PaymentMapper {
     public PaymentDto toDto(Payment payment) {
@@ -31,20 +45,4 @@ public class PaymentMapper {
         return entity;
     }
 }
-
-
-
-/*
-@Mapper(componentModel = "spring")
-public interface PaymentMapper {
-    @Mappings({
-            @Mapping(source = "invoice.id", target = "invoiceId")
-    })
-    PaymentDto toDto(Payment payment);
-
-    // В обратном преобразовании invoice нужно селектить вручную
-    @Mappings({
-            @Mapping(target = "invoice", ignore = true)
-    })
-    Payment toEntity(PaymentDto dto);
-}*/
+*/

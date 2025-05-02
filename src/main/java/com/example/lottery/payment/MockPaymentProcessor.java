@@ -2,6 +2,7 @@ package com.example.lottery.payment;
 
 import com.example.lottery.dto.PaymentStatus;
 import org.springframework.stereotype.Component;
+
 import java.util.Random;
 
 @Component

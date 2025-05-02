@@ -1,12 +1,11 @@
 package com.example.lottery.repository;
 
-import com.example.lottery.entity.Invoice;
 import com.example.lottery.dto.InvoiceStatus;
+import com.example.lottery.entity.Invoice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.List;
 
 @Repository
 public interface InvoiceRepository extends JpaRepository<Invoice, Long> {

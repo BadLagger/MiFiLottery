@@ -1,10 +1,8 @@
 package com.example.lottery.controller;
 
 import com.example.lottery.dto.PaymentDto;
-import com.example.lottery.entity.Payment;
 import com.example.lottery.service.PaymentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 

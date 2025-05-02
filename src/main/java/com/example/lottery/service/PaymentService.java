@@ -1,10 +1,10 @@
 package com.example.lottery.service;
 
-import com.example.lottery.dto.DrawStatus;
 import com.example.lottery.dto.InvoiceStatus;
 import com.example.lottery.dto.PaymentDto;
 import com.example.lottery.dto.PaymentStatus;
-import com.example.lottery.entity.*;
+import com.example.lottery.entity.Invoice;
+import com.example.lottery.entity.Payment;
 import com.example.lottery.mapper.PaymentMapper;
 import com.example.lottery.payment.MockPaymentProcessor;
 import com.example.lottery.repository.InvoiceRepository;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +34,8 @@ public class PaymentService {
         if (invoice.getStatus() != InvoiceStatus.UNPAID) {
             throw new IllegalStateException("Invoice is not available for payment!");
         }
-        // TODO: Проверить статус тиража по ticketData через DrawService
+
+        // ToDo: Проверить статус тиража по ticketData через DrawService
 
         invoiceService.setPending(invoiceId);
 
@@ -51,8 +52,9 @@ public class PaymentService {
         // Завершить процесс
         if (status == PaymentStatus.SUCCESS) {
             invoiceService.setPaid(invoiceId);
-            // Создать билет для пользователя
-            // ticketService.createTicketFromInvoice(invoice);
+
+            //toDo Создать билет для пользователя
+
         } else {
             invoiceService.setUnpaid(invoiceId);
         }
@@ -62,8 +64,6 @@ public class PaymentService {
     public Optional<PaymentDto> getPaymentById(Long id) {
         return paymentRepository.findById(id).map(paymentMapper::toDto);
     }
-
-
 
     /*private PaymentDto toDto(Payment payment) {
         return new PaymentDto(

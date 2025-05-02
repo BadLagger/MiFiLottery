@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class InvoiceDto {
     private Long id;
     private Long userId;
-    private JsonNode ticketData;
+    private String ticketData;
     private LocalDateTime registerTime;
     private String paymentLink;
     private InvoiceStatus status;
