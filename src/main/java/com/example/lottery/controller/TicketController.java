@@ -1,5 +1,6 @@
 package com.example.lottery.controller;
 
+import com.example.lottery.dto.PreGeneratedTicketResponseDto;
 import com.example.lottery.dto.TicketCreateDto;
 import com.example.lottery.dto.TicketResponseDto;
 import com.example.lottery.service.TicketService;
@@ -18,7 +19,7 @@ public class TicketController {
 
   @PostMapping
   public ResponseEntity<TicketResponseDto> createTicketDraft(@Valid @RequestBody TicketCreateDto dto
-                                                             //          , @RequestHeader("Authorization") String token
+                                                                         //          , @RequestHeader("Authorization") String token
       ) {
     return ResponseEntity.status(HttpStatus.CREATED).body(ticketService.getTicketDraft(dto));
   }

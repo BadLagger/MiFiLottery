@@ -18,9 +18,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 public class RandomUniqueTicketGenerator extends AbstractTicketGenerator {
   private final TicketMaker ticketMaker;
+
+  public RandomUniqueTicketGenerator(LotteryTypeMapper lotteryTypeMapper, UniqueNumbersGenerator uniqueNumbersGenerator, TicketMaker ticketMaker, UniqueNumbersGenerator uniqueNumbersGenerator1, Validator validator) {
+    super(lotteryTypeMapper, uniqueNumbersGenerator);
+    this.ticketMaker = ticketMaker;
+    this.uniqueNumbersGenerator = uniqueNumbersGenerator1;
+    this.validator = validator;
+  }
+
   private final UniqueNumbersGenerator uniqueNumbersGenerator;
   private final Validator validator;
 

@@ -1,15 +1,19 @@
 package com.example.lottery.service.Impl;
 
+import com.example.lottery.dto.PreGeneratedTicketResponseDto;
 import com.example.lottery.dto.TicketCreateDto;
 import com.example.lottery.dto.TicketResponseDto;
 import com.example.lottery.dto.algorithm.FixedPoolRules;
+import com.example.lottery.dto.algorithm.UserSelectedRules;
 import com.example.lottery.entity.*;
 import com.example.lottery.exception.NotFoundException;
 import com.example.lottery.mapper.LotteryTypeMapper;
 import com.example.lottery.mapper.PreGeneratedTicketMapper;
 import com.example.lottery.mapper.TicketMapper;
+import com.example.lottery.mapper.utils.MapConverter;
 import com.example.lottery.repository.TicketRepository;
 import com.example.lottery.service.DrawService;
+import com.example.lottery.service.TicketGenerator;
 import com.example.lottery.service.TicketService;
 import com.example.lottery.service.TicketsFactory;
 import com.example.lottery.service.validator.Validator;
@@ -28,6 +32,7 @@ public class TicketServiceImpl implements TicketService {
   private final PreGeneratedTicketMapper preGenTicketMapper;
   private final Validator validator;
   private final TicketsFactory ticketsFactory;
+  private final MapConverter mapConverter;
 
   //  private final UserService userService; // Заглушка
 
@@ -43,11 +48,13 @@ public class TicketServiceImpl implements TicketService {
     validator.validateTicketForBuyingByDraw(draw);
 
     // Валидируем выбранные номера от пользователя или генерим черновик билета
-    if (lotteryTypeMapper.parseRules(draw.getLotteryType().getAlgorithmRules())
-        instanceof FixedPoolRules) {
+    TicketGenerator generator = ticketsFactory.getGenerator(draw);
+    if (generator instanceof UserSelectedTicketGenerator) {
       validator.validateNumbers(dto.getNumbers(), draw.getLotteryType());
+    } else if (generator instanceof FixedPoolTicketGenerator) {
+      dto.setNumbers(mapConverter.mapJsonToNumbers(generator.generateTicket().getData()));
     } else {
-      dto.setNumbers(ticketsFactory.getGenerator(draw).generateNumbers());
+      dto.setNumbers(generator.generateNumbers());
     }
 
     TicketResponseDto draftDto = new TicketResponseDto();
@@ -75,7 +82,6 @@ public class TicketServiceImpl implements TicketService {
 
   @Override
   public List<TicketResponseDto> getUserTickets(Long userId) {
-    // TODO: Добавить пагинацию
     return ticketRepository.findByUserId(userId).stream().map(ticketMapper::toDto).toList();
   }
 }

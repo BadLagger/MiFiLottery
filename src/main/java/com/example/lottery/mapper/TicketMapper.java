@@ -4,14 +4,12 @@ import com.example.lottery.dto.TicketCreateDto;
 import com.example.lottery.dto.TicketResponseDto;
 import com.example.lottery.entity.Ticket;
 import com.example.lottery.mapper.utils.MapConverter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(componentModel = "spring")
 public abstract class TicketMapper {
-
   @Autowired protected MapConverter mapConverter;
 
   @Mapping(target = "data", expression = "java(mapConverter.mapNumbersToJson(dto.getNumbers()))")

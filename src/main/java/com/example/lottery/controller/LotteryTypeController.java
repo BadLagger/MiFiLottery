@@ -25,24 +25,24 @@ public class LotteryTypeController {
   @PostMapping
   public ResponseEntity<LotteryTypeResponseDto> createLotteryType() {
     LotteryTypeCreateDto dto = new LotteryTypeCreateDto();
-    dto.setDescription("50 наборов чисел по 4 от 10 до 30");
     dto.setTicketPrice(new BigDecimal("150.00"));
     dto.setPrizePoolPercentage(0.6);
     dto.setMinTicket(3);
-
-    FixedPoolRules rules = new FixedPoolRules();
-    rules.setNumberCount(4);
-    rules.setMinNumber(10);
-    rules.setMaxNumber(30);
-    rules.setPoolSize(50);
-    dto.setAlgorithmRules(rules);
+        dto.setDescription("50 наборов чисел по 4 от 10 до 30");
+        FixedPoolRules rules = new FixedPoolRules();
+        rules.setNumberCount(4);
+        rules.setMinNumber(10);
+        rules.setMaxNumber(30);
+        rules.setPoolSize(50);
+        dto.setAlgorithmRules(rules);
 
 //    RandomUniqueRules rules = new RandomUniqueRules();
-//    rules.setNumberCount(5);
-//    rules.setMinNumber(1);
-//    rules.setMaxNumber(36);
-//    rules.setSorted(false);
-//    dto.setAlgorithmRules(rules);
+//    dto.setDescription("5 из 36 автогенерация");
+//        rules.setNumberCount(5);
+//        rules.setMinNumber(1);
+//        rules.setMaxNumber(36);
+//        rules.setSorted(true);
+//        dto.setAlgorithmRules(rules);
 
     LotteryType entity = mapper.toEntity(dto);
     entity = repository.save(entity); // Сохраняем в БД
