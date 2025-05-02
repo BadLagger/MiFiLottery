@@ -1,10 +1,11 @@
 server:
-  port: 8080
+  port: 8082
 
 spring:
+#  application:
+#    name: lottery
   datasource:
     url: jdbc:h2:file:./data/testdb;MODE=PostgreSQL
-#    url: jdbc:h2:tcp://localhost:9092/./data/testdb;MODE=PostgreSQL
     driver-class-name: org.h2.Driver
     username: sa
     password: password
@@ -22,9 +23,11 @@ spring:
     locations: classpath:/db/migration
 
   jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true
+    generate-ddl: false
     hibernate:
       ddl-auto: none
-    show-sql: true
     properties:
       hibernate:
         format_sql: true
