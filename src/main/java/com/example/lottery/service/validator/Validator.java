@@ -30,7 +30,7 @@ public class Validator {
 
     if (!algorithmType.isDrawStatusAllowed(draw.getStatus())) {
       throw new ValidationException(
-          "Невозможно создать билет для тиража со статусом: " + draw.getStatus());
+          "Для тиража " + algorithmType+ " в статусе " + draw.getStatus() + " нельзя получить билет");
     }
   }
 

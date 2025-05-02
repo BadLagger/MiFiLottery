@@ -42,23 +42,15 @@ public class TicketServiceImpl implements TicketService {
     TicketGenerator generator = ticketsFactory.getGenerator(draw);
     if (generator instanceof UserSelectedTicketGenerator) {
       validator.validateNumbers(dto.getNumbers(), draw.getLotteryType());
-    } else if (generator instanceof FixedPoolTicketGenerator) {
-      dto.setNumbers(ticketMapper.mapJsonToNumbers(generator.generateTicket().getData()));
-    } else {
-      dto.setNumbers(generator.generateNumbers());
     }
-
-    TicketResponseDto draftDto = new TicketResponseDto();
-    draftDto.setDrawId(draw.getId());
-    draftDto.setNumbers(dto.getNumbers());
-
-    return draftDto;
+    return generator.generateTicket();
   }
 
   @Override
   @Transactional
   public void saveTicket(Ticket ticket) {
     validator.validateTicketForBuyingByDraw(ticket.getDraw());
+    // TODO: проверки перед сохранением билета на корректность (наличие всех параметров)
     ticketRepository.save(ticket);
   }
 

@@ -1,9 +1,10 @@
 package com.example.lottery.service.Impl;
 
+import com.example.lottery.dto.TicketResponseDto;
 import com.example.lottery.dto.algorithm.AlgorithmRules;
 import com.example.lottery.dto.algorithm.RandomUniqueRules;
-import com.example.lottery.entity.Ticket;
 import com.example.lottery.mapper.LotteryTypeMapper;
+import com.example.lottery.mapper.TicketMapper;
 import com.example.lottery.service.AbstractTicketGenerator;
 import com.example.lottery.service.utils.UniqueNumbersGenerator;
 import org.springframework.stereotype.Service;
@@ -13,14 +14,13 @@ public class UserSelectedTicketGenerator extends AbstractTicketGenerator {
 
   public UserSelectedTicketGenerator(
       LotteryTypeMapper lotteryTypeMapper,
-      UniqueNumbersGenerator uniqueNumbersGenerator,
-      LotteryTypeMapper lotteryTypeMapper1) {
-    super(lotteryTypeMapper, uniqueNumbersGenerator);
-    this.lotteryTypeMapper = lotteryTypeMapper1;
+      TicketMapper ticketMapper,
+      UniqueNumbersGenerator uniqueNumbersGenerator) {
+    super(lotteryTypeMapper, ticketMapper, uniqueNumbersGenerator);
   }
 
   @Override
-  public Ticket generateTicket() {
+  public TicketResponseDto generateTicket() {
     // TODO: Для этого типа лотерей билет создаётся на основе выбора пользователя,
     // поэтому этот метод не используется напрямую.
     throw new UnsupportedOperationException(

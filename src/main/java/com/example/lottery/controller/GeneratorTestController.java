@@ -27,7 +27,7 @@ public class GeneratorTestController {
   private final TicketService ticketService;
 
   @GetMapping("/{drawId}")
-  public Ticket testGenerate(@PathVariable Long drawId) {
+  public TicketResponseDto testGenerate(@PathVariable Long drawId) {
     // 1. Получаем тираж из базы
     Draw draw =
         drawRepository.findById(drawId).orElseThrow(() -> new RuntimeException("Тираж не найден"));
@@ -39,7 +39,7 @@ public class GeneratorTestController {
     // draw));
 
     // получаем предсозданный билет из пула
-    Ticket ticket = ticketsFactory.getGenerator(draw).generateTicket();
+    TicketResponseDto ticket = ticketsFactory.getGenerator(draw).generateTicket();
 
     // пробуем сгенерить пул билетов
     //        drawService.initPoolForDraw(draw);
