@@ -2,8 +2,8 @@ package com.example.lottery.dto;
 
 import com.example.lottery.dto.algorithm.AlgorithmRules;
 import jakarta.validation.constraints.*;
-import lombok.Data;
 import java.math.BigDecimal;
+import lombok.Data;
 
 @Data
 public class LotteryTypeCreateDto {

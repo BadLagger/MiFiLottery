@@ -10,6 +10,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AppError {
-    private int statusCode;
-    private String message;
+  private int statusCode;
+  private String message;
 }

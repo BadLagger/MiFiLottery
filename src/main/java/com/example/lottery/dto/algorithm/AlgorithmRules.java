@@ -14,9 +14,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
   @JsonSubTypes.Type(value = UserSelectedRules.class, name = "USER_SELECTED")
 })
 public interface AlgorithmRules {
-    Integer getNumberCount();
+  Integer getNumberCount();
 
-    Integer getMaxNumber();
+  Integer getMaxNumber();
 
-    Integer getMinNumber();
+  Integer getMinNumber();
 }

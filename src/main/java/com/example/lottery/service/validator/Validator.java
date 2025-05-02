@@ -10,12 +10,11 @@ import com.example.lottery.entity.LotteryType;
 import com.example.lottery.exception.ValidationException;
 import com.example.lottery.mapper.LotteryTypeMapper;
 import com.example.lottery.repository.LotteryTypeRepository;
+import java.util.HashSet;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
-import java.util.HashSet;
-import java.util.List;
 
 @Slf4j
 @Component

@@ -5,7 +5,7 @@ import com.example.lottery.dto.algorithm.FixedPoolRules;
 import com.example.lottery.entity.PreGeneratedTicket;
 import com.example.lottery.entity.Ticket;
 import com.example.lottery.mapper.LotteryTypeMapper;
-import com.example.lottery.mapper.utils.MapConverter;
+import com.example.lottery.mapper.TicketMapper;
 import com.example.lottery.repository.PreGeneratedTicketRepository;
 import com.example.lottery.service.AbstractTicketGenerator;
 import com.example.lottery.service.utils.TicketMaker;
@@ -15,20 +15,21 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class FixedPoolTicketGenerator extends AbstractTicketGenerator {
+  private final PreGeneratedTicketRepository preGeneratedRepo;
+  private final TicketMapper ticketMapper;
+
   public FixedPoolTicketGenerator(
       LotteryTypeMapper lotteryTypeMapper,
       UniqueNumbersGenerator uniqueNumbersGenerator,
       PreGeneratedTicketRepository preGeneratedRepo,
-      MapConverter mapConverter,
+      TicketMapper ticketMapper,
       TicketMaker ticketMaker) {
     super(lotteryTypeMapper, uniqueNumbersGenerator);
     this.preGeneratedRepo = preGeneratedRepo;
-    this.mapConverter = mapConverter;
+    this.ticketMapper = ticketMapper;
     this.ticketMaker = ticketMaker;
   }
 
-  private final PreGeneratedTicketRepository preGeneratedRepo;
-  private final MapConverter mapConverter;
   private final TicketMaker ticketMaker;
 
   @Override
@@ -49,7 +50,7 @@ public class FixedPoolTicketGenerator extends AbstractTicketGenerator {
   }
 
   private Ticket createTicketFromPool(String numbersJson) {
-    List<Integer> numbers = mapConverter.mapJsonToNumbers(numbersJson);
+    List<Integer> numbers = ticketMapper.mapJsonToNumbers(numbersJson);
     return ticketMaker.create(draw, numbers);
   }
 

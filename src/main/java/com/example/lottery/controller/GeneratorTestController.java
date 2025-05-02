@@ -5,15 +5,11 @@ import com.example.lottery.dto.TicketResponseDto;
 import com.example.lottery.entity.Draw;
 import com.example.lottery.entity.Ticket;
 import com.example.lottery.entity.User;
-import com.example.lottery.mapper.LotteryTypeMapper;
 import com.example.lottery.mapper.TicketMapper;
 import com.example.lottery.repository.DrawRepository;
 import com.example.lottery.repository.TicketRepository;
-import com.example.lottery.service.DrawService;
 import com.example.lottery.service.TicketService;
 import com.example.lottery.service.TicketsFactory;
-import com.example.lottery.service.utils.TicketMaker;
-import com.example.lottery.service.utils.UniqueNumbersGenerator;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -63,17 +59,20 @@ public class GeneratorTestController {
   }
 
   @PostMapping
-  public ResponseEntity<TicketResponseDto> createTicketDraft(@Valid @RequestBody TicketCreateDto dto
-      ) {
-      // Создаём билет
-      Draw draw =
-              drawRepository.findById(dto.getDrawId()).orElseThrow(() -> new RuntimeException("Тираж не найден"));
-      User user = new User(1L); // Заглушка (реальная реализация через UserService)
-      Ticket ticket = ticketMapper.toEntity(dto);
-      ticket.setDraw(draw);
-      ticket.setUser(user);
-      ticket.setStatus(Ticket.Status.INGAME);
+  public ResponseEntity<TicketResponseDto> createTicketDraft(
+      @Valid @RequestBody TicketCreateDto dto) {
+    // Создаём билет
+    Draw draw =
+        drawRepository
+            .findById(dto.getDrawId())
+            .orElseThrow(() -> new RuntimeException("Тираж не найден"));
+    User user = new User(1L); // Заглушка (реальная реализация через UserService)
+    Ticket ticket = ticketMapper.toEntity(dto);
+    ticket.setDraw(draw);
+    ticket.setUser(user);
+    ticket.setStatus(Ticket.Status.INGAME);
 
-    return ResponseEntity.status(HttpStatus.CREATED).body(ticketMapper.toDto(ticketRepository.save(ticket)));
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ticketMapper.toDto(ticketRepository.save(ticket)));
   }
 }

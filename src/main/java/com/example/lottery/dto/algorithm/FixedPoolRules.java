@@ -2,7 +2,6 @@ package com.example.lottery.dto.algorithm;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.*;
-import java.util.List;
 import lombok.Data;
 
 @Data
@@ -19,4 +18,6 @@ public class FixedPoolRules implements AlgorithmRules {
 
   @Min(2)
   private Integer maxNumber; // Максимальное число
+
+  private boolean sorted = true;
 }

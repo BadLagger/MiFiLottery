@@ -9,18 +9,18 @@ import org.hibernate.type.SqlTypes;
 @Table(name = "PREGENERATEDTICKETS")
 @Data
 public class PreGeneratedTicket {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "draw_id", nullable = false)
-    private Draw draw; // Связь с тиражом
+  @ManyToOne
+  @JoinColumn(name = "draw_id", nullable = false)
+  private Draw draw; // Связь с тиражом
 
-    @Column(columnDefinition = "jsonb", nullable = false)
-    @JdbcTypeCode(SqlTypes.JSON)
-    private String numbers; // JSON с числами, например "[1, 5, 10]"
+  @Column(columnDefinition = "jsonb", nullable = false)
+  @JdbcTypeCode(SqlTypes.JSON)
+  private String numbers; // JSON с числами, например "[1, 5, 10]"
 
-    @Column(nullable = false)
-    private boolean issued = false; // Флаг "выдан"
+  @Column(nullable = false)
+  private boolean issued = false; // Флаг "выдан"
 }

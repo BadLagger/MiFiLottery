@@ -9,8 +9,7 @@ import com.example.lottery.entity.DrawResult;
 import com.example.lottery.entity.LotteryType;
 import com.example.lottery.entity.PreGeneratedTicket;
 import com.example.lottery.mapper.DrawMapper;
-import com.example.lottery.mapper.LotteryTypeMapper;
-import com.example.lottery.mapper.utils.MapConverter;
+import com.example.lottery.mapper.TicketMapper;
 import com.example.lottery.repository.DrawRepository;
 import com.example.lottery.repository.DrawResultRepository;
 import com.example.lottery.repository.LotteryTypeRepository;
@@ -39,8 +38,6 @@ public class DrawService {
 
   @Autowired private LotteryTypeRepository lotteryTypeRepository;
 
-  @Autowired private LotteryTypeMapper lotteryTypeMapper;
-
   @Autowired private PreGeneratedTicketRepository preGeneratedRepo;
 
   @Autowired private TicketsFactory ticketsFactory;
@@ -55,7 +52,7 @@ public class DrawService {
 
   private ConcurrentHashMap<Long, ScheduledFuture<?>> sсheduledActiveFutures = null;
   private ConcurrentHashMap<Long, ScheduledFuture<?>> sсheduledPlannedFutures = null;
-  @Autowired private MapConverter mapConverter;
+  @Autowired private TicketMapper ticketMapper;
   @Autowired private FixedPoolTicketGenerator fixedPoolTicketGenerator;
 
   public DrawService(DrawMapper drawMapper) {
@@ -294,7 +291,7 @@ public class DrawService {
 
       PreGeneratedTicket pgTicket = new PreGeneratedTicket();
       pgTicket.setDraw(draw);
-      pgTicket.setNumbers(mapConverter.mapNumbersToJson(numbers));
+      pgTicket.setNumbers(ticketMapper.mapNumbersToJson(numbers));
       poolTickets.add(pgTicket);
     }
 

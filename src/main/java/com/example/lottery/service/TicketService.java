@@ -1,10 +1,8 @@
 package com.example.lottery.service;
 
-import com.example.lottery.dto.PreGeneratedTicketResponseDto;
 import com.example.lottery.dto.TicketCreateDto;
 import com.example.lottery.dto.TicketResponseDto;
 import com.example.lottery.entity.Ticket;
-
 import java.util.List;
 
 public interface TicketService {

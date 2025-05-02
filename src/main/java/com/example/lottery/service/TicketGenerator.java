@@ -3,7 +3,6 @@ package com.example.lottery.service;
 import com.example.lottery.dto.algorithm.AlgorithmRules;
 import com.example.lottery.entity.Draw;
 import com.example.lottery.entity.Ticket;
-
 import java.util.List;
 
 public interface TicketGenerator {

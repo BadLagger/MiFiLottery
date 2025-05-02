@@ -12,11 +12,9 @@ public class RandomUniqueRules implements AlgorithmRules {
   private Integer numberCount;
 
   @Min(1)
-  @Max(1000)
   private Integer minNumber;
 
   @Min(2)
-  @Max(1000)
   private Integer maxNumber;
 
   private boolean sorted = true;

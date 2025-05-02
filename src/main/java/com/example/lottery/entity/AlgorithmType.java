@@ -25,20 +25,20 @@ public enum AlgorithmType {
 
   // Статическое отображение для связи классов правил с типами алгоритмов
   private static final Map<String, AlgorithmType> CLASS_NAME_MAPPING =
-          Map.of(
-                  "RandomUniqueRules", RANDOM_UNIQUE_NUMBERS,
-                  "FixedPoolRules", FIXED_POOL,
-                  "UserSelectedRules", USER_SELECTED);
+      Map.of(
+          "RandomUniqueRules", RANDOM_UNIQUE_NUMBERS,
+          "FixedPoolRules", FIXED_POOL,
+          "UserSelectedRules", USER_SELECTED);
 
   // Метод для получения типа алгоритма по имени класса правил
   public static AlgorithmType fromClassName(String className) {
     AlgorithmType type = CLASS_NAME_MAPPING.get(className);
     if (type == null) {
       throw new IllegalArgumentException(
-              "Неизвестный алгоритм: "
-                      + className
-                      + ". Поддерживаемые классы: "
-                      + CLASS_NAME_MAPPING.keySet());
+          "Неизвестный алгоритм: "
+              + className
+              + ". Поддерживаемые классы: "
+              + CLASS_NAME_MAPPING.keySet());
     }
     return type;
   }
