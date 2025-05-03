@@ -40,10 +40,10 @@ public class DrawService {
     private final DrawResultRepository drawResultRepository;
 
     private final LotteryTypeRepository lotteryTypeRepository;
-  private TicketMapper ticketMapper;
-  private FixedPoolTicketGenerator fixedPoolTicketGenerator;
-  private PreGeneratedTicketRepository preGeneratedRepo;
-  private TicketsFactory ticketsFactory;
+    private TicketMapper ticketMapper;
+    private FixedPoolTicketGenerator fixedPoolTicketGenerator;
+    private PreGeneratedTicketRepository preGeneratedRepo;
+    private TicketsFactory ticketsFactory;
 
     private final DrawMapper drawMapper;
 
@@ -58,7 +58,7 @@ public class DrawService {
 
     @PostConstruct
     public void init() {
-        System.out.println("Init DrawService bgn");
+       // System.out.println("Init DrawService bgn");
 
         // Пока что максимальное количество потоков прибито гвоздями, но по хорошему надо сделать его гибким - maxPoolSize = maxLotteryTypes * maxNumberOfLOtteryTypesInDay (то есть максимальное кол-во потоков равно количеству типов лотерей плюс максимальное кол-во лотереи каждого типа в сутки)
         // Возможно рациональней использовать ProjectLoom ?
@@ -69,7 +69,7 @@ public class DrawService {
         checkActiveDraws();
         checkPlannedDraws();
 
-        System.out.println("Init DrawService end");
+      //  System.out.println("Init DrawService end");
     }
 
     public List<Draw> findAll() {return drawRepository.findAll();}
@@ -108,7 +108,7 @@ public class DrawService {
     }
 
     public void setActive(Draw draw) {
-        System.out.format("Draw: %s set active\n", draw.getName());
+       // System.out.format("Draw: %s set active\n", draw.getName());
         // Устанавливаем в планировщик активных задач
         setStatus(draw, DrawStatus.ACTIVE);
         long delayMs = ChronoUnit.MILLIS.between(LocalDateTime.now(), draw.getStartTime().plusMinutes(draw.getDuration()));
@@ -119,14 +119,14 @@ public class DrawService {
     }
 
     public void setPlanned(Draw draw) {
-        System.out.format("Draw: %s set planned\n", draw.getName());
+     //   System.out.format("Draw: %s set planned\n", draw.getName());
         setStatus(draw, DrawStatus.PLANNED);
         long delayMs = ChronoUnit.MILLIS.between(LocalDateTime.now(), draw.getStartTime());
         addToPlannedTasks(draw, delayMs);
     }
 
     public void setComplete(Draw draw) {
-        System.out.format("Draw: %s set complete\n", draw.getName());
+      //  System.out.format("Draw: %s set complete\n", draw.getName());
     //        preGeneratedTicketRepo.deleteByDraw(draw); // Очищаем пул предсозданных билетов
         setStatus(draw, DrawStatus.COMPLETED);
         sсheduledActiveFutures.remove(draw.getId());
@@ -143,7 +143,7 @@ public class DrawService {
                 future.cancel(false);
             }
         }
-        System.out.format("Draw: %s set cancelled\n", draw.getName());
+      //  System.out.format("Draw: %s set cancelled\n", draw.getName());
         setStatus(draw, DrawStatus.CANCELLED);
     }
 
@@ -187,7 +187,7 @@ public class DrawService {
     // Запускаемся в начале каждых суток и устанавливаем в планировщик задачи
     @Scheduled(cron = "0 0 0 * * ?")
     public void dailyDrawChecking() {
-        System.out.println("Daily checking for draws status");
+      //  System.out.println("Daily checking for draws status");
         checkActiveDraws();
         checkPlannedDraws();
     }
@@ -197,18 +197,18 @@ public class DrawService {
         LocalDateTime tomorrow = LocalDateTime.now().plusDays(1).truncatedTo(ChronoUnit.DAYS);
         // Получаем все записи из БД с тиражами, которые имеют активный статус и имеют до начала следующих суток, при этом все записи упорядочены по дате от самых старых до самых свежих
         List<Draw> draws = drawRepository.findByStatusAndStartTimeBeforeTimeOrdered(DrawStatus.ACTIVE, tomorrow);
-        System.out.format("Get Active draws: %d\n", draws.size());
+     //   System.out.format("Get Active draws: %d\n", draws.size());
         // Проверка каждой записи
         for (var draw : draws) {
             // получаем время окончания тиража
             var drawEndTime = draw.getStartTime().plusMinutes(draw.getDuration());
-            System.out.format("id: %d name: %s status: %s\n", draw.getId(), draw.getName(), draw.getStatus());
+        //    System.out.format("id: %d name: %s status: %s\n", draw.getId(), draw.getName(), draw.getStatus());
             // Если время окончания тиража уже вышло, то завершаем тираж
             if (drawEndTime.isBefore(LocalDateTime.now())) {
                 setComplete(draw);
             } else {
                 // Если тираж ещё актуален, то добавляем его в планировщик
-                System.out.println("Add to active tasks");
+           //     System.out.println("Add to active tasks");
                 long delayMs = ChronoUnit.MILLIS.between(LocalDateTime.now(), drawEndTime);
                 addToActiveTasks(draw, delayMs);
             }
@@ -221,10 +221,10 @@ public class DrawService {
 
         // Получаем все записи из БД с тиражами, которые имеют запланированный статус и имеют до начала следующих суток, при этом все записи упорядочены по дате от самых старых до самых свежих
         List<Draw> draws = drawRepository.findByStatusAndStartTimeBeforeTimeOrdered(DrawStatus.PLANNED, tomorrow);
-        System.out.format("Get Planned draws: %d\n", draws.size());
+   //     System.out.format("Get Planned draws: %d\n", draws.size());
         for (var draw : draws) {
             var drawStartTime = draw.getStartTime();
-            System.out.format("id: %d name: %s status: %s\n", draw.getId(), draw.getName(), draw.getStatus());
+      //      System.out.format("id: %d name: %s status: %s\n", draw.getId(), draw.getName(), draw.getStatus());
             // Если время окончания тиража прошло, то отменяем тираж
             if (drawStartTime.plusMinutes(draw.getDuration()).isBefore(LocalDateTime.now())) {
                 setCancel(draw);
@@ -232,7 +232,7 @@ public class DrawService {
             }
             // Если начало тиража уже прошло, то заносим тираж в планировщик активных тиражей
             if (drawStartTime.isBefore(LocalDateTime.now())) {
-                System.out.println("Add to active tasks");
+        //        System.out.println("Add to active tasks");
                 long delayMs = ChronoUnit.MILLIS.between(LocalDateTime.now(), drawStartTime.plusMinutes(draw.getDuration()));
                 addToActiveTasks(draw, delayMs);
                 continue;
