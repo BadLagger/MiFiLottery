@@ -1,18 +1,11 @@
-# \\todo надо не забыть прицепить переменные окружения при подключении к внешней БД
-#spring.datasource.url=jdbc:postgresql://${DB_HOST}
-#spring.datasource.username=${DB_USERNAME}
-#spring.datasource.password=${DB_PASSWORD}
-#spring.datasource.driver-class-name=org.postgresql.Driver
-
 server:
   port: 8082
 
 spring:
-  application:
-    name: lottery
+#  application:
+#    name: lottery
   datasource:
     url: jdbc:h2:file:./data/testdb;MODE=PostgreSQL
-    platform: h2
     driver-class-name: org.h2.Driver
     username: sa
     password: password
@@ -35,11 +28,30 @@ spring:
     generate-ddl: false
     hibernate:
       ddl-auto: none
-#    show-sql: true
-#    properties:
-#      hibernate:
-#        format_sql: true
+    properties:
+      hibernate:
+        format_sql: true
 
+  jackson:
+    serialization:
+      WRITE_ENUMS_USING_TO_STRING: true
+    deserialization:
+      READ_ENUMS_USING_TO_STRING: true
+
+logging:
+  level:
+    com.example.lottery: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+#  file:
+#    name: ./logs/lottery.log
+
+
+# Default global values
 app:
   default:
     draw-duration: 60

@@ -3,23 +3,30 @@ package com.example.lottery.service;
 import ch.qos.logback.core.CoreConstants;
 import com.example.lottery.dto.DrawRequestDto;
 import com.example.lottery.dto.DrawStatus;
+import com.example.lottery.dto.algorithm.AlgorithmRules;
+import com.example.lottery.dto.algorithm.FixedPoolRules;
 import com.example.lottery.entity.Draw;
 import com.example.lottery.entity.DrawResult;
 import com.example.lottery.entity.LotteryType;
+import com.example.lottery.entity.PreGeneratedTicket;
 import com.example.lottery.mapper.DrawMapper;
+import com.example.lottery.mapper.TicketMapper;
 import com.example.lottery.repository.DrawRepository;
 import com.example.lottery.repository.DrawResultRepository;
 import com.example.lottery.repository.LotteryTypeRepository;
+import com.example.lottery.repository.PreGeneratedTicketRepository;
+import com.example.lottery.service.Impl.FixedPoolTicketGenerator;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -28,14 +35,15 @@ import java.util.concurrent.*;
 @Service
 @RequiredArgsConstructor
 public class DrawService {
-    //@Autowired
     private final DrawRepository drawRepository;
 
-    //@Autowired
     private final DrawResultRepository drawResultRepository;
 
-    //@Autowired
     private final LotteryTypeRepository lotteryTypeRepository;
+  private TicketMapper ticketMapper;
+  private FixedPoolTicketGenerator fixedPoolTicketGenerator;
+  private PreGeneratedTicketRepository preGeneratedRepo;
+  private TicketsFactory ticketsFactory;
 
     private final DrawMapper drawMapper;
 
@@ -106,6 +114,7 @@ public class DrawService {
         long delayMs = ChronoUnit.MILLIS.between(LocalDateTime.now(), draw.getStartTime().plusMinutes(draw.getDuration()));
         addToActiveTasks(draw, delayMs);
         // Удаляем из списка планировщика запланированных задач
+        // TODO: Если тираж с предсозданными билетами - запустить initPoolForDraw
         sсheduledPlannedFutures.remove(draw.getId());
     }
 
@@ -118,6 +127,7 @@ public class DrawService {
 
     public void setComplete(Draw draw) {
         System.out.format("Draw: %s set complete\n", draw.getName());
+    //        preGeneratedTicketRepo.deleteByDraw(draw); // Очищаем пул предсозданных билетов
         setStatus(draw, DrawStatus.COMPLETED);
         sсheduledActiveFutures.remove(draw.getId());
     }
@@ -232,4 +242,37 @@ public class DrawService {
             addToPlannedTasks(draw, delayMs);
         }
     }
+
+  // Вызываем этот метод при переходе тиража в статус ACTIVE.
+  @Transactional
+  public void initPoolForDraw(Draw draw) {
+    // Получаем генератор через фабрику
+    TicketGenerator generator = ticketsFactory.getGenerator(draw);
+
+    // Проверяем, что это именно FixedPool генератор
+    if (!(generator instanceof FixedPoolTicketGenerator)) {
+      throw new IllegalStateException(
+          "Метод initPoolForDraw поддерживает только FixedPool тиражи. Получен: "
+              + generator.getClass().getSimpleName());
+    }
+
+    // Получаем правила для проверки размера пула
+    AlgorithmRules rules = ((FixedPoolTicketGenerator) generator).getRules();
+    FixedPoolRules fixedPoolRules = (FixedPoolRules) rules;
+
+    // Генерируем пул билетов
+    List<PreGeneratedTicket> poolTickets = new ArrayList<>();
+    for (int i = 0; i < fixedPoolRules.getPoolSize(); i++) {
+      // Используем генератор для создания билетов
+      List<Integer> numbers = generator.generateNumbers();
+
+      PreGeneratedTicket pgTicket = new PreGeneratedTicket();
+      pgTicket.setDraw(draw);
+      pgTicket.setNumbers(ticketMapper.mapNumbersToJson(numbers));
+      poolTickets.add(pgTicket);
+    }
+
+    // Сохраняем пул в БД
+    preGeneratedRepo.saveAll(poolTickets);
+  }
 }

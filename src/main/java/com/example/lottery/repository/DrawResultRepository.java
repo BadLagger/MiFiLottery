@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DrawResultRepository extends JpaRepository<DrawResult, Long> {
-    DrawResult findByDraw(Draw byId);
+  DrawResult findByDraw(Draw byId);
 }
