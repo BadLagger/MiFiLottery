@@ -4,6 +4,7 @@ import com.example.lottery.dto.DrawRequestDto;
 import com.example.lottery.dto.DrawStatus;
 import com.example.lottery.entity.Draw;
 import com.example.lottery.entity.DrawResult;
+import com.example.lottery.service.DrawResultService;
 import com.example.lottery.service.DrawService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.FutureOrPresent;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DrawController {
     public final DrawService drawService;
+    public final DrawResultService drawResultService;
 
     @Value("${app.default.draw-duration}")
     private Integer defaultDuration;
@@ -106,5 +108,4 @@ public class DrawController {
 
         return ResponseEntity.ok(existingDraw); // Возвращаем обновленную версию тиража
     }
-
 }
