@@ -11,6 +11,7 @@ import com.example.lottery.security.service.JwtService;
 import com.example.lottery.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -60,6 +62,8 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
+
+        log.info("Try to register: {}, {}", request.getName(), request.getRole());
 
         userService.registerUser(request);
 

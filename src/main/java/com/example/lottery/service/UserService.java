@@ -7,6 +7,7 @@ import com.example.lottery.repository.UserRepository;
 import com.example.lottery.security.dto.LoginRequest;
 import com.example.lottery.security.dto.RegisterRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
@@ -17,6 +18,7 @@ import com.example.lottery.repository.RoleRepository;
 
 import java.math.BigDecimal;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -35,21 +37,31 @@ public class UserService {
 
     public void registerUser(RegisterRequest newUser) {
         if (userRepository.existsByName(newUser.getName())) {
+            log.error("User {} already exists", newUser.getName());
             throw new IllegalArgumentException("Username already exists");
         }
 
-        if (newUser.getRole().getName().equals(Role.ADMIN)) {
-            var role = roleRepository.findByName(Role.ADMIN);
-            if (role.isEmpty()) {
-                throw new IllegalArgumentException("No ID for Role ADMIN");
-            }
-            if (userRepository.countByRole(role.get()) > 0) {
+        var newUserRole = roleRepository.findByName(newUser.getRole());
+        if (newUserRole.isEmpty()) {
+            throw new IllegalArgumentException("User with role null");
+        }
+
+        if (newUserRole.get().getName().equals(Role.ADMIN)) {
+            if (userRepository.countByRole(newUserRole.get()) > 0) {
                 throw new IllegalArgumentException("User with Role ADMIN already exists");
             }
          }
 
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
-        User user = userMapper.toEntity(newUser);
+
+        log.debug("Before mapper: {}, {}, {}", newUser.getName(), newUser.getRole(), newUser.getTelegram());
+        User user = userMapper.toEntity(newUser, newUserRole.get());
+
+        if (user.getRole() == null) {
+                log.debug("Oops!!! Role is null after mapper");
+                throw new IllegalArgumentException("Mapper get null role");
+        }
+
         userRepository.save(user);
     }
 
