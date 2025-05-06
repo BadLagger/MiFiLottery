@@ -93,13 +93,13 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.badRequest().body("Нет токена");
+            return ResponseEntity.badRequest().body("No token");
         }
 
         String token = authHeader.substring(7);
         jwtService.blacklist(token);
 
-        return ResponseEntity.ok("Пользователь вышел");
+        return ResponseEntity.ok("User exit");
     }
 
 }
