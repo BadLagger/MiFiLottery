@@ -1,4 +1,4 @@
-package com.example.lottery.config;
+package com.example.lottery.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
