@@ -1,3 +1,3 @@
 package com.example.lottery.security.dto;
 
-public record LoginRequest(String username, String password){}
+public record LoginRequest(String name, String password){}

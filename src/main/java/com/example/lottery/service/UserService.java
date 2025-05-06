@@ -77,7 +77,7 @@ public class UserService {
 
     public User login(LoginRequest inUser) {
 
-        var user = userRepository.findByName(inUser.username());
+        var user = userRepository.findByName(inUser.name());
 
         if (user.isEmpty()) {
             throw new UsernameNotFoundException(null);
