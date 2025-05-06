@@ -2,6 +2,8 @@ package com.example.lottery.security.config;
 
 import com.example.lottery.repository.UserRepository;
 import com.example.lottery.security.filter.JwtAuthFilter;
+import com.example.lottery.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -18,7 +20,6 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 public class SecurityConfig {
-
 
   /* Отладочный бин для отладки без секьюрити
   @Bean

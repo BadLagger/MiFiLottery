@@ -21,7 +21,6 @@ public class User {
   private String password; //
   @ManyToOne
   @JoinColumn(name = "role_id")
-  @Setter(AccessLevel.PRIVATE)
   private Role role;
   private String telegram;
   private BigDecimal balance = BigDecimal.ZERO;
