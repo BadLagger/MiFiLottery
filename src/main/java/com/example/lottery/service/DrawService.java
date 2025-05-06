@@ -36,9 +36,7 @@ import java.util.concurrent.*;
 @RequiredArgsConstructor
 public class DrawService {
     private final DrawRepository drawRepository;
-
-    private final DrawResultRepository drawResultRepository;
-
+    private final DrawResultService drawResultService;
     private final LotteryTypeRepository lotteryTypeRepository;
     private TicketMapper ticketMapper;
     private FixedPoolTicketGenerator fixedPoolTicketGenerator;
@@ -79,10 +77,6 @@ public class DrawService {
     }
 
     public Optional<Draw> findById(Long id) { return drawRepository.findById(id); }
-
-    public DrawResult findResultByDrawId(Long id) {
-        return  drawResultRepository.findByDraw(drawRepository.findById(id).orElse(null));
-    }
 
     public Draw save(Draw draw) {
         return drawRepository.save(draw);
@@ -130,6 +124,7 @@ public class DrawService {
     //        preGeneratedTicketRepo.deleteByDraw(draw); // Очищаем пул предсозданных билетов
         setStatus(draw, DrawStatus.COMPLETED);
         sсheduledActiveFutures.remove(draw.getId());
+
     }
     public void setCancel(Draw draw) {
         // Проверяем список активных задач

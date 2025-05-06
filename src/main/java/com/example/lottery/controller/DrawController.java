@@ -60,15 +60,12 @@ public class DrawController {
     }
 
     @GetMapping("/draws/{id}/results")
-    public DrawResult getDrawIdResults(@PathVariable Long id) {
+    public ResponseEntity<DrawResult> getDrawIdResults(@PathVariable Long id) {
 
-        var result = drawService.findResultByDrawId(id);
+        var result = drawResultService.getById(id);
 
-        if (result == null) {
-            throw new IllegalArgumentException("No draw with requested id");
-        }
+        return result.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
 
-        return result;
     }
 
     @PostMapping("/admin/draws")
