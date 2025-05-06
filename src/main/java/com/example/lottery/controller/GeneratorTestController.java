@@ -66,10 +66,11 @@ public class GeneratorTestController {
         drawRepository
             .findById(dto.getDrawId())
             .orElseThrow(() -> new RuntimeException("Тираж не найден"));
-    User user = new User(1L); // Заглушка (реальная реализация через UserService)
+    // \todo Что именно должен возвращать UserService? Возможно в запрос необходимо добавить User ID?
+   // User user = new User(1L); // Заглушка (реальная реализация через UserService)
     Ticket ticket = ticketMapper.toEntity(dto);
     ticket.setDraw(draw);
-    ticket.setUser(user);
+   // ticket.setUser(user);
     ticket.setStatus(Ticket.Status.INGAME);
 
     return ResponseEntity.status(HttpStatus.CREATED)
