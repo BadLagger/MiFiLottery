@@ -124,7 +124,8 @@ public class DrawService {
     //        preGeneratedTicketRepo.deleteByDraw(draw); // Очищаем пул предсозданных билетов
         setStatus(draw, DrawStatus.COMPLETED);
         sсheduledActiveFutures.remove(draw.getId());
-
+        // Пробуем сгенерировать результат
+        drawResultService.generateResult(draw.getId());
     }
     public void setCancel(Draw draw) {
         // Проверяем список активных задач
