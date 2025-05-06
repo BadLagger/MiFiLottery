@@ -46,8 +46,10 @@ public class UserService {
             throw new IllegalArgumentException("User with role null");
         }
 
-        if (newUserRole.get().getName().equals(Role.ADMIN)) {
-            if (userRepository.countByRole(newUserRole.get()) > 0) {
+        if (newUserRole.get().getName().equalsIgnoreCase(Role.ADMIN)) {
+            var adminCount = userRepository.countByRole(newUserRole.get());
+            log.debug("Admin count: {}", adminCount);
+            if (adminCount > 0) {
                 throw new IllegalArgumentException("User with Role ADMIN already exists");
             }
          }
