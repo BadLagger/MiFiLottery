@@ -61,10 +61,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         username = jwtService.extractUsername(jwt);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
+            User user = userRepository.findByName(username).orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
 
             UserDetails userDetails = org.springframework.security.core.userdetails.User
-                    .withUsername(user.getUsername())
+                    .withUsername(user.getName())
                     .password(user.getPassword())
                     .authorities(user.getRole().getName())
                     .build();

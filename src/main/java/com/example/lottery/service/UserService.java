@@ -2,9 +2,15 @@ package com.example.lottery.service;
 
 import com.example.lottery.entity.Role;
 import com.example.lottery.entity.User;
+import com.example.lottery.mapper.UserMapper;
 import com.example.lottery.repository.UserRepository;
+import com.example.lottery.security.dto.LoginRequest;
+import com.example.lottery.security.dto.RegisterRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.lottery.repository.RoleRepository;
@@ -16,6 +22,8 @@ import java.math.BigDecimal;
 public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;// Правильное имя поля
+    private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * Регистрирует нового пользователя. @param username Логин пользователя (должен быть уникальным).
@@ -25,20 +33,24 @@ public class UserService {
      * @throws IllegalArgumentException Если логин занят или данные некорректны.
      */
 
-    public User registerUser(String username, String telegram, String password) {
-        if (userRepository.existsByUsername(username)) {
-            throw new IllegalArgumentException("Username already taken");
+    public void registerUser(RegisterRequest newUser) {
+        if (userRepository.existsByName(newUser.getName())) {
+            throw new IllegalArgumentException("Username already exists");
         }
-        Role userRole = roleRepository.findByName(Role.USER)
-                .orElseThrow(() -> new RuntimeException("USER role not found"));
 
-        User user = new User();
-        user.setUsername(username);
-        user.setPassword(password);
-        user.setTelegram(telegram);
-        user.assignRole(userRole);
+        if (newUser.getRole().getName().equals(Role.ADMIN)) {
+            var role = roleRepository.findByName(Role.ADMIN);
+            if (role.isEmpty()) {
+                throw new IllegalArgumentException("No ID for Role ADMIN");
+            }
+            if (userRepository.countByRole(role.get()) > 0) {
+                throw new IllegalArgumentException("User with Role ADMIN already exists");
+            }
+         }
 
-        return userRepository.save(user);
+        newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+        User user = userMapper.toEntity(newUser);
+        userRepository.save(user);
     }
 
     /**
@@ -49,25 +61,33 @@ public class UserService {
      * @throws RuntimeException Если пользователь не найден или пароль неверен
      */
 
-    public User login(String username, String password) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User does not exist"));
-        if (!BCrypt.checkpw(password, user.getPassword()))
-            throw new IllegalArgumentException("Invalid password");
-        user.updateLastLogin();
-        return user;
+    public User login(LoginRequest inUser) {
+
+        var user = userRepository.findByName(inUser.username());
+
+        if (user.isEmpty()) {
+            throw new UsernameNotFoundException(null);
+        }
+
+        if (!passwordEncoder.matches(inUser.password(), user.get().getPassword())) {
+            throw new BadCredentialsException(null);
+        }
+
+        return user.get();
+
     }
 
     // Будет возвращать User без проверки пароля
-    public User getUserByUsername(String username) {
+    /*public User getUserByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-    }
+    }*/
 
     // Проверяет пароль (возвращает true/false вместо исключения)
-    public boolean checkPassword(String username, String rawPassword) {
+    /*public boolean checkPassword(String username, String rawPassword) {
         User user = getUserByUsername(username);
         return BCrypt.checkpw(rawPassword, user.getPassword());
-    }
+    }*/
 
     /**
      * Возвращает текущий баланс пользователя.
@@ -76,10 +96,10 @@ public class UserService {
      * @throws IllegalArgumentException Если пользователь не найден
      */
 
-    public BigDecimal getBalance(Long userId) {
+    /*public BigDecimal getBalance(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
              return user.getBalance();
-    }
+    }*/
 
     /**
      * Списывает средства с баланса.
@@ -88,7 +108,7 @@ public class UserService {
      * @throws IllegalStateException Если недостаточно средств
      */
 
-    public void subtractFromBalance(Long userId, BigDecimal amount) {
+    /*public void subtractFromBalance(Long userId, BigDecimal amount) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Amount must be positive and not null");
         }
@@ -103,7 +123,7 @@ public class UserService {
         }
         user.setBalance(user.getBalance().subtract(amount));
         userRepository.save(user);
-    }
+    }*/
 
     /**
      * Пополняет баланс пользователя.
@@ -112,7 +132,7 @@ public class UserService {
      * @throws IllegalArgumentException Если сумма некорректна
      */
 
-    public void addToBalance (Long userId, BigDecimal amount) {
+    /*public void addToBalance (Long userId, BigDecimal amount) {
         User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Amount must be positive");
@@ -120,7 +140,7 @@ public class UserService {
             BigDecimal newBalance = user.getBalance().add(amount);
             user.setBalance(newBalance);
             userRepository.save(user);
-        }
+        }*/
     }
 
 

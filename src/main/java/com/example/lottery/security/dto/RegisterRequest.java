@@ -4,14 +4,19 @@ import com.example.lottery.entity.Role;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 @AllArgsConstructor
 @Getter
+@Setter
 public class RegisterRequest {
-    @NotNull(message = "Имя пользователя обязательно")
-    private String username;
-    @NotNull(message = "Пароль обязателен")
+    @NotNull(message = "Username is mandatory")
+    private String name;
+    @NotNull(message = "Password is mandatory")
     private String password;
-    @NotNull(message = "Роль обязательна")
+    @NotNull(message = "Role is  mandatory")
     private Role role;
+    @NotNull(message = "Telegram Id is mandatory")
+    private String telegram;
+
 }

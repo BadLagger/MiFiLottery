@@ -20,7 +20,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     /**
      * Находит пользователя по имени. @param username Имя пользователя. @return Optional с пользователем, если найден.
      */
-    Optional<User> findByUsername(String username);
+    Optional<User> findByName(String name);
     /**
      * Находит всех пользователей с указанной ролью. @param roleName Название роли (например, "USER"). @return Список пользователей.
      */
@@ -28,12 +28,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
     /**
      * Проверяет, существует ли пользователь с заданным именем. @param username Имя пользователя. @return true, если пользователь существует.
      */
-    boolean existsByUsername(String username);
+    boolean existsByName(String name);
     /**
      * Находит роль USER. @return Optional с ролью USER.
      */
     @Query("SELECT r FROM Role r WHERE r.name = 'USER'")
     Optional<Role> findUserRole();
 
+    long countByRole(Role role);
 }
 
