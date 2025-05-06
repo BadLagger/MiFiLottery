@@ -77,7 +77,7 @@ public class AuthController {
         String username = jwtService.extractUsername(refreshToken);
 
         if (!jwtService.isTokenValid(refreshToken, username)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Недействительный refresh токен");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not valid refresh token");
         }
 
         String newAccessToken = jwtService.generateAccessToken(username);
