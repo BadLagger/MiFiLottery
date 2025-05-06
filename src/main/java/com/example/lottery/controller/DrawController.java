@@ -61,7 +61,14 @@ public class DrawController {
 
     @GetMapping("/draws/{id}/results")
     public DrawResult getDrawIdResults(@PathVariable Long id) {
-        return drawService.findResultByDrawId(id);
+
+        var result = drawService.findResultByDrawId(id);
+
+        if (result == null) {
+            throw new IllegalArgumentException("No draw with requested id");
+        }
+
+        return result;
     }
 
     @PostMapping("/admin/draws")
