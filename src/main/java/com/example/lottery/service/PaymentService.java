@@ -1,8 +1,6 @@
 package com.example.lottery.service;
 
-import com.example.lottery.dto.InvoiceStatus;
 import com.example.lottery.dto.PaymentDto;
-import com.example.lottery.dto.PaymentStatus;
 import com.example.lottery.entity.Invoice;
 import com.example.lottery.entity.Payment;
 import com.example.lottery.mapper.PaymentMapper;
@@ -31,7 +29,7 @@ public class PaymentService {
         Invoice invoice = invoiceRepository.findById(invoiceId).orElseThrow();
 
         // Проверка: если инвойс оплачен, отменен, либо его тираж не активен — запретить
-        if (invoice.getStatus() != InvoiceStatus.UNPAID) {
+        if (invoice.getStatus() != Invoice.InvoiceStatus.UNPAID) {
             throw new IllegalStateException("Invoice is not available for payment!");
         }
 
@@ -39,7 +37,7 @@ public class PaymentService {
 
         invoiceService.setPending(invoiceId);
 
-        PaymentStatus status = mockPaymentProcessor.process(cardNumber, cvc);
+        Payment.PaymentStatus status = mockPaymentProcessor.process(cardNumber, cvc);
         Payment payment = new Payment(
                 null,
                 invoice,
@@ -50,7 +48,7 @@ public class PaymentService {
         Payment saved = paymentRepository.save(payment);
 
         // Завершить процесс
-        if (status == PaymentStatus.SUCCESS) {
+        if (status == Payment.PaymentStatus.SUCCESS) {
             invoiceService.setPaid(invoiceId);
 
             //toDo Создать билет для пользователя

@@ -1,5 +1,6 @@
 package com.example.lottery.dto;
 
+import com.example.lottery.entity.Payment;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,5 +16,5 @@ public class PaymentDto {
     private Long invoiceId;
     private BigDecimal amount;
     private LocalDateTime paymentTime;
-    private PaymentStatus status;
+    private Payment.PaymentStatus status;
 }

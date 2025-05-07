@@ -1,6 +1,5 @@
 package com.example.lottery.entity;
 
-import com.example.lottery.dto.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,4 +28,9 @@ public class Payment {
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
+
+    public enum PaymentStatus {
+        SUCCESS,
+        FAILED
+    }
 }

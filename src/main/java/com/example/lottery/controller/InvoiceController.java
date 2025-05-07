@@ -1,15 +1,12 @@
 package com.example.lottery.controller;
 
-import com.example.lottery.dto.InvoiceDto;
-import com.example.lottery.dto.InvoiceStatus;
-import com.example.lottery.entity.Invoice;
+import com.example.lottery.dto.InvoiceCreateDto;
+import com.example.lottery.dto.InvoiceResponseDto;
 import com.example.lottery.service.InvoiceService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/invoice")
@@ -17,24 +14,33 @@ import java.util.Optional;
 public class InvoiceController {
     private final InvoiceService invoiceService;
 
+    // Ручка для создания инвойса
     @PostMapping
-    public InvoiceDto create(@RequestBody Invoice invoice) {
-        return invoiceService.createInvoice(invoice);
+    public ResponseEntity<InvoiceResponseDto> createInvoice(@RequestBody InvoiceCreateDto invoiceCreateDto) {  //Система инициирует регистрацию инвойса
+        return ResponseEntity.status(HttpStatus.CREATED).body(invoiceService.createInvoice(invoiceCreateDto));
     }
 
-    @GetMapping
-    public List<InvoiceDto> getByStatus(@RequestParam InvoiceStatus status) {
+    // Ручка для отмены всех неоплаченных инвойсов по завершённому тиражу. @param drawId - ID завершенного тиража
+    @PostMapping("/cancel-unpaid-after-draw/{drawId}")
+    public ResponseEntity<String> cancelUnpaidAfterDraw(@PathVariable Long drawId) {
+        invoiceService.cancelUnpaidAfterDraw(drawId);
+        return ResponseEntity.ok("Unpaid invoices for draw " + drawId + " have been cancelled.");
+    }
+}
+
+//-----------------------------------------------------------------------------------------------
+   /* @GetMapping
+    public List<InvoiceResponseDto> getByStatus(@RequestParam InvoiceStatus status) {
         return invoiceService.getInvoicesByStatus(status);
     }
 
     @GetMapping("/{id}")
-    public Optional<InvoiceDto> getById(@PathVariable Long id) {
+    public Optional<InvoiceResponseDto> getById(@PathVariable Long id) {
         return invoiceService.getInvoiceById(id);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/status")
-    public InvoiceDto updateStatus(
+    public InvoiceResponseDto updateStatus(
             @PathVariable Long id,
             @RequestParam InvoiceStatus status,
             @RequestParam int cancelled
@@ -42,4 +48,4 @@ public class InvoiceController {
         return invoiceService.updateInvoiceStatus(id, status, cancelled);
     }
 }
-
+*/
