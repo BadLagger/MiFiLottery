@@ -1,6 +1,6 @@
 package com.example.lottery.security.dto;
 
-import com.example.lottery.security.entity.Role;
+import com.example.lottery.entity.Role;
 import lombok.Getter;
 import lombok.Setter;
 

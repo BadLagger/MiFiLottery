@@ -1,31 +1,38 @@
 package com.example.lottery.entity;
 
+import com.example.lottery.dto.DrawStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Table(name = "draw")
 public class Draw {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="lottery_type_id")
-    private LotteryType lotteryType;
+  @Column(nullable = false)
+  private String name;
 
-    private LocalDateTime startTime;
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "lottery_type_id")
+  private LotteryType lotteryType;
 
-    @Enumerated(EnumType.STRING)
-    private Status status;
+  @Column(nullable = false)
+  private LocalDateTime startTime;
 
-    public enum Status {
-        PLANNED, ACTIVE, COMPLETED, CANCELLED
-    }
+  @Column(nullable = false)
+  private Integer duration;
+
+  @Enumerated(EnumType.STRING)
+  @Column(columnDefinition = "draw_status")
+  private DrawStatus status;
 }

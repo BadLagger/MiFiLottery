@@ -1,9 +1,14 @@
 package com.example.lottery.security.filter;
 
+import com.example.lottery.entity.User;
+import com.example.lottery.repository.UserRepository;
 import com.example.lottery.security.service.JwtService;
-import com.example.lottery.security.repository.UserRepository;
-import com.example.lottery.security.entity.User;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,13 +17,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -33,6 +35,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
+        log.debug("Get request with checking");
         String path = request.getServletPath();
 
         if (path.startsWith("/auth") || path.startsWith("/h2-console")) {
@@ -42,14 +45,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
 
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        String jwt = "";
         final String username;
-
-        if (jwtService.isBlacklisted(jwt)) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.getWriter().write("Токен заблокирован (logout)");
-            return;
-        }
 
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -57,16 +53,28 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        jwt = authHeader.substring(7);
+        log.debug("Header exists");
+
+        String jwt = authHeader.substring(7);
+
+        if (jwtService.isBlacklisted(jwt)) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.getWriter().write("Token is blocked (logout)");
+            return;
+        }
+
+        log.debug("Header not in blacklist");
+
         username = jwtService.extractUsername(jwt);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
+            User user = userRepository.findByName(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
+            log.debug("User Role: {}", user.getRole().getName());
             UserDetails userDetails = org.springframework.security.core.userdetails.User
-                    .withUsername(user.getUsername())
+                    .withUsername(user.getName())
                     .password(user.getPassword())
-                    .authorities(user.getRole().name())
+                    .authorities(user.getRole().getName().toUpperCase())
                     .build();
 
             if (jwtService.isTokenValid(jwt, userDetails.getUsername())) {
@@ -82,7 +90,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
-
         filterChain.doFilter(request, response);
+        log.debug("Exit from checking");
     }
 }

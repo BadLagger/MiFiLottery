@@ -1,47 +1,48 @@
 package com.example.lottery.security.controller;
 
+import com.example.lottery.entity.User;
+import com.example.lottery.mapper.UserMapper;
+import com.example.lottery.repository.UserRepository;
 import com.example.lottery.security.dto.AuthResponse;
 import com.example.lottery.security.dto.LoginRequest;
 import com.example.lottery.security.dto.RefreshRequest;
 import com.example.lottery.security.dto.RegisterRequest;
-import com.example.lottery.security.entity.Role;
-import com.example.lottery.security.entity.User;
-import com.example.lottery.security.repository.UserRepository;
 import com.example.lottery.security.service.JwtService;
+import com.example.lottery.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    //private final UserRepository userRepository;
+    private final UserService userService;
+    //private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) throws AccessDeniedException {
 
-        Optional<User> user = userRepository.findByUsername(request.username());
+        User user = userService.login(request);
 
-
-        if (user.isEmpty() || !passwordEncoder.matches(request.password(), user.get().getPassword())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неверный логин или пароль");
-        }
-
-        String accessToken = jwtService.generateAccessToken(user.get().getUsername());
-        String refreshToken = jwtService.generateRefreshToken(user.get().getUsername());
+        String accessToken = jwtService.generateAccessToken(user.getName());
+        String refreshToken = jwtService.generateRefreshToken(user.getName());
 
         Date accessExp = jwtService.getExpiration(accessToken);
         Date refreshExp = jwtService.getExpiration(refreshToken);
@@ -49,8 +50,8 @@ public class AuthController {
         AuthResponse response = new AuthResponse();
         response.setAccessToken(accessToken);
         response.setRefreshToken(refreshToken);
-        response.setUsername(user.get().getUsername());
-        response.setRole(user.get().getRole());
+        response.setUsername(user.getName());
+        response.setRole(user.getRole());
         response.setAccessExpiresAt(accessExp.toInstant());
         response.setRefreshExpiresAt(refreshExp.toInstant());
 
@@ -62,21 +63,11 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
 
-        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-            return ResponseEntity
-                    .status(HttpStatus.CONFLICT)
-                    .body("Пользователь уже существует");
-        }
+        log.info("Try to register: {}, {}", request.getName(), request.getRole());
 
+        userService.registerUser(request);
 
-        User newUser = new User();
-        newUser.setUsername(request.getUsername());
-        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
-        newUser.setRole(request.getRole());
-
-        userRepository.save(newUser);
-
-        return ResponseEntity.ok("Пользователь: " + request.getUsername() + " зарегистрирован");
+        return ResponseEntity.ok("User:  " + request.getName() + " registration success");
     }
 
     @PostMapping("/refresh")
@@ -86,7 +77,7 @@ public class AuthController {
         String username = jwtService.extractUsername(refreshToken);
 
         if (!jwtService.isTokenValid(refreshToken, username)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Недействительный refresh токен");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not valid refresh token");
         }
 
         String newAccessToken = jwtService.generateAccessToken(username);
@@ -102,13 +93,13 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.badRequest().body("Нет токена");
+            return ResponseEntity.badRequest().body("No token");
         }
 
         String token = authHeader.substring(7);
         jwtService.blacklist(token);
 
-        return ResponseEntity.ok("Пользователь вышел");
+        return ResponseEntity.ok("User exit");
     }
 
 }

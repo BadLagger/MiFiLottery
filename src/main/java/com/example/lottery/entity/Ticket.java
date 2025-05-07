@@ -1,6 +1,5 @@
 package com.example.lottery.entity;
 
-import com.example.lottery.security.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,29 +13,30 @@ import org.hibernate.type.SqlTypes;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Ticket {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(columnDefinition = "jsonb", nullable = false)
-    @JdbcTypeCode(SqlTypes.JSON)
-    private String data;
+  @Column(columnDefinition = "jsonb", nullable = false)
+  @JdbcTypeCode(SqlTypes.JSON)
+  private String data; // например {"numbers": [1, 5, 10, 15, 20]}
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User userId;
+  @ManyToOne
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "draw_id")
-    private Draw drawId;
+  @ManyToOne
+  @JoinColumn(name = "draw_id", nullable = false)
+  private Draw draw;
 
-    @Enumerated(EnumType.STRING)
-    private Status status;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private Status status;
 
-    public enum Status {
-        INGAME,
-        WIN,
-        LOSE,
-        CANCELLED
-    }
+  public enum Status {
+    INGAME,
+    WIN,
+    LOSE,
+    CANCELLED
+  }
 }
