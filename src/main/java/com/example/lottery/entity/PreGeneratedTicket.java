@@ -21,6 +21,9 @@ public class PreGeneratedTicket {
   @JdbcTypeCode(SqlTypes.JSON)
   private String numbers; // JSON с числами, например "[1, 5, 10]"
 
+  @Column(name = "numbers_hash")
+  private String numbersHash;
+
   @Column(nullable = false)
   private boolean issued = false; // Флаг "выдан"
 }

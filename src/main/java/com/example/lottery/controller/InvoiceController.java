@@ -1,9 +1,15 @@
 package com.example.lottery.controller;
 
 import com.example.lottery.dto.InvoiceDto;
+import com.example.lottery.dto.TicketCreateDto;
+import com.example.lottery.dto.TicketInInvoiceDto;
+import com.example.lottery.dto.TicketResponseDto;
 import com.example.lottery.entity.Invoice;
 import com.example.lottery.service.InvoiceService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,8 +23,8 @@ public class InvoiceController {
     private final InvoiceService invoiceService;
 
     @PostMapping
-    public InvoiceDto create(@RequestBody Invoice invoice) {
-        return invoiceService.createInvoice(invoice);
+    public ResponseEntity<TicketInInvoiceDto> create(@Valid @RequestBody TicketCreateDto dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(invoiceService.createInvoice(dto));
     }
 
     @GetMapping
@@ -27,10 +33,10 @@ public class InvoiceController {
     }
 
     @GetMapping("/{id}")
-    public Optional<InvoiceDto> getById(@PathVariable Long id) {
+    public InvoiceDto getById(@PathVariable Long id) {
         return invoiceService.getInvoiceById(id);
+//        return JsonMapper.fromJson(invoiceService.getInvoiceById(id).getTicketData(), TicketResponseDto.class);
     }
-
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/status")
     public InvoiceDto updateStatus(

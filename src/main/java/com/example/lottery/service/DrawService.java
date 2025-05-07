@@ -10,6 +10,7 @@ import com.example.lottery.entity.DrawResult;
 import com.example.lottery.entity.LotteryType;
 import com.example.lottery.entity.PreGeneratedTicket;
 import com.example.lottery.mapper.DrawMapper;
+import com.example.lottery.mapper.JsonMapper;
 import com.example.lottery.mapper.TicketMapper;
 import com.example.lottery.repository.DrawRepository;
 import com.example.lottery.repository.DrawResultRepository;
@@ -23,6 +24,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -70,6 +73,11 @@ public class DrawService {
         checkPlannedDraws();
 
         System.out.println("Init DrawService end");
+    }
+
+    public BigDecimal getTicketPriceByDrawId(Long id) {
+        Draw draw = findById(id).orElseThrow(() -> new IllegalArgumentException("Draw not found"));
+        return draw.getLotteryType().getTicketPrice();
     }
 
     public List<Draw> findAll() {return drawRepository.findAll();}
@@ -268,7 +276,7 @@ public class DrawService {
 
       PreGeneratedTicket pgTicket = new PreGeneratedTicket();
       pgTicket.setDraw(draw);
-      pgTicket.setNumbers(ticketMapper.mapNumbersToJson(numbers));
+      pgTicket.setNumbers(JsonMapper.mapNumbersToJson(numbers));
       poolTickets.add(pgTicket);
     }
 

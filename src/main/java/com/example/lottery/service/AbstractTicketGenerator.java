@@ -7,6 +7,7 @@ import com.example.lottery.entity.Draw;
 import com.example.lottery.entity.LotteryType;
 import com.example.lottery.entity.Ticket;
 import com.example.lottery.entity.User;
+import com.example.lottery.mapper.JsonMapper;
 import com.example.lottery.mapper.LotteryTypeMapper;
 import com.example.lottery.mapper.TicketMapper;
 import com.example.lottery.service.utils.UniqueNumbersGenerator;
@@ -54,7 +55,7 @@ public abstract class AbstractTicketGenerator implements TicketGenerator {
   public Ticket create(User user, List<Integer> numbers) {
     // TODO: нужно еще пользователя передавать и привязывать
     Ticket ticket = new Ticket();
-    ticket.setData(ticketMapper.mapNumbersToJson(numbers));
+    ticket.setData(JsonMapper.mapNumbersToJson(numbers));
     ticket.setDraw(draw);
     ticket.setStatus(Ticket.Status.INGAME);
     return ticket;
@@ -71,7 +72,7 @@ public abstract class AbstractTicketGenerator implements TicketGenerator {
   }
 
   public TicketResponseDto createDraft(String numbersJson) {
-    List<Integer> numbers = ticketMapper.mapJsonToNumbers(numbersJson);
+    List<Integer> numbers = JsonMapper.mapJsonToNumbers(numbersJson);
     return createDraft(numbers);
   }
 }
