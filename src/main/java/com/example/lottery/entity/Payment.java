@@ -19,14 +19,17 @@ public class Payment {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "invoice_id")
+    @JoinColumn(name = "invoice_id", nullable = false)
     private Invoice invoice;
 
+    @Column(nullable = false)
     private BigDecimal amount;
 
+    @Column(nullable = false)
     private LocalDateTime paymentTime;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private PaymentStatus status;
 
     public enum PaymentStatus {
@@ -34,3 +37,4 @@ public class Payment {
         FAILED
     }
 }
+
