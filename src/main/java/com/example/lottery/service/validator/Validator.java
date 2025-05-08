@@ -6,36 +6,42 @@ import com.example.lottery.dto.algorithm.RandomUniqueRules;
 import com.example.lottery.dto.algorithm.UserSelectedRules;
 import com.example.lottery.entity.AlgorithmType;
 import com.example.lottery.entity.Draw;
-import com.example.lottery.entity.LotteryType;
 import com.example.lottery.exception.ValidationException;
 import com.example.lottery.mapper.LotteryTypeMapper;
-import com.example.lottery.repository.LotteryTypeRepository;
+import com.example.lottery.service.DrawService;
+import com.example.lottery.service.LotteryTypeService;
 import java.util.HashSet;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class Validator {
-  private final LotteryTypeMapper lotteryTypeMapper;
-  private final LotteryTypeRepository lotteryTypeRepository;
+  private final LotteryTypeService lotteryTypeService;
+//  @Lazy
+//  private final DrawService drawService;
 
-  public void validateTicketForBuyingByDraw(Draw draw) {
-    // TODO: Здесь надо забрать тип алгоритма из сервиса LotteryType
-    AlgorithmType algorithmType =
-        lotteryTypeRepository.findById(draw.getLotteryType().getId()).get().getAlgorithmType();
+  public void validateTicketForBuyingByDrawId(Draw draw) {
+//    Draw draw = drawService.getDrawById(drawId);
+    AlgorithmType algorithmType = lotteryTypeService.getAlgorithmTypeByDraw(draw);
 
     if (!algorithmType.isDrawStatusAllowed(draw.getStatus())) {
       throw new ValidationException(
-          "Для тиража " + algorithmType+ " в статусе " + draw.getStatus() + " нельзя получить билет");
+          "Для тиража "
+              + algorithmType
+              + " в статусе "
+              + draw.getStatus()
+              + " нельзя получить билет");
     }
   }
 
-  public void validateNumbers(List<Integer> numbers, LotteryType lotteryType) {
-    AlgorithmRules rules = lotteryTypeMapper.parseRules(lotteryType.getAlgorithmRules());
+  public void validateNumbers(List<Integer> numbers, Draw draw) {
+//    Draw draw = drawService.getDrawById(drawId);
+    AlgorithmRules rules = lotteryTypeService.getAlgorithmRulesByDraw(draw);
 
     // Общие проверки для всех алгоритмов
 
