@@ -11,7 +11,6 @@ import com.example.lottery.mapper.JsonMapper;
 import com.example.lottery.mapper.LotteryTypeMapper;
 import com.example.lottery.mapper.TicketMapper;
 import com.example.lottery.service.utils.UniqueNumbersGenerator;
-
 import java.util.Collections;
 import java.util.List;
 import lombok.Setter;
@@ -21,20 +20,17 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public abstract class AbstractTicketGenerator implements TicketGenerator {
-  private final TicketService ticketService;
   @Setter protected Draw draw;
   protected LotteryTypeMapper lotteryTypeMapper;
   protected TicketMapper ticketMapper;
 
   public AbstractTicketGenerator(
-          LotteryTypeMapper lotteryTypeMapper,
-          TicketMapper ticketMapper,
-          UniqueNumbersGenerator uniqueNumbersGenerator,
-          TicketService ticketService) {
+      LotteryTypeMapper lotteryTypeMapper,
+      TicketMapper ticketMapper,
+      UniqueNumbersGenerator uniqueNumbersGenerator) {
     this.lotteryTypeMapper = lotteryTypeMapper;
     this.ticketMapper = ticketMapper;
     this.uniqueNumbersGenerator = uniqueNumbersGenerator;
-    this.ticketService = ticketService;
   }
 
   protected UniqueNumbersGenerator uniqueNumbersGenerator;
@@ -60,7 +56,7 @@ public abstract class AbstractTicketGenerator implements TicketGenerator {
     ticket.setData(JsonMapper.mapNumbersToJson(numbers));
     ticket.setDraw(draw);
     ticket.setStatus(Ticket.Status.INGAME);
-    return ticketService.saveTicket(ticket);
+    return ticket;
   }
 
   public TicketResponseDto createDraft(List<Integer> numbers) {

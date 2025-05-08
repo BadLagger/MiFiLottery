@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,9 +19,11 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
 
     List<Invoice> findByStatus(Invoice.Status status);
 
-    @Query("SELECT i FROM Invoice i WHERE i.draw.id = :drawId AND i.status IN (:statuses) AND i.cancelled = 0")
-    List<Invoice> findAllUnpaidInvoicesByDrawId(
-            @Param("drawId") Long drawId,
-            @Param("statuses") List<Invoice.Status> statuses
-    );
+//    @Query("SELECT i FROM Invoice i WHERE i.user.id = :userId AND i.status IN (:statuses) AND i.cancelled = 0")
+//    List<Invoice> getAllUnpaidInvoicesByUserId(
+//            @Param("userId") Long userId,
+//            @Param("statuses") List<Invoice.Status> statuses
+//    );
+
+    List<Invoice> findAllByStatusInAndCancelled(Collection<Invoice.Status> statuses, int cancelled);
 }

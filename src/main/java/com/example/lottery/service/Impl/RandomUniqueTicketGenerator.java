@@ -6,15 +6,17 @@ import com.example.lottery.dto.algorithm.RandomUniqueRules;
 import com.example.lottery.mapper.LotteryTypeMapper;
 import com.example.lottery.mapper.TicketMapper;
 import com.example.lottery.service.AbstractTicketGenerator;
-import com.example.lottery.service.TicketService;
 import com.example.lottery.service.utils.UniqueNumbersGenerator;
 import java.util.*;
 import org.springframework.stereotype.Service;
 
 @Service
 public class RandomUniqueTicketGenerator extends AbstractTicketGenerator {
-  public RandomUniqueTicketGenerator(LotteryTypeMapper lotteryTypeMapper, TicketMapper ticketMapper, UniqueNumbersGenerator uniqueNumbersGenerator, TicketService ticketService) {
-    super(lotteryTypeMapper, ticketMapper, uniqueNumbersGenerator, ticketService);
+  public RandomUniqueTicketGenerator(
+      LotteryTypeMapper lotteryTypeMapper,
+      TicketMapper ticketMapper,
+      UniqueNumbersGenerator uniqueNumbersGenerator) {
+    super(lotteryTypeMapper, ticketMapper, uniqueNumbersGenerator);
   }
 
   @Override

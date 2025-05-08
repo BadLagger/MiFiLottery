@@ -8,7 +8,6 @@ import com.example.lottery.mapper.LotteryTypeMapper;
 import com.example.lottery.mapper.TicketMapper;
 import com.example.lottery.repository.PreGeneratedTicketRepository;
 import com.example.lottery.service.AbstractTicketGenerator;
-import com.example.lottery.service.TicketService;
 import com.example.lottery.service.utils.UniqueNumbersGenerator;
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +18,12 @@ import org.springframework.stereotype.Service;
 public class FixedPoolTicketGenerator extends AbstractTicketGenerator {
   private final PreGeneratedTicketRepository preGeneratedRepo;
 
-  public FixedPoolTicketGenerator(LotteryTypeMapper lotteryTypeMapper, TicketMapper ticketMapper, UniqueNumbersGenerator uniqueNumbersGenerator, TicketService ticketService, PreGeneratedTicketRepository preGeneratedRepo) {
-    super(lotteryTypeMapper, ticketMapper, uniqueNumbersGenerator, ticketService);
+  public FixedPoolTicketGenerator(
+      LotteryTypeMapper lotteryTypeMapper,
+      TicketMapper ticketMapper,
+      UniqueNumbersGenerator uniqueNumbersGenerator,
+      PreGeneratedTicketRepository preGeneratedRepo) {
+    super(lotteryTypeMapper, ticketMapper, uniqueNumbersGenerator);
     this.preGeneratedRepo = preGeneratedRepo;
   }
 

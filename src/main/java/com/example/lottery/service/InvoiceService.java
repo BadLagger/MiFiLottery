@@ -91,26 +91,46 @@ public class InvoiceService {
   public void setUnpaid(Long id) {
     Invoice invoice = getInvoice(id);
     // isInvoiceNotCancelled(invoice);
-    // здесь не нужен, т.к. можно перевести в неоплаченные, если запрос на изменение статуса после завершения тиража
+    // здесь не нужен, т.к. можно перевести в неоплаченные, если запрос на изменение статуса после
+    // завершения тиража
     if (invoice.getStatus() == Invoice.Status.PENDING) {
       invoice.setStatus(Invoice.Status.UNPAID);
       invoiceRepository.save(invoice);
     }
   }
 
+  // TODO: отменить все неоплаченные инвойсы после окончания тиража
   @Transactional
-  public void cancelUnpaidInvoicesAfterDraw(Long drawId) {
+  public void cancelUnpaidInvoicesWhenDrawStopped(Long drawId) {
+
     List<Invoice.Status> statuses = Arrays.asList(Invoice.Status.UNPAID, Invoice.Status.PENDING);
-    List<Invoice> unpaidInvoices = invoiceRepository.findAllUnpaidInvoicesByDrawId(drawId, statuses);
+    List<Invoice> unpaidInvoices = invoiceRepository.findAllByStatusInAndCancelled(statuses, 0);
 
-    unpaidInvoices.forEach(invoice -> {
-      invoice.setCancelled(1);
-      if (invoice.getStatus() == Invoice.Status.PENDING) {
-        setUnpaid(invoice.getId());
-      }
-    });
+    //    выбрать все неоплаченные инвойсы именно для указанного тиража
+    List<Invoice> invoicesToCancel =
+        unpaidInvoices.stream()
+            .filter(
+                invoice -> {
+                  try {
+                    // Парсим JSON и достаём drawId
+                    TicketCreateDto dto =
+                        JsonMapper.fromJson(invoice.getTicketData(), TicketCreateDto.class);
+                    return dto.getDrawId().equals(drawId);
+                  } catch (Exception e) {
+                    return false;
+                  }
+                })
+            .toList();
 
-    invoiceRepository.saveAll(unpaidInvoices);
+    invoicesToCancel.forEach(
+        invoice -> {
+          invoice.setCancelled(1);
+          if (invoice.getStatus() == Invoice.Status.PENDING) {
+            setUnpaid(invoice.getId());
+          }
+        });
+
+    invoiceRepository.saveAll(invoicesToCancel);
   }
 
   private Invoice getInvoice(Long id, Long userId) {
