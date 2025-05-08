@@ -1,5 +1,5 @@
 server:
-  port: 8082
+  port: 8081
 
 spring:
 #  application:
@@ -24,7 +24,7 @@ spring:
 
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
-    show-sql: true
+    show-sql: false
     generate-ddl: false
     hibernate:
       ddl-auto: none
@@ -42,7 +42,7 @@ logging:
   level:
     com.example.lottery: DEBUG
     org.springframework.web: INFO
-    org.hibernate.SQL: DEBUG
+    #org.hibernate.SQL: DEBUG
 
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
