@@ -35,7 +35,7 @@ public class PaymentService {
 
         // ToDo: Проверить статус тиража по ticketData через DrawService
 
-        invoiceService.setPending(invoiceId);
+        invoiceService.setPending(invoiceId, 1L);
 
         Payment.Status status = mockPaymentProcessor.process(cardNumber, cvc);
         Payment payment = new Payment(

@@ -24,26 +24,23 @@ public class InvoiceController {
 
     @PostMapping
     public ResponseEntity<TicketInInvoiceDto> create(@Valid @RequestBody TicketCreateDto dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(invoiceService.createInvoice(dto));
+        //TODO: add User
+        Long userId = 1L;
+        return ResponseEntity.status(HttpStatus.CREATED).body(invoiceService.createInvoice(dto, userId));
     }
 
     @GetMapping
     public List<InvoiceDto> getByStatus(@RequestParam Invoice.Status status) {
-        return invoiceService.getInvoicesByStatus(status);
+        //TODO: add User
+        Long userId = 1L;
+        return invoiceService.getInvoicesByStatus(status, userId);
     }
 
     @GetMapping("/{id}")
     public InvoiceDto getById(@PathVariable Long id) {
-        return invoiceService.getInvoiceById(id);
+        //TODO: add User
+        Long userId = 1L;
+        return invoiceService.getInvoiceById(id, userId);
 //        return JsonMapper.fromJson(invoiceService.getInvoiceById(id).getTicketData(), TicketResponseDto.class);
-    }
-    @PreAuthorize("hasRole('ADMIN')")
-    @PatchMapping("/{id}/status")
-    public InvoiceDto updateStatus(
-            @PathVariable Long id,
-            @RequestParam Invoice.Status status,
-            @RequestParam int cancelled
-    ) {
-        return invoiceService.updateInvoiceStatus(id, status, cancelled);
     }
 }

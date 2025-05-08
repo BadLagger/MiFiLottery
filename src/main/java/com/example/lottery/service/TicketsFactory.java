@@ -3,6 +3,7 @@ package com.example.lottery.service;
 import com.example.lottery.dto.algorithm.AlgorithmRules;
 import com.example.lottery.entity.Draw;
 import com.example.lottery.entity.LotteryType;
+import com.example.lottery.exception.NotFoundException;
 import com.example.lottery.mapper.LotteryTypeMapper;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ public class TicketsFactory {
 
   private final LotteryTypeMapper lotteryTypeMapper;
   private final Map<String, TicketGenerator> generators;
+  private final DrawService drawService;
 
   public TicketGenerator getGenerator(Draw draw) {
     LotteryType lotteryType = draw.getLotteryType();
@@ -31,5 +33,14 @@ public class TicketsFactory {
     }
     throw new IllegalArgumentException(
         "Не нашлось подходящего генератора билетов для тиража: " + draw.getId());
+  }
+
+  public TicketGenerator getGenerator(Long drawId) {
+    Draw draw =
+            drawService
+                    .findById(drawId)
+                    .orElseThrow(
+                            () -> new NotFoundException("Тираж с ID " + drawId + " не найден"));
+    return getGenerator(draw);
   }
 }

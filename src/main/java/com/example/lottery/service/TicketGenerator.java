@@ -14,4 +14,6 @@ public interface TicketGenerator {
   boolean supports(AlgorithmRules rules); // Проверяет, подходит ли генератор для данных правил
 
   void setDraw(Draw draw);
+
+  AlgorithmRules getRules();
 }

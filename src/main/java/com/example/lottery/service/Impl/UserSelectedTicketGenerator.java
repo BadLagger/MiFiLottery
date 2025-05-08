@@ -7,17 +7,14 @@ import com.example.lottery.dto.algorithm.UserSelectedRules;
 import com.example.lottery.mapper.LotteryTypeMapper;
 import com.example.lottery.mapper.TicketMapper;
 import com.example.lottery.service.AbstractTicketGenerator;
+import com.example.lottery.service.TicketService;
 import com.example.lottery.service.utils.UniqueNumbersGenerator;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserSelectedTicketGenerator extends AbstractTicketGenerator {
-
-  public UserSelectedTicketGenerator(
-      LotteryTypeMapper lotteryTypeMapper,
-      TicketMapper ticketMapper,
-      UniqueNumbersGenerator uniqueNumbersGenerator) {
-    super(lotteryTypeMapper, ticketMapper, uniqueNumbersGenerator);
+  public UserSelectedTicketGenerator(LotteryTypeMapper lotteryTypeMapper, TicketMapper ticketMapper, UniqueNumbersGenerator uniqueNumbersGenerator, TicketService ticketService) {
+    super(lotteryTypeMapper, ticketMapper, uniqueNumbersGenerator, ticketService);
   }
 
   @Override

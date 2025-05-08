@@ -2,17 +2,22 @@ package com.example.lottery.service.Impl;
 
 import com.example.lottery.dto.TicketCreateDto;
 import com.example.lottery.dto.TicketResponseDto;
+import com.example.lottery.dto.algorithm.FixedPoolRules;
 import com.example.lottery.entity.*;
 import com.example.lottery.exception.NotFoundException;
+import com.example.lottery.mapper.JsonMapper;
 import com.example.lottery.mapper.TicketMapper;
+import com.example.lottery.repository.PreGeneratedTicketRepository;
 import com.example.lottery.repository.TicketRepository;
 import com.example.lottery.service.DrawService;
 import com.example.lottery.service.TicketGenerator;
 import com.example.lottery.service.TicketService;
 import com.example.lottery.service.TicketsFactory;
 import com.example.lottery.service.validator.Validator;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +29,7 @@ public class TicketServiceImpl implements TicketService {
   private final DrawService drawService;
   private final Validator validator;
   private final TicketsFactory ticketsFactory;
+  private PreGeneratedTicketRepository preGeneratedRepo;
 
   //  private final UserService userService; // Заглушка
 
@@ -49,10 +55,10 @@ public class TicketServiceImpl implements TicketService {
 
   @Override
   @Transactional
-  public void saveTicket(Ticket ticket) {
+  public Ticket saveTicket(Ticket ticket) {
     validator.validateTicketForBuyingByDraw(ticket.getDraw());
     // TODO: проверки перед сохранением билета на корректность (наличие всех параметров)
-    ticketRepository.save(ticket);
+    return ticketRepository.save(ticket);
   }
 
   @Override
@@ -67,5 +73,40 @@ public class TicketServiceImpl implements TicketService {
   @Override
   public List<TicketResponseDto> getUserTickets(Long userId) {
     return ticketRepository.findByUserId(userId).stream().map(ticketMapper::toDto).toList();
+  }
+
+  @Override
+  public List<Long> getTicketIdsByDrawId(Long drawId) {
+    return ticketRepository.findAllTicketsByDrawId(drawId).stream().map(Ticket::getId).toList();
+  }
+
+  @Transactional
+  public void generateTicketsPoolForDraw(Draw draw) {
+    // Получаем генератор через фабрику
+    TicketGenerator generator = ticketsFactory.getGenerator(draw);
+
+    // Проверяем, что это именно FixedPool генератор
+    if (!(generator instanceof FixedPoolTicketGenerator)) {
+      throw new IllegalStateException(
+          "Метод initPoolForDraw поддерживает только FixedPool тиражи. Получен: "
+              + generator.getClass().getSimpleName());
+    }
+
+    // Получаем правила для проверки размера пула
+    FixedPoolRules fixedPoolRules = (FixedPoolRules) generator.getRules();
+
+    // Генерируем пул билетов
+    List<PreGeneratedTicket> poolTickets = new ArrayList<>();
+    for (int i = 0; i < fixedPoolRules.getPoolSize(); i++) {
+      // Используем генератор для создания билетов
+      List<Integer> numbers = generator.generateNumbers();
+
+      PreGeneratedTicket pgTicket = new PreGeneratedTicket();
+      pgTicket.setDraw(draw);
+      pgTicket.setNumbers(JsonMapper.mapNumbersToJson(numbers));
+      poolTickets.add(pgTicket);
+    }
+    // Сохраняем пул в БД
+    preGeneratedRepo.saveAll(poolTickets);
   }
 }

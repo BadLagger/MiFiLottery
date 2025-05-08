@@ -3,22 +3,21 @@ package com.example.lottery.service;
 import com.example.lottery.dto.InvoiceDto;
 import com.example.lottery.dto.TicketCreateDto;
 import com.example.lottery.dto.TicketInInvoiceDto;
-import com.example.lottery.dto.TicketResponseDto;
 import com.example.lottery.entity.Invoice;
-import com.example.lottery.entity.User;
 import com.example.lottery.exception.NotFoundException;
+import com.example.lottery.exception.ValidationException;
 import com.example.lottery.mapper.InvoiceMapper;
 import com.example.lottery.mapper.JsonMapper;
 import com.example.lottery.repository.InvoiceRepository;
 import com.example.lottery.service.utils.PaymentLinkGenerator;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,94 +28,109 @@ public class InvoiceService {
   private final DrawService drawService;
   private final PaymentLinkGenerator paymentLinkGenerator;
 
-  public TicketInInvoiceDto createInvoice(TicketCreateDto dto) {
+  public TicketInInvoiceDto createInvoice(TicketCreateDto dto, Long userId) {
     DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    LocalDateTime now = LocalDateTime.now();
+
     InvoiceDto invoice = new InvoiceDto();
-    invoice.setUserId(1L);
-    invoice.setRegisterTime(LocalDateTime.now());
+    invoice.setUserId(userId);
+    invoice.setRegisterTime(now);
     invoice.setTicketData(JsonMapper.toJson(dto));
     invoice.setStatus(Invoice.Status.UNPAID);
 
     TicketInInvoiceDto ticketInInvoice = new TicketInInvoiceDto();
-    ticketInInvoice.setUserId(1L);
+    ticketInInvoice.setUserId(userId);
     ticketInInvoice.setDrawId(dto.getDrawId());
-    ticketInInvoice.setRegisterTime(invoice.getRegisterTime().format(formatter));
+    ticketInInvoice.setRegisterTime(now.format(formatter));
     ticketInInvoice.setNumbers(dto.getNumbers());
     ticketInInvoice.setTicketPrice(drawService.getTicketPriceByDrawId(dto.getDrawId()));
+    ticketInInvoice.setPaymentLink(paymentLinkGenerator.generatePaymentLink(ticketInInvoice));
 
-    invoice.setPaymentLink(paymentLinkGenerator.generatePaymentLink(ticketInInvoice));
-    ticketInInvoice.setPaymentLink(invoice.getPaymentLink());
+    invoice.setPaymentLink(ticketInInvoice.getPaymentLink());
+
     Invoice savedInvoice = invoiceRepository.save(invoiceMapper.toEntity(invoice));
     ticketInInvoice.setInvoiceId(savedInvoice.getId());
     return ticketInInvoice;
   }
 
-  public List<InvoiceDto> getInvoicesByStatus(Invoice.Status status) {
-    Long userId = 1L; // todo: getCurrentUser().getId();
+  public List<InvoiceDto> getInvoicesByStatus(Invoice.Status status, Long userId) {
     return invoiceRepository.findByStatusAndUser_Id(status, userId).stream()
         .map((invoiceMapper::toDto))
         .collect(Collectors.toList());
   }
 
-  public InvoiceDto getInvoiceById(Long id) {
-    Long userId = 1L; // todo: getCurrentUser().getId();
-    return invoiceRepository
-        .findByIdAndUser_Id(id, userId)
-        .map(invoiceMapper::toDto)
-        .orElseThrow(() -> new NotFoundException("Инвойс с ID " + id + " не найден"));
+  public InvoiceDto getInvoiceById(Long id, Long userId) {
+    return invoiceMapper.toDto(getInvoice(id, userId));
   }
 
-  public InvoiceDto updateInvoiceStatus(Long id, Invoice.Status status, int cancelled) {
-    Invoice invoice = invoiceRepository.findById(id).orElseThrow();
-    invoice.setStatus(status);
-    invoice.setCancelled(cancelled);
-    return invoiceMapper.toDto(invoiceRepository.save(invoice));
-  }
+  public void setPending(Long id, Long userId) {
+    Invoice invoice = getInvoice(id, userId);
 
-  public void setPending(Long invoiceId) {
-    Invoice invoice = invoiceRepository.findById(invoiceId).orElseThrow();
-    if (invoice.getStatus() == Invoice.Status.UNPAID) {
-      invoice.setStatus(Invoice.Status.PENDING);
-      invoiceRepository.save(invoice);
+    isInvoiceNotCancelled(invoice);
+    if (invoice.getStatus() != Invoice.Status.UNPAID) {
+      throw new ValidationException("Только неоплаченные инвойсы можно оплатить");
     }
+
+    invoice.setStatus(Invoice.Status.PENDING);
+    invoiceRepository.save(invoice);
   }
 
-  public void setPaid(Long invoiceId) {
-    Invoice invoice = invoiceRepository.findById(invoiceId).orElseThrow();
+  public void setPaid(Long id) {
+    Invoice invoice = getInvoice(id);
+
+    isInvoiceNotCancelled(invoice);
     if (invoice.getStatus() == Invoice.Status.PENDING) {
       invoice.setStatus(Invoice.Status.PAID);
       invoiceRepository.save(invoice);
+    } else {
+      throw new ValidationException(
+          "Нельзя присвоить статус PAID инвойсу в статусе " + invoice.getStatus());
     }
   }
 
-  public void setUnpaid(Long invoiceId) {
-    Invoice invoice = invoiceRepository.findById(invoiceId).orElseThrow();
+  public void setUnpaid(Long id) {
+    Invoice invoice = getInvoice(id);
+    // isInvoiceNotCancelled(invoice);
+    // здесь не нужен, т.к. можно перевести в неоплаченные, если запрос на изменение статуса после завершения тиража
     if (invoice.getStatus() == Invoice.Status.PENDING) {
       invoice.setStatus(Invoice.Status.UNPAID);
       invoiceRepository.save(invoice);
     }
   }
 
-  // toDo Отмена неоплаченных инвойсов после завершения тиража
-  public void cancelUnpaidAfterDraw(Long drawId) {
-    List<Invoice> unpaid = invoiceRepository.findByStatus(Invoice.Status.UNPAID);
-    for (Invoice invoice : unpaid) {
+  @Transactional
+  public void cancelUnpaidInvoicesAfterDraw(Long drawId) {
+    List<Invoice.Status> statuses = Arrays.asList(Invoice.Status.UNPAID, Invoice.Status.PENDING);
+    List<Invoice> unpaidInvoices = invoiceRepository.findAllUnpaidInvoicesByDrawId(drawId, statuses);
+
+    unpaidInvoices.forEach(invoice -> {
       invoice.setCancelled(1);
-      invoiceRepository.save(invoice);
-    }
+      if (invoice.getStatus() == Invoice.Status.PENDING) {
+        setUnpaid(invoice.getId());
+      }
+    });
+
+    invoiceRepository.saveAll(unpaidInvoices);
   }
 
-  /*private InvoiceDto toDto(Invoice invoice) {
-          return new InvoiceDto(
-                  invoice.getId(),
-                  invoice.getUser() == null ? null : invoice.getUser().getId(),
-                  invoice.getTicketData(),
-                  invoice.getRegisterTime(),
-                  invoice.getPaymentLink(),
-                  invoice.getStatus(),
-                  invoice.getCancelled()
-          );
-      }
-  */
+  private Invoice getInvoice(Long id, Long userId) {
+    return invoiceRepository
+        .findByIdAndUser_Id(id, userId)
+        .orElseThrow(
+            () ->
+                new NotFoundException(
+                    "Инвойс с ID " + id + " не найден или не принадлежит пользователю"));
+  }
 
+  private Invoice getInvoice(Long id) {
+    return invoiceRepository
+        .findById(id)
+        .orElseThrow(() -> new NotFoundException("Инвойс с ID " + id + " не найден"));
+  }
+
+  private void isInvoiceNotCancelled(Invoice invoice) {
+    if (invoice.getCancelled() == 1) {
+      throw new ValidationException("Инвойс отменен, действия с ним невозможны");
+    }
+  }
 }

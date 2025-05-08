@@ -5,6 +5,7 @@ import com.example.lottery.dto.TicketResponseDto;
 import com.example.lottery.entity.Draw;
 import com.example.lottery.entity.Ticket;
 import com.example.lottery.entity.User;
+import com.example.lottery.mapper.JsonMapper;
 import com.example.lottery.mapper.TicketMapper;
 import com.example.lottery.repository.DrawRepository;
 import com.example.lottery.repository.TicketRepository;
@@ -16,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/test/generator")
 @RequiredArgsConstructor
@@ -24,7 +27,7 @@ public class GeneratorTestController {
   private final DrawRepository drawRepository;
   private final TicketRepository ticketRepository;
   private final TicketsFactory ticketsFactory;
-  private final TicketService ticketService;
+//  private final TicketService ticketService;
 
   @GetMapping("/{drawId}")
   public TicketResponseDto testGenerate(@PathVariable Long drawId) {
@@ -70,9 +73,15 @@ public class GeneratorTestController {
     Ticket ticket = ticketMapper.toEntity(dto);
     ticket.setDraw(draw);
     ticket.setUser(user);
+    ticket.setData(JsonMapper.mapNumbersToJson(ticketsFactory.getGenerator(draw).generateNumbers()));
     ticket.setStatus(Ticket.Status.INGAME);
 
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ticketMapper.toDto(ticketRepository.save(ticket)));
   }
+//
+//  @GetMapping("/{drawId}/tickets")
+//  public List<Long> getTicketsByDrawId(@PathVariable Long drawId) {
+//    return ticketService.getTicketIdsByDrawId(drawId);
+//  }
 }

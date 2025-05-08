@@ -12,9 +12,7 @@ import com.example.lottery.mapper.LotteryTypeMapper;
 import com.example.lottery.mapper.TicketMapper;
 import com.example.lottery.service.utils.UniqueNumbersGenerator;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -23,22 +21,26 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public abstract class AbstractTicketGenerator implements TicketGenerator {
+  private final TicketService ticketService;
   @Setter protected Draw draw;
   protected LotteryTypeMapper lotteryTypeMapper;
   protected TicketMapper ticketMapper;
 
   public AbstractTicketGenerator(
-      LotteryTypeMapper lotteryTypeMapper,
-      TicketMapper ticketMapper,
-      UniqueNumbersGenerator uniqueNumbersGenerator) {
+          LotteryTypeMapper lotteryTypeMapper,
+          TicketMapper ticketMapper,
+          UniqueNumbersGenerator uniqueNumbersGenerator,
+          TicketService ticketService) {
     this.lotteryTypeMapper = lotteryTypeMapper;
     this.ticketMapper = ticketMapper;
     this.uniqueNumbersGenerator = uniqueNumbersGenerator;
+    this.ticketService = ticketService;
   }
 
   protected UniqueNumbersGenerator uniqueNumbersGenerator;
 
-  protected AlgorithmRules getRules() {
+  @Override
+  public AlgorithmRules getRules() {
     // Общая логика получения правил для всех генераторов
     LotteryType lotteryType = draw.getLotteryType();
     return lotteryTypeMapper.parseRules(lotteryType.getAlgorithmRules());
@@ -58,7 +60,7 @@ public abstract class AbstractTicketGenerator implements TicketGenerator {
     ticket.setData(JsonMapper.mapNumbersToJson(numbers));
     ticket.setDraw(draw);
     ticket.setStatus(Ticket.Status.INGAME);
-    return ticket;
+    return ticketService.saveTicket(ticket);
   }
 
   public TicketResponseDto createDraft(List<Integer> numbers) {

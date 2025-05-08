@@ -23,7 +23,6 @@ spring:
     locations: classpath:/db/migration
 
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     show-sql: true
     generate-ddl: false
     hibernate:
