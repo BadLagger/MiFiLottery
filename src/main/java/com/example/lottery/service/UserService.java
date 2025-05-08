@@ -91,6 +91,10 @@ public class UserService {
 
     }
 
+    public User getUserByName(String username) {
+        return userRepository.findByName(username).orElse(null);
+    }
+
     // Будет возвращать User без проверки пароля
     /*public User getUserByUsername(String username) {
         return userRepository.findByUsername(username)
