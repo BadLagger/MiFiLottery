@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS LotteryType (
     min_ticket INTEGER CHECK(min_ticket >= 0),
     prize_pool_percentage DOUBLE PRECISION NOT NULL CHECK(prize_pool_percentage BETWEEN 0 AND 1),
     algorithm_type VARCHAR(50) NOT NULL,
-    algorithm_rules JSON NOT NULL
+    algorithm_rules TEXT NOT NULL
 );
 
 -- Для H2 тип ENUM реализуют как символьное поле с check constraint
