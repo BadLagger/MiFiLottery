@@ -14,8 +14,6 @@ public interface InvoiceMapper {
   InvoiceDto toDto(Invoice invoice);
 
   @Mapping(target = "user.id", source = "userId")
-  @Mapping(
-      target = "ticketData",
-      expression = "java(JsonMapper.toJson(dto.getTicketData()))")
+  @Mapping(target = "ticketData", expression = "java(JsonMapper.toJson(dto.getTicketData()))")
   Invoice toEntity(InvoiceDto dto);
 }

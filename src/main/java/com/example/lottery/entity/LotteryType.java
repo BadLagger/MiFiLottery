@@ -8,7 +8,7 @@ import org.hibernate.type.SqlTypes;
 
 @Entity
 @Data
-@Table(name = "lotterytype")
+@Table(name = "lottery_type")
 public class LotteryType {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

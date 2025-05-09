@@ -3,9 +3,12 @@ package com.example.lottery.mapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 public class JsonMapper {
 
   private static final ObjectMapper objectMapper = new ObjectMapper();

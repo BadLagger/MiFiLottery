@@ -269,7 +269,7 @@ public class DrawService {
     }
   }
 
-  // Вызываем этот метод при переходе тиража в статус ACTIVE.
+  // TODO: Вызываем этот метод при создании тиража (после проверки на тип тиража).
   public void initPoolForDraw(Draw draw) {
     ticketPoolService.generateTicketsPoolForDraw(draw);
   }

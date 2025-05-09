@@ -22,7 +22,7 @@ public class TicketController {
     // TODO: ручку оставим на будущее, когда можно будет делать несколько билетов в одном инвойсе
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(ticketService.getTicketDraft(dto.getDrawId(), dto.getNumbers()));
+        .body(ticketService.getTicketDraft(dto));
   }
 
   @GetMapping("/{id}")

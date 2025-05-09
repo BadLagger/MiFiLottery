@@ -3,35 +3,57 @@ package com.example.lottery.service;
 import com.example.lottery.dto.InvoiceDto;
 import com.example.lottery.dto.TicketCreateDto;
 import com.example.lottery.dto.TicketInInvoiceDto;
+import com.example.lottery.entity.Draw;
 import com.example.lottery.entity.Invoice;
 import com.example.lottery.exception.NotFoundException;
 import com.example.lottery.exception.ValidationException;
 import com.example.lottery.mapper.InvoiceMapper;
 import com.example.lottery.mapper.JsonMapper;
 import com.example.lottery.repository.InvoiceRepository;
+import com.example.lottery.service.Impl.UserSelectedTicketGenerator;
 import com.example.lottery.service.utils.PaymentLinkGenerator;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.example.lottery.service.validator.Validator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.relational.core.sql.In;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class InvoiceService {
   private final InvoiceRepository invoiceRepository;
   private final InvoiceMapper invoiceMapper;
-  private final TicketService ticketService;
   private final DrawService drawService;
   private final PaymentLinkGenerator paymentLinkGenerator;
+  private final Validator validator;
+  private final TicketsFactory ticketsFactory;
 
   public TicketInInvoiceDto createInvoice(TicketCreateDto dto, Long userId) {
     DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
     LocalDateTime now = LocalDateTime.now();
+    Draw draw = getDrawById(dto.getDrawId());
 
+    validator.validateTicketForBuyingByDraw(draw);
+
+    // Валидируем выбранные номера от пользователя
+    TicketGenerator generator = ticketsFactory.getGenerator(draw);
+    if (generator instanceof UserSelectedTicketGenerator) {
+      validator.validateNumbers(dto.getNumbers(), draw);
+    } else {
+      dto.setNumbers(generator.generateNumbers());
+    }
+
+    // Собираем данные для инвойса
     InvoiceDto invoice = new InvoiceDto();
     invoice.setUserId(userId);
     invoice.setRegisterTime(now);
@@ -50,6 +72,9 @@ public class InvoiceService {
 
     Invoice savedInvoice = invoiceRepository.save(invoiceMapper.toEntity(invoice));
     ticketInInvoice.setInvoiceId(savedInvoice.getId());
+
+    cancelUnpaidInvoicesWhenDrawStopped(dto.getDrawId());
+
     return ticketInInvoice;
   }
 
@@ -106,6 +131,7 @@ public class InvoiceService {
     List<Invoice.Status> statuses = Arrays.asList(Invoice.Status.UNPAID, Invoice.Status.PENDING);
     List<Invoice> unpaidInvoices = invoiceRepository.findAllByStatusInAndCancelled(statuses, 0);
 
+
     //    выбрать все неоплаченные инвойсы именно для указанного тиража
     List<Invoice> invoicesToCancel =
         unpaidInvoices.stream()
@@ -113,10 +139,11 @@ public class InvoiceService {
                 invoice -> {
                   try {
                     // Парсим JSON и достаём drawId
-                    TicketCreateDto dto =
-                        JsonMapper.fromJson(invoice.getTicketData(), TicketCreateDto.class);
+//                    String json = invoice.getTicketData().replace("\\\"", "\"");
+                    TicketCreateDto dto = JsonMapper.fromJson(invoice.getTicketData(), TicketCreateDto.class);
                     return dto.getDrawId().equals(drawId);
                   } catch (Exception e) {
+                    log.error("Failed to parse ticketData: {}", invoice.getTicketData(), e);
                     return false;
                   }
                 })
@@ -152,5 +179,9 @@ public class InvoiceService {
     if (invoice.getCancelled() == 1) {
       throw new ValidationException("Инвойс отменен, действия с ним невозможны");
     }
+  }
+
+  private Draw getDrawById(Long id) {
+    return drawService.getDrawById(id);
   }
 }

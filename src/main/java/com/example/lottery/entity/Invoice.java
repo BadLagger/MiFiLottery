@@ -22,7 +22,9 @@ public class Invoice {
   @JoinColumn(name = "user_id")
   private User user;
 
-  @Column(columnDefinition = "jsonb")
+//  @Column(columnDefinition = "varchar") // Для H2
+//  @JdbcTypeCode(SqlTypes.VARCHAR)     // Важно для корректной работы
+  @Column(columnDefinition = "jsonb") // TODO: Для Postgres
   @JdbcTypeCode(SqlTypes.JSON)
   private String ticketData;
 

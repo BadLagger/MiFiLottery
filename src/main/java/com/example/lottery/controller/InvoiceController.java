@@ -38,7 +38,5 @@ public class InvoiceController {
     // TODO: add User
     Long userId = 1L;
     return invoiceService.getInvoiceById(id, userId);
-    //        return JsonMapper.fromJson(invoiceService.getInvoiceById(id).getTicketData(),
-    // TicketResponseDto.class);
   }
 }

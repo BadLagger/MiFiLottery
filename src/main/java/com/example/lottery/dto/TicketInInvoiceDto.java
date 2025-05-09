@@ -18,7 +18,6 @@ public class TicketInInvoiceDto {
   private Long userId;
   @JsonIgnore
   private Long drawId;
-  @JsonIgnore
   private List<Integer> numbers;
   private String registerTime;
   private BigDecimal ticketPrice;

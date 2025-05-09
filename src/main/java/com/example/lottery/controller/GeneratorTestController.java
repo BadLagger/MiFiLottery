@@ -9,6 +9,9 @@ import com.example.lottery.mapper.JsonMapper;
 import com.example.lottery.mapper.TicketMapper;
 import com.example.lottery.repository.DrawRepository;
 import com.example.lottery.repository.TicketRepository;
+import com.example.lottery.service.Impl.TicketServiceImpl;
+import com.example.lottery.service.TicketGenerator;
+import com.example.lottery.service.TicketPoolService;
 import com.example.lottery.service.TicketService;
 import com.example.lottery.service.TicketsFactory;
 import jakarta.validation.Valid;
@@ -27,40 +30,26 @@ public class GeneratorTestController {
   private final DrawRepository drawRepository;
   private final TicketRepository ticketRepository;
   private final TicketsFactory ticketsFactory;
-//  private final TicketService ticketService;
-//
-//  @GetMapping("/{drawId}")
-//  public TicketResponseDto testGenerate(@PathVariable Long drawId) {
-//    // 1. Получаем тираж из базы
-//    Draw draw =
-//        drawRepository.findById(drawId).orElseThrow(() -> new RuntimeException("Тираж не найден"));
-//    //        AlgorithmRules rules =
-//    // lotteryTypeMapper.parseRules(draw.getLotteryType().getAlgorithmRules());
-//
-//    // 2. Генерируем билет
-    //        Ticket ticket = ticketMaker.create(draw, uniqueNumbersGenerator.generateNumbers(rules,
-    // draw));
+  private final TicketPoolService ticketPoolService;
+  private final TicketServiceImpl ticketServiceImpl;
 
-//    // получаем предсозданный билет из пула
-//    TicketResponseDto ticket = ticketsFactory.getGenerator(draw).generateTicket();
-//
-//    // пробуем сгенерить пул билетов
-    //        drawService.initPoolForDraw(draw);
-//
-//    // 3. Возвращаем результат
-//    return ticket;
-    //        return String.format(
-    //                "Тест генератора:<br>" +
-    //                        "Тираж: %s<br>" +
-    //                        "Тип лотереи: %s<br>" +
-    //                        "Сгенерированный билет: %s c ID %d",
-    //                draw.getName(),
-    //                draw.getLotteryType().getDescription(),
-    //                ticket.getData(),
-    //                ticket.getId()
-    //        );
-//  }
-//
+  @GetMapping("/{drawId}")
+  public TicketResponseDto testGenerate(@PathVariable Long drawId) {
+    // 1. Получаем тираж из базы
+    Draw draw =
+        drawRepository.findById(drawId).orElseThrow(() -> new RuntimeException("Тираж не найден"));
+    // пробуем сгенерить пул билетов, если тираж с предсозданными билетами
+    ticketPoolService.generateTicketsPoolForDraw(draw);
+
+    // 2. Генерируем билет
+    // или получаем предсозданный билет из пула
+    TicketResponseDto ticket = ticketsFactory.getGenerator(draw).generateTicket();
+
+
+    // 3. Возвращаем результат
+    return ticket;
+  }
+
 //  @PostMapping
 //  public ResponseEntity<TicketResponseDto> createTicketDraft(
 //      @Valid @RequestBody TicketCreateDto dto) {

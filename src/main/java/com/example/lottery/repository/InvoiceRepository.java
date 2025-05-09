@@ -25,5 +25,18 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
 //            @Param("statuses") List<Invoice.Status> statuses
 //    );
 
+//    @Query(
+//            value = """
+//        UPDATE invoice
+//        SET cancelled = 1,
+//            status = CASE WHEN status = 'PENDING' THEN 'UNPAID' ELSE status END
+//        WHERE status IN ('UNPAID', 'PENDING')
+//        AND cancelled = 0
+//        AND ticket_data::jsonb->>'drawId' = :drawId
+//        """,
+//            nativeQuery = true
+//    )
+//    void cancelUnpaidInvoicesByDrawId(@Param("drawId") String drawId);
+
     List<Invoice> findAllByStatusInAndCancelled(Collection<Invoice.Status> statuses, int cancelled);
 }
