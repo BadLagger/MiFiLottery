@@ -29,7 +29,7 @@ spring:
     show-sql: true
     generate-ddl: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
@@ -49,7 +49,7 @@ logging:
     org.hibernate.SQL: DEBUG
 
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg [%file:%line]%n"
 
 #  file:
 #    name: ./logs/lottery.log

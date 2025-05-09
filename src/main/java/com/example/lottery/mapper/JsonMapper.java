@@ -33,7 +33,9 @@ public class JsonMapper {
   // Сериализация объекта в JSON
   public static String toJson(Object object) {
     try {
-      return objectMapper.writeValueAsString(object);
+      String json = objectMapper.writeValueAsString(object);
+      log.debug("To JSON: {}", json);
+      return json;
     } catch (JsonProcessingException e) {
       throw new RuntimeException("Ошибка сериализации в JSON", e);
     }

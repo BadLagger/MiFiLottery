@@ -54,11 +54,11 @@ public class InvoiceService {
     }
 
     // Собираем данные для инвойса
-    InvoiceDto invoice = new InvoiceDto();
-    invoice.setUserId(userId);
-    invoice.setRegisterTime(now);
-    invoice.setTicketData(JsonMapper.toJson(dto));
-    invoice.setStatus(Invoice.Status.UNPAID);
+    InvoiceDto invoiceDto = new InvoiceDto();
+    invoiceDto.setUserId(userId);
+    invoiceDto.setRegisterTime(now);
+    invoiceDto.setTicketData(JsonMapper.toJson(dto));
+    invoiceDto.setStatus(Invoice.Status.UNPAID);
 
     TicketInInvoiceDto ticketInInvoice = new TicketInInvoiceDto();
     ticketInInvoice.setUserId(userId);
@@ -68,12 +68,9 @@ public class InvoiceService {
     ticketInInvoice.setTicketPrice(drawService.getTicketPriceByDrawId(dto.getDrawId()));
     ticketInInvoice.setPaymentLink(paymentLinkGenerator.generatePaymentLink(ticketInInvoice));
 
-    invoice.setPaymentLink(ticketInInvoice.getPaymentLink());
-
-    Invoice savedInvoice = invoiceRepository.save(invoiceMapper.toEntity(invoice));
+    invoiceDto.setPaymentLink(ticketInInvoice.getPaymentLink());
+    Invoice savedInvoice = invoiceRepository.save(invoiceMapper.toEntity(invoiceDto));
     ticketInInvoice.setInvoiceId(savedInvoice.getId());
-
-    cancelUnpaidInvoicesWhenDrawStopped(dto.getDrawId());
 
     return ticketInInvoice;
   }
@@ -139,7 +136,6 @@ public class InvoiceService {
                 invoice -> {
                   try {
                     // Парсим JSON и достаём drawId
-//                    String json = invoice.getTicketData().replace("\\\"", "\"");
                     TicketCreateDto dto = JsonMapper.fromJson(invoice.getTicketData(), TicketCreateDto.class);
                     return dto.getDrawId().equals(drawId);
                   } catch (Exception e) {
