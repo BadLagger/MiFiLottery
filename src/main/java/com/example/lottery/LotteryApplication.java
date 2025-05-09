@@ -12,7 +12,7 @@ public class LotteryApplication {
 
   public static void main(String[] args) {
     try {
-      Server.createTcpServer("-tcpPort", "9092", "-tcpAllowOthers").start();
+      Server.createTcpServer("-tcpPort", "9091", "-tcpAllowOthers").start();
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
