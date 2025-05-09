@@ -2,6 +2,7 @@ package com.example.lottery.service.Impl;
 
 import com.example.lottery.dto.TicketResponseDto;
 import com.example.lottery.dto.algorithm.AlgorithmRules;
+import com.example.lottery.dto.algorithm.RandomUniqueRules;
 import com.example.lottery.dto.algorithm.UserSelectedRules;
 import com.example.lottery.mapper.LotteryTypeMapper;
 import com.example.lottery.mapper.TicketMapper;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserSelectedTicketGenerator extends AbstractTicketGenerator {
+
   public UserSelectedTicketGenerator(
       LotteryTypeMapper lotteryTypeMapper,
       TicketMapper ticketMapper,

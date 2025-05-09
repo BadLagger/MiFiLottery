@@ -4,6 +4,7 @@ import com.example.lottery.dto.DrawRequestDto;
 import com.example.lottery.dto.DrawStatus;
 import com.example.lottery.entity.Draw;
 import com.example.lottery.entity.DrawResult;
+import com.example.lottery.service.DrawResultService;
 import com.example.lottery.service.DrawService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.FutureOrPresent;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api")
 public class DrawController {
     public final DrawService drawService;
+    public final DrawResultService drawResultService;
 
     @Value("${app.default.draw-duration}")
     private Integer defaultDuration;
@@ -59,8 +61,12 @@ public class DrawController {
     }
 
     @GetMapping("/draws/{id}/results")
-    public DrawResult getDrawIdResults(@PathVariable Long id) {
-        return drawService.findResultByDrawId(id);
+    public ResponseEntity<DrawResult> getDrawIdResults(@PathVariable Long id) {
+
+        var result = drawResultService.getById(id);
+
+        return result.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+
     }
 
     @PostMapping("/admin/draws")

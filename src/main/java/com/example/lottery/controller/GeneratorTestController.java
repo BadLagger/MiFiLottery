@@ -45,9 +45,21 @@ public class GeneratorTestController {
     // или получаем предсозданный билет из пула
     TicketResponseDto ticket = ticketsFactory.getGenerator(draw).generateTicket();
 
+    // пробуем сгенерить пул билетов
+    //        drawService.initPoolForDraw(draw);
 
     // 3. Возвращаем результат
     return ticket;
+    //        return String.format(
+    //                "Тест генератора:<br>" +
+    //                        "Тираж: %s<br>" +
+    //                        "Тип лотереи: %s<br>" +
+    //                        "Сгенерированный билет: %s c ID %d",
+    //                draw.getName(),
+    //                draw.getLotteryType().getDescription(),
+    //                ticket.getData(),
+    //                ticket.getId()
+    //        );
   }
 
 //  @PostMapping
@@ -58,10 +70,10 @@ public class GeneratorTestController {
 //        drawRepository
 //            .findById(dto.getDrawId())
 //            .orElseThrow(() -> new RuntimeException("Тираж не найден"));
-//    User user = new User(1L); // Заглушка (реальная реализация через UserService)
+   // User user = new User(1L); // Заглушка (реальная реализация через UserService)
 //    Ticket ticket = ticketMapper.toEntity(dto);
 //    ticket.setDraw(draw);
-//    ticket.setUser(user);
+   // ticket.setUser(user);
 //    ticket.setData(JsonMapper.mapNumbersToJson(ticketsFactory.getGenerator(draw).generateNumbers()));
 //    ticket.setStatus(Ticket.Status.INGAME);
 //

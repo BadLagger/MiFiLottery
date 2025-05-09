@@ -13,19 +13,19 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Role {
-  public static final String ADMIN = "ADMIN";
-  public static final String USER = "USER";
+    public static final String ADMIN = "ADMIN";
+    public static final String USER = "USER";
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @Column(nullable = false, unique = true)
-  private String name; // "USER", "ADMIN",
+    @Column(nullable = false, unique = true)
+    private String name;  // "USER", "ADMIN",
 
-  private String description;
+    private String description;
 
-  public Role(String name) {
-    this.name = name;
-  }
+    public Role(String name) {
+        this.name = name;
+    }
 }

@@ -21,11 +21,11 @@ public class UniqueNumbersGenerator {
   public List<Integer> generateNumbers(AlgorithmRules rules, Draw draw) {
     Set<Integer> uniqueNumbers = new HashSet<>();
     do {
-      while (uniqueNumbers.size() < rules.getNumberCount()) {
-        int num =
-            random.nextInt(rules.getMaxNumber() - rules.getMinNumber() + 1) + rules.getMinNumber();
-        uniqueNumbers.add(num);
-      }
+    while (uniqueNumbers.size() < rules.getNumberCount()) {
+      int num =
+          random.nextInt(rules.getMaxNumber() - rules.getMinNumber() + 1) + rules.getMinNumber();
+      uniqueNumbers.add(num);
+    }
 
       // TODO: прикрутить проверку на уникальность билета в рамках тиража
       if (preGeneratedTicketRepository.existsByDrawAndNumbersHash(

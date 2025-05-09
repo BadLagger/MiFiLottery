@@ -21,9 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class TicketServiceImpl implements TicketService {
   private final TicketRepository ticketRepository;
   private final TicketMapper ticketMapper;
+  private final DrawService drawService;
   private final Validator validator;
   private final TicketsFactory ticketsFactory;
-  private final DrawService drawService;
 
   //  private final UserService userService; // Заглушка
 
@@ -36,6 +36,7 @@ public class TicketServiceImpl implements TicketService {
 
     // Валидируем выбранные номера от пользователя или генерим черновик билета
     TicketGenerator generator = ticketsFactory.getGenerator(draw);
+
     return generator.generateTicket();
   }
 
