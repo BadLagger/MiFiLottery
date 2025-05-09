@@ -8,6 +8,8 @@ import com.example.lottery.entity.Ticket;
 import com.example.lottery.repository.DrawRepository;
 import com.example.lottery.repository.DrawResultRepository;
 import com.example.lottery.repository.TicketRepository;
+import com.example.lottery.repository.UserRepository;
+import com.example.lottery.service.notificationService.TelegramNotificationService;
 import com.example.lottery.strategy.LotteryCheckStrategy;
 import com.example.lottery.strategy.LotteryCheckStrategyResolver;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -31,7 +33,9 @@ public class DrawResultService {
     private final DrawRepository drawRepository;
     private final DrawResultRepository drawResultRepository;
     private final TicketRepository ticketRepository;
+    private final UserRepository userRepository;
     private final LotteryCheckStrategyResolver strategyResolver;
+    private final TelegramNotificationService telegramNotificationService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final SecureRandom random = new SecureRandom();
@@ -53,9 +57,9 @@ public class DrawResultService {
         result.setDraw(draw);
         result.setWinningCombination(
                 winningNumbers.stream()
-                .sorted()
-                .map(String::valueOf)
-                .collect(Collectors.joining(",")));
+                        .sorted()
+                        .map(String::valueOf)
+                        .collect(Collectors.joining(",")));
         result.setResultTime(LocalDateTime.now());
         drawResultRepository.save(result);
 
@@ -65,9 +69,39 @@ public class DrawResultService {
             boolean win = strategy.isWinning(userNumbers, winningNumbers);
             ticket.setStatus(win ? Ticket.Status.WIN : Ticket.Status.LOSE);
             ticketRepository.save(ticket);
+
+        // Уведомление пользователя
+            userRepository.findById(ticket.getUser().getId()).ifPresent(user -> {
+                String userMessage = String.format("""
+                                Тираж #%d завершён!
+                                Ваш билет: %s
+                                Выигрышная комбинация: %s
+                                Результат: %s
+                                """,
+                        draw.getId(),
+                        userNumbers.stream().sorted().map(String::valueOf).collect(Collectors.joining(",")),
+                        result.getWinningCombination(),
+                        ticket.getStatus()
+                );
+
+                try {
+                    Long chatId = Long.parseLong(user.getTelegram());
+                    telegramNotificationService.sendTo(chatId, userMessage);
+                } catch (NumberFormatException e) {
+                    // лог, если телеграм id кривой
+                }
+            });
         }
 
+
         return result;
+    }
+
+
+    private Long getUserTelegramChatId(Long userId) {
+        return userRepository.findById(userId)
+                .map(user -> Long.valueOf(user.getTelegram())) // ⚠️ если в БД telegram хранится как строка
+                .orElseThrow(() -> new RuntimeException("User not found for ID: " + userId));
     }
 
     private Set<Integer> selectWinningNumbers(Draw draw) {
@@ -84,7 +118,8 @@ public class DrawResultService {
 
     private Set<Integer> parseNumbersFromJsonString(String jsonString) {
         try {
-            List<Integer> list = objectMapper.readValue(jsonString, new TypeReference<List>() {});
+            List<Integer> list = objectMapper.readValue(jsonString, new TypeReference<List>() {
+            });
             return new HashSet<>(list);
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse numbers from ticket data: " + jsonString, e);

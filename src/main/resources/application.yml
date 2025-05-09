@@ -56,3 +56,7 @@ app:
   default:
     draw-duration: 60
     max-pool-size: 3
+
+telegram:
+  bot:
+    token: 8083037723:AAEnT5yt6QCNDJ4ZxfbqDADIoqa1bDRLsGo
