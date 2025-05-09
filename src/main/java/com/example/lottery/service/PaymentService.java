@@ -1,76 +1,72 @@
 package com.example.lottery.service;
 
+import com.example.lottery.dto.PaymentCreateDto;
 import com.example.lottery.dto.PaymentDto;
+import com.example.lottery.dto.TicketInInvoiceDto;
 import com.example.lottery.entity.Invoice;
 import com.example.lottery.entity.Payment;
+import com.example.lottery.exception.ValidationException;
 import com.example.lottery.mapper.PaymentMapper;
 import com.example.lottery.mock.MockPaymentProcessor;
-import com.example.lottery.repository.InvoiceRepository;
 import com.example.lottery.repository.PaymentRepository;
+import com.example.lottery.service.utils.PaymentLinkGenerator;
 import jakarta.transaction.Transactional;
+import java.math.BigDecimal;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Optional;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
-    private final PaymentRepository paymentRepository;
-    private final InvoiceRepository invoiceRepository;
-    private final MockPaymentProcessor mockPaymentProcessor;
-    private final InvoiceService invoiceService;
-    private final PaymentMapper paymentMapper;
+  private final PaymentRepository paymentRepository;
+  private final MockPaymentProcessor mockPaymentProcessor;
+  private final InvoiceService invoiceService;
+  private final PaymentMapper paymentMapper;
+  private final PaymentLinkGenerator paymentLinkGenerator;
 
-    @Transactional
-    public PaymentDto processPayment(Long invoiceId, String cardNumber, String cvc, BigDecimal amount) {
-        Invoice invoice = invoiceRepository.findById(invoiceId).orElseThrow();
-
-        // Проверка: если инвойс оплачен, отменен, либо его тираж не активен — запретить
-        if (invoice.getStatus() != Invoice.Status.UNPAID) {
-            throw new IllegalStateException("Invoice is not available for payment!");
-        }
-
-        // ToDo: Проверить статус тиража по ticketData через DrawService
-
-        invoiceService.setPending(invoiceId, 1L);
-
-        Payment.Status status = mockPaymentProcessor.process(cardNumber, cvc);
-        Payment payment = new Payment(
-                null,
-                invoice,
-                amount,
-                LocalDateTime.now(),
-                status
-        );
-        Payment saved = paymentRepository.save(payment);
-
-        // Завершить процесс
-        if (status == Payment.Status.SUCCESS) {
-            invoiceService.setPaid(invoiceId);
-
-            //toDo Создать билет для пользователя
-
-        } else {
-            invoiceService.setUnpaid(invoiceId);
-        }
-        return paymentMapper.toDto(saved);
+  @Transactional
+  public String process(PaymentCreateDto dto, Long UserId) {
+    Long invoiceId = dto.getInvoiceId();
+    Invoice invoice = invoiceService.getInvoice(invoiceId);
+    String cardNumber = dto.getCardNumber();
+    String cvc = dto.getCvc();
+    TicketInInvoiceDto ticketInInvoice = null;
+    try {
+      ticketInInvoice = paymentLinkGenerator.decodePaymentLink(invoice.getPaymentLink());
+    } catch (Exception e) {
+      throw new ValidationException("Не удалось получить данные из платежной ссылки");
     }
+    BigDecimal amount = ticketInInvoice.getTicketPrice();
+    log.debug("DrawID from payment link: {}", ticketInInvoice.getDrawId());
 
-    public Optional<PaymentDto> getPaymentById(Long id) {
-        return paymentRepository.findById(id).map(paymentMapper::toDto);
+    // Проверка: если инвойс оплачен, отменен, либо его тираж не активен — запретить
+    invoiceService.validateBuyingByInvoice(invoice);
+
+    // в пендинг до оплаты
+    invoiceService.setPending(invoiceId, 1L);
+
+    // Обработка платежа
+    Payment.Status paymentResponseStatus = mockPaymentProcessor.process(cardNumber, cvc);
+
+    // Формируем сущность платежа для хранения в БД
+    Payment payment =
+        Payment.builder().invoice(invoice).amount(amount).status(paymentResponseStatus).build();
+    Payment savedPayment = paymentRepository.save(payment);
+
+    // Завершить процесс
+    if (paymentResponseStatus == Payment.Status.SUCCESS) {
+      invoiceService.setPaid(invoiceId);
+      return "Оплата прошла успешно";
+    } else {
+      invoiceService.setUnpaid(invoiceId);
+      return "К сожалению, оплата не прошла";
     }
+  }
 
-    /*private PaymentDto toDto(Payment payment) {
-        return new PaymentDto(
-                payment.getId(),
-                payment.getInvoice() == null ? null : payment.getInvoice().getId(),
-                payment.getAmount(),
-                payment.getPaymentTime(),
-                payment.getStatus()
-        );
-    }*/
-
+  public Optional<PaymentDto> getPaymentById(Long id) {
+    return paymentRepository.findById(id).map(paymentMapper::toDto);
+  }
 }

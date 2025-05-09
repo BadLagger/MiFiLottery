@@ -61,4 +61,4 @@ app:
     draw-duration: 60
     max-pool-size: 3
   secret_key: "26c585456f8017e4ead2dafd2e5d3306" # 16, 24 или 32 байта
-  payment_base_url: "http://localhost:8082/pay"
+  payment_base_url: "http://localhost:8082/api/payments"

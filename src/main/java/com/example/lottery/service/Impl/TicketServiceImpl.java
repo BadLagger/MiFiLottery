@@ -32,7 +32,7 @@ public class TicketServiceImpl implements TicketService {
   public TicketResponseDto getTicketDraft(TicketCreateDto dto) {
     // Получаем тираж и проверяем его статус
     Draw draw = getDrawById(dto.getDrawId());
-    validator.validateTicketForBuyingByDraw(draw);
+    validator.validateForBuyingByDraw(draw);
 
     // Валидируем выбранные номера от пользователя или генерим черновик билета
     TicketGenerator generator = ticketsFactory.getGenerator(draw);
@@ -42,7 +42,7 @@ public class TicketServiceImpl implements TicketService {
   @Override
   @Transactional
   public Ticket saveTicket(Ticket ticket) {
-    validator.validateTicketForBuyingByDraw(ticket.getDraw());
+    validator.validateForBuyingByDraw(ticket.getDraw());
     // TODO: проверки перед сохранением билета на корректность (наличие всех параметров)
     return ticketRepository.save(ticket);
   }

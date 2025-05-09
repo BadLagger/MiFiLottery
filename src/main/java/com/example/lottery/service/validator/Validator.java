@@ -22,7 +22,7 @@ public class Validator {
   private final LotteryTypeService lotteryTypeService;
   private final DrawService drawService;
 
-  public void validateTicketForBuyingByDraw(Draw draw) {
+  public void validateForBuyingByDraw(Draw draw) {
     //    Draw draw = drawService.getDrawById(drawId);
     AlgorithmType algorithmType = lotteryTypeService.getAlgorithmTypeByDraw(draw);
 

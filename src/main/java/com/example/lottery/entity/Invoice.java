@@ -28,6 +28,7 @@ public class Invoice {
   @JdbcTypeCode(SqlTypes.JSON)
   private String ticketData;
 
+  @Column(nullable = false)
   private LocalDateTime registerTime;
 
   private String paymentLink;
@@ -37,6 +38,13 @@ public class Invoice {
 
   private int cancelled = 0; // 0 - не отменен
   // 1 - отменен по окончании тиража все неоплаченные инвойсы становятся cancelled
+
+  @PrePersist
+  protected void onCreate() {
+    if (registerTime == null) {
+      registerTime = LocalDateTime.now();
+    }
+  }
 
   public enum Status {
     UNPAID, // инвойс создан, но не оплачен - по умолчанию

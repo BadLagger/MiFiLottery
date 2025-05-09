@@ -21,5 +21,6 @@ public class TicketInInvoiceDto {
   private List<Integer> numbers;
   private String registerTime;
   private BigDecimal ticketPrice;
+  @JsonIgnore
   private String paymentLink;
 }

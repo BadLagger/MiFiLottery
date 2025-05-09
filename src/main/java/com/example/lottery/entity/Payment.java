@@ -3,6 +3,7 @@ package com.example.lottery.entity;
 import com.example.lottery.dto.PaymentDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "payment")
+@Builder
 public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +27,7 @@ public class Payment {
 
     private BigDecimal amount;
 
+    @Column(nullable = false)
     private LocalDateTime paymentTime;
 
     @Enumerated(EnumType.STRING)
@@ -33,5 +36,12 @@ public class Payment {
     public enum Status {
         SUCCESS,
         FAILED
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        if (paymentTime == null) {
+            paymentTime = LocalDateTime.now();
+        }
     }
 }

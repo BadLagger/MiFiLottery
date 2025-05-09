@@ -12,18 +12,14 @@ import com.example.lottery.mapper.JsonMapper;
 import com.example.lottery.repository.InvoiceRepository;
 import com.example.lottery.service.Impl.UserSelectedTicketGenerator;
 import com.example.lottery.service.utils.PaymentLinkGenerator;
+import com.example.lottery.service.validator.Validator;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import com.example.lottery.service.validator.Validator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.relational.core.sql.In;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,7 +39,7 @@ public class InvoiceService {
     LocalDateTime now = LocalDateTime.now();
     Draw draw = getDrawById(dto.getDrawId());
 
-    validator.validateTicketForBuyingByDraw(draw);
+    validator.validateForBuyingByDraw(draw);
 
     // Валидируем выбранные номера от пользователя
     TicketGenerator generator = ticketsFactory.getGenerator(draw);
@@ -128,7 +124,6 @@ public class InvoiceService {
     List<Invoice.Status> statuses = Arrays.asList(Invoice.Status.UNPAID, Invoice.Status.PENDING);
     List<Invoice> unpaidInvoices = invoiceRepository.findAllByStatusInAndCancelled(statuses, 0);
 
-
     //    выбрать все неоплаченные инвойсы именно для указанного тиража
     List<Invoice> invoicesToCancel =
         unpaidInvoices.stream()
@@ -136,7 +131,8 @@ public class InvoiceService {
                 invoice -> {
                   try {
                     // Парсим JSON и достаём drawId
-                    TicketCreateDto dto = JsonMapper.fromJson(invoice.getTicketData(), TicketCreateDto.class);
+                    TicketCreateDto dto =
+                        JsonMapper.fromJson(invoice.getTicketData(), TicketCreateDto.class);
                     return dto.getDrawId().equals(drawId);
                   } catch (Exception e) {
                     log.error("Failed to parse ticketData: {}", invoice.getTicketData(), e);
@@ -156,7 +152,7 @@ public class InvoiceService {
     invoiceRepository.saveAll(invoicesToCancel);
   }
 
-  private Invoice getInvoice(Long id, Long userId) {
+  public Invoice getInvoice(Long id, Long userId) {
     return invoiceRepository
         .findByIdAndUser_Id(id, userId)
         .orElseThrow(
@@ -165,7 +161,7 @@ public class InvoiceService {
                     "Инвойс с ID " + id + " не найден или не принадлежит пользователю"));
   }
 
-  private Invoice getInvoice(Long id) {
+  public Invoice getInvoice(Long id) {
     return invoiceRepository
         .findById(id)
         .orElseThrow(() -> new NotFoundException("Инвойс с ID " + id + " не найден"));
@@ -179,5 +175,26 @@ public class InvoiceService {
 
   private Draw getDrawById(Long id) {
     return drawService.getDrawById(id);
+  }
+
+  private Long getDrawIdFromInvoice(Invoice invoice) {
+    return getTicketDataFromInvoice(invoice).getDrawId();
+  }
+
+  private List<Integer> getTicketNumbersFromInvoice(Invoice invoice) {
+    return getTicketDataFromInvoice(invoice).getNumbers();
+  }
+
+  private TicketCreateDto getTicketDataFromInvoice(Invoice invoice) {
+    return JsonMapper.fromJson(invoice.getTicketData(), TicketCreateDto.class);
+  }
+
+  public void validateBuyingByInvoice(Invoice invoice) {
+    Draw draw = getDrawById(getDrawIdFromInvoice(invoice));
+    validator.validateForBuyingByDraw(draw);
+    isInvoiceNotCancelled(invoice);
+    if (invoice.getStatus() != Invoice.Status.UNPAID) {
+      throw new ValidationException("Только неоплаченные инвойсы можно оплатить");
+    }
   }
 }
