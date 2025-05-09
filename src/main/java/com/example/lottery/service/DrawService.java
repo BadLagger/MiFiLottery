@@ -18,6 +18,7 @@ import com.example.lottery.repository.PreGeneratedTicketRepository;
 import com.example.lottery.service.Impl.FixedPoolTicketGenerator;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DrawService {
@@ -104,6 +106,7 @@ public class DrawService {
     public void setActive(Draw draw) {
        // System.out.format("Draw: %s set active\n", draw.getName());
         // Устанавливаем в планировщик активных задач
+        log.debug("Set Draw {} to active", draw);
         setStatus(draw, DrawStatus.ACTIVE);
         long delayMs = ChronoUnit.MILLIS.between(LocalDateTime.now(), draw.getStartTime().plusMinutes(draw.getDuration()));
         addToActiveTasks(draw, delayMs);
@@ -113,7 +116,7 @@ public class DrawService {
     }
 
     public void setPlanned(Draw draw) {
-     //   System.out.format("Draw: %s set planned\n", draw.getName());
+        log.debug("Set Draw {} to planned", draw);
         setStatus(draw, DrawStatus.PLANNED);
         long delayMs = ChronoUnit.MILLIS.between(LocalDateTime.now(), draw.getStartTime());
         addToPlannedTasks(draw, delayMs);
@@ -122,6 +125,7 @@ public class DrawService {
     public void setComplete(Draw draw) {
       //  System.out.format("Draw: %s set complete\n", draw.getName());
     //        preGeneratedTicketRepo.deleteByDraw(draw); // Очищаем пул предсозданных билетов
+        log.debug("Set Draw {} to complite", draw);
         setStatus(draw, DrawStatus.COMPLETED);
         sсheduledActiveFutures.remove(draw.getId());
         // Пробуем сгенерировать результат
