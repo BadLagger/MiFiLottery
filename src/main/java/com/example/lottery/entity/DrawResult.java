@@ -13,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "drawresult")
+@Table(name = "draw_result")
 public class DrawResult {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

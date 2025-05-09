@@ -1,7 +1,6 @@
 package com.example.lottery;
 
-import java.sql.SQLException;
-import org.h2.tools.Server;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -11,11 +10,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class LotteryApplication {
 
   public static void main(String[] args) {
-    try {
-      Server.createTcpServer("-tcpPort", "9092", "-tcpAllowOthers").start();
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
+//    try {
+//      Server.createTcpServer("-tcpPort", "9092", "-tcpAllowOthers").start();
+//    } catch (SQLException e) {
+//      throw new RuntimeException(e);
+//    }
     SpringApplication.run(LotteryApplication.class, args);
   }
 

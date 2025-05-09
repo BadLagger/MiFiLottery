@@ -5,6 +5,7 @@ target/
 !**/src/test/**/target/
 /data
 /logs
+.vscode/
 
 ### STS ###
 .apt_generated
@@ -20,3 +21,5 @@ target/
 *.iws
 *.iml
 *.ipr
+.cursorignore
+.gitignore

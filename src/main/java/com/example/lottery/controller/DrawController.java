@@ -26,13 +26,16 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
-@RequiredArgsConstructor
 public class DrawController {
     public final DrawService drawService;
     public final DrawResultService drawResultService;
 
     @Value("${app.default.draw-duration}")
     private Integer defaultDuration;
+
+    public DrawController(DrawService drawService) {
+        this.drawService = drawService;
+    }
 
     @GetMapping("/draws/all")
     public List<Draw> getAllDraws() { return drawService.findAll();}
@@ -51,10 +54,8 @@ public class DrawController {
     @GetMapping("/draws/{id}")
     public Draw getDrawsById(@PathVariable Long id) {
 
-        var result = drawService.findById(id).orElse(null);
-
-        if (result == null)
-            throw new IllegalArgumentException(String.format("User with %d not found", id));
+        var result = drawService.findById(id).orElseThrow(() ->
+            new IllegalArgumentException(String.format("User with %d not found", id)));
 
         return result;
     }
@@ -89,6 +90,7 @@ public class DrawController {
             throw new IllegalArgumentException("Draw with the same type exists in this day!");
         }
 
+        System.out.println("Try to create draw");
         Draw draw = drawService.createDraw(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(draw);
     }
@@ -99,6 +101,7 @@ public class DrawController {
         Optional<Draw> existingDrawOptional = drawService.findById(id);
 
         if (existingDrawOptional.isEmpty()) {
+            System.out.println("NotFound");
             return ResponseEntity.notFound().build(); // Если тираж не найден, возвращаем 404
         }
 

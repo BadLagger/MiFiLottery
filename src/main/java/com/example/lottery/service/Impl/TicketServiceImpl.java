@@ -27,32 +27,24 @@ public class TicketServiceImpl implements TicketService {
 
   //  private final UserService userService; // Заглушка
 
+  // TODO: Не использовать напрямую!! (вместо этого использовать фабрику билетов)
   @Override
   public TicketResponseDto getTicketDraft(TicketCreateDto dto) {
     // Получаем тираж и проверяем его статус
-    Draw draw =
-        drawService
-            .findById(dto.getDrawId())
-            .orElseThrow(
-                () -> new NotFoundException("Тираж с ID " + dto.getDrawId() + " не найден"));
-
-    validator.validateTicketForBuyingByDraw(draw);
+    Draw draw = getDrawById(dto.getDrawId());
+    validator.validateForBuyingByDraw(draw);
 
     // Валидируем выбранные номера от пользователя или генерим черновик билета
     TicketGenerator generator = ticketsFactory.getGenerator(draw);
-    if (generator instanceof UserSelectedTicketGenerator) {
-      validator.validateNumbers(dto.getNumbers(), draw.getLotteryType());
-      return ((UserSelectedTicketGenerator) generator).createDraft(dto.getNumbers());
-    }
+
     return generator.generateTicket();
   }
 
   @Override
   @Transactional
-  public void saveTicket(Ticket ticket) {
-    validator.validateTicketForBuyingByDraw(ticket.getDraw());
-    // TODO: проверки перед сохранением билета на корректность (наличие всех параметров)
-    ticketRepository.save(ticket);
+  public Ticket saveTicket(Ticket ticket) {
+    validator.validateForBuyingByDraw(ticket.getDraw());
+    return ticketRepository.save(ticket);
   }
 
   @Override
@@ -67,5 +59,14 @@ public class TicketServiceImpl implements TicketService {
   @Override
   public List<TicketResponseDto> getUserTickets(Long userId) {
     return ticketRepository.findByUserId(userId).stream().map(ticketMapper::toDto).toList();
+  }
+
+  @Override
+  public List<Long> getTicketIdsByDrawId(Long drawId) {
+    return ticketRepository.findAllTicketsByDrawId(drawId).stream().map(Ticket::getId).toList();
+  }
+
+  private Draw getDrawById(Long drawId) {
+    return drawService.getDrawById(drawId);
   }
 }

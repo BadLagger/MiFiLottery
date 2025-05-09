@@ -3,6 +3,7 @@ package com.example.lottery.controller;
 import com.example.lottery.dto.LotteryTypeCreateDto;
 import com.example.lottery.dto.LotteryTypeResponseDto;
 import com.example.lottery.dto.algorithm.FixedPoolRules;
+import com.example.lottery.dto.algorithm.RandomUniqueRules;
 import com.example.lottery.dto.algorithm.UserSelectedRules;
 import com.example.lottery.entity.LotteryType;
 import com.example.lottery.mapper.LotteryTypeMapper;
@@ -36,7 +37,7 @@ public class LotteryTypeController {
     rules.setMaxNumber(45);
     dto.setAlgorithmRules(rules);
 
-//    dto.setDescription("50 наборов чисел по 4 от 10 до 30");
+//    dto.setDescription("Предсозданные (50 наборов) чисел по 4 от 10 до 30");
 //    FixedPoolRules rules = new FixedPoolRules();
 //    rules.setNumberCount(4);
 //    rules.setMinNumber(10);
@@ -44,13 +45,15 @@ public class LotteryTypeController {
 //    rules.setPoolSize(50);
 //    dto.setAlgorithmRules(rules);
 
-    //    RandomUniqueRules rules = new RandomUniqueRules();
-    //    dto.setDescription("5 из 36 автогенерация");
-    //        rules.setNumberCount(5);
-    //        rules.setMinNumber(1);
-    //        rules.setMaxNumber(36);
-    //        rules.setSorted(true);
-    //        dto.setAlgorithmRules(rules);
+
+
+//        RandomUniqueRules rules = new RandomUniqueRules();
+//        dto.setDescription("5 из 36 автогенерация");
+//            rules.setNumberCount(5);
+//            rules.setMinNumber(1);
+//            rules.setMaxNumber(36);
+//            rules.setSorted(true);
+//            dto.setAlgorithmRules(rules);
 
     LotteryType entity = mapper.toEntity(dto);
     entity = repository.save(entity); // Сохраняем в БД

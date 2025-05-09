@@ -2,6 +2,7 @@ package com.example.lottery.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -12,6 +13,7 @@ import org.hibernate.type.SqlTypes;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Ticket {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,6 +34,13 @@ public class Ticket {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private Status status;
+
+  @PrePersist
+  protected void onCreate() {
+    if (status == null) {
+      status = Status.INGAME;
+    }
+  }
 
   public enum Status {
     INGAME,

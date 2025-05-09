@@ -1,11 +1,8 @@
 package com.example.lottery.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-import org.springframework.security.crypto.bcrypt.BCrypt;
-
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import lombok.*;
 
 @Entity
 @Data

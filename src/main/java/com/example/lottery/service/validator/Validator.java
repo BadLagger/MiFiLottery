@@ -8,6 +8,8 @@ import com.example.lottery.entity.AlgorithmType;
 import com.example.lottery.entity.Draw;
 import com.example.lottery.entity.LotteryType;
 import com.example.lottery.exception.ValidationException;
+import com.example.lottery.service.DrawService;
+import com.example.lottery.service.LotteryTypeService;
 import com.example.lottery.mapper.LotteryTypeMapper;
 import com.example.lottery.repository.LotteryTypeRepository;
 import java.util.HashSet;
@@ -20,22 +22,22 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class Validator {
-  private final LotteryTypeMapper lotteryTypeMapper;
-  private final LotteryTypeRepository lotteryTypeRepository;
+  private final LotteryTypeService lotteryTypeService;
+  private final DrawService drawService;
 
-  public void validateTicketForBuyingByDraw(Draw draw) {
-    // TODO: Здесь надо забрать тип алгоритма из сервиса LotteryType
-    AlgorithmType algorithmType =
-        lotteryTypeRepository.findById(draw.getLotteryType().getId()).get().getAlgorithmType();
+  public void validateForBuyingByDraw(Draw draw) {
+    //    Draw draw = drawService.getDrawById(drawId);
+    AlgorithmType algorithmType = lotteryTypeService.getAlgorithmTypeByDraw(draw);
 
     if (!algorithmType.isDrawStatusAllowed(draw.getStatus())) {
       throw new ValidationException(
-          "Для тиража " + algorithmType+ " в статусе " + draw.getStatus() + " нельзя получить билет");
+          "Для тиража %s в статусе %s нельзя создавать билеты", draw.getId(), draw.getStatus());
     }
   }
 
-  public void validateNumbers(List<Integer> numbers, LotteryType lotteryType) {
-    AlgorithmRules rules = lotteryTypeMapper.parseRules(lotteryType.getAlgorithmRules());
+  public void validateNumbers(List<Integer> numbers, Draw draw) {
+    //    Draw draw = drawService.getDrawById(drawId);
+    AlgorithmRules rules = lotteryTypeService.getAlgorithmRulesByDraw(draw);
 
     // Общие проверки для всех алгоритмов
 
@@ -46,15 +48,11 @@ public class Validator {
     for (Integer num : numbers) {
       if (num < rules.getMinNumber() || num > rules.getMaxNumber()) {
         throw new ValidationException(
-            "Числа должны быть в диапазоне ["
-                + rules.getMinNumber()
-                + "-"
-                + rules.getMaxNumber()
-                + "]");
+            "Числа должны быть в диапазоне [%s-%s]", rules.getMinNumber(), rules.getMaxNumber());
       }
     }
     // Проверка уникальности (если нужно) - !randomRules.isAllowDuplicates() &&
-    if (hasDuplicates(numbers)) {
+    if (new HashSet<>(numbers).size() != numbers.size()) {
       throw new ValidationException("Числа должны быть уникальны");
     }
 
@@ -72,11 +70,6 @@ public class Validator {
       throw new IllegalArgumentException(
           "Генератор не поддерживает правила типа: " + rules.getClass().getSimpleName());
     }
-  }
-
-  // Вспомогательный метод для проверки дубликатов
-  private boolean hasDuplicates(List<Integer> numbers) {
-    return numbers.size() != new HashSet<>(numbers).size();
   }
 
   // методы для проверки особых свойств правил для конкретных типов алгоритмов
