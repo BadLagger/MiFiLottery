@@ -29,21 +29,21 @@ public class LotteryTypeController {
     dto.setTicketPrice(new BigDecimal("150.00"));
     dto.setPrizePoolPercentage(0.6);
     dto.setMinTicket(3);
-//
-//    dto.setDescription("6 из 45 выбор пользователя");
-//    UserSelectedRules rules = new UserSelectedRules();
-//    rules.setNumberCount(6);
-//    rules.setMinNumber(1);
-//    rules.setMaxNumber(45);
-//    dto.setAlgorithmRules(rules);
 
-    dto.setDescription("50 наборов чисел по 4 от 10 до 30");
-    FixedPoolRules rules = new FixedPoolRules();
-    rules.setNumberCount(4);
-    rules.setMinNumber(10);
-    rules.setMaxNumber(30);
-    rules.setPoolSize(50);
+    dto.setDescription("6 из 45 выбор пользователя");
+    UserSelectedRules rules = new UserSelectedRules();
+    rules.setNumberCount(6);
+    rules.setMinNumber(1);
+    rules.setMaxNumber(45);
     dto.setAlgorithmRules(rules);
+
+//    dto.setDescription("Предсозданные (50 наборов) чисел по 4 от 10 до 30");
+//    FixedPoolRules rules = new FixedPoolRules();
+//    rules.setNumberCount(4);
+//    rules.setMinNumber(10);
+//    rules.setMaxNumber(30);
+//    rules.setPoolSize(50);
+//    dto.setAlgorithmRules(rules);
 
 
 

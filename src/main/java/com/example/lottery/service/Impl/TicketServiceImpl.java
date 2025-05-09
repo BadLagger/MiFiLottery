@@ -43,7 +43,6 @@ public class TicketServiceImpl implements TicketService {
   @Transactional
   public Ticket saveTicket(Ticket ticket) {
     validator.validateForBuyingByDraw(ticket.getDraw());
-    // TODO: проверки перед сохранением билета на корректность (наличие всех параметров)
     return ticketRepository.save(ticket);
   }
 

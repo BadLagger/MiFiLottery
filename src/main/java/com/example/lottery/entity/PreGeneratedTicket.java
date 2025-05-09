@@ -3,10 +3,13 @@ package com.example.lottery.entity;
 import com.example.lottery.mapper.JsonMapper;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.Array;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.zip.CRC32;
 
@@ -43,6 +46,7 @@ public class PreGeneratedTicket {
 
   private String calculateCrc32(List<Integer> numbers) {
     CRC32 crc32 = new CRC32();
+    Collections.sort(numbers);
     crc32.update(numbers.toString().getBytes(StandardCharsets.UTF_8));
     return Long.toHexString(crc32.getValue());
   }

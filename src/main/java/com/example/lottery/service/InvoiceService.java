@@ -5,6 +5,7 @@ import com.example.lottery.dto.TicketCreateDto;
 import com.example.lottery.dto.TicketInInvoiceDto;
 import com.example.lottery.entity.Draw;
 import com.example.lottery.entity.Invoice;
+import com.example.lottery.entity.Ticket;
 import com.example.lottery.exception.NotFoundException;
 import com.example.lottery.exception.ValidationException;
 import com.example.lottery.mapper.InvoiceMapper;
@@ -33,6 +34,7 @@ public class InvoiceService {
   private final PaymentLinkGenerator paymentLinkGenerator;
   private final Validator validator;
   private final TicketsFactory ticketsFactory;
+  private final TicketService ticketService;
 
   public TicketInInvoiceDto createInvoice(TicketCreateDto dto, Long userId) {
     DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
@@ -46,7 +48,8 @@ public class InvoiceService {
     if (generator instanceof UserSelectedTicketGenerator) {
       validator.validateNumbers(dto.getNumbers(), draw);
     } else {
-      dto.setNumbers(generator.generateNumbers());
+      List<Integer> numbers = generator.generateTicket().getNumbers();
+      dto.setNumbers(numbers);
     }
 
     // Собираем данные для инвойса
@@ -93,6 +96,7 @@ public class InvoiceService {
     invoiceRepository.save(invoice);
   }
 
+  @Transactional
   public void setPaid(Long id) {
     Invoice invoice = getInvoice(id);
 
@@ -100,10 +104,21 @@ public class InvoiceService {
     if (invoice.getStatus() == Invoice.Status.PENDING) {
       invoice.setStatus(Invoice.Status.PAID);
       invoiceRepository.save(invoice);
+      prepareTicketFromInvoice(invoice);
     } else {
       throw new ValidationException(
           "Нельзя присвоить статус PAID инвойсу в статусе " + invoice.getStatus());
     }
+  }
+
+  private void prepareTicketFromInvoice(Invoice invoice) {
+    TicketCreateDto ticketInInvoice = getTicketDataFromInvoice(invoice);
+    Ticket ticket = Ticket.builder()
+            .data(JsonMapper.mapNumbersToJson(ticketInInvoice.getNumbers()))
+            .user(invoice.getUser())
+            .draw(drawService.getDrawById(ticketInInvoice.getDrawId()))
+            .build();
+    ticketService.saveTicket(ticket);
   }
 
   public void setUnpaid(Long id) {
