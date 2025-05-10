@@ -40,7 +40,7 @@ public class DrawResultService {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final SecureRandom random = new SecureRandom();
 
-    public DrawResult generateResult(Long drawId) {
+    public DrawResult generateResult(Long drawId) throws JsonProcessingException {
         Draw draw = drawRepository.findById(drawId)
                 .orElseThrow(() -> new RuntimeException("Draw not found"));
 
@@ -65,19 +65,15 @@ public class DrawResultService {
         var result = drawResultFormer(draw, winningNumbers, strategy);
 
         log.debug("Try to save DrawResult");
-        try {
-            drawResultRepository.save(result);
-        } catch (RuntimeException e) {
-            log.error("Try to save DrawResult fault");
-            throw new RuntimeException(e);
-        }
+
+        drawResultRepository.save(result);
 
         log.debug("Save DrawResult DONE!");
 
         return result;
     }
 
-    private DrawResult drawResultFormer(Draw draw, Set<Integer> winsNumber, LotteryCheckStrategy strategy) {
+    private DrawResult drawResultFormer(Draw draw, Set<Integer> winsNumber, LotteryCheckStrategy strategy) throws JsonProcessingException {
 
         ObjectMapper jsonMapper = new ObjectMapper();
         DrawResult result = new DrawResult();
@@ -87,12 +83,8 @@ public class DrawResultService {
         result.setResultTime(LocalDateTime.now());
         result.setPrizePool(new BigDecimal(1000000)); // Гвозди-гвозди ))))
 
-        try {
-            result.setWinningCombination(jsonMapper.writeValueAsString(Map.of("numbers", List.of(winsNumber))));
-        } catch (JsonProcessingException e) {
-            log.error("Ooops! Convert winning combination to DrawResult fault");
-            throw new RuntimeException(e);
-        }
+
+        result.setWinningCombination(jsonMapper.writeValueAsString(Map.of("numbers", List.of(winsNumber))));
 
         List<Ticket> tickets = ticketRepository.findByDraw(draw);
         for (Ticket ticket : tickets) {
@@ -128,12 +120,7 @@ public class DrawResultService {
 
         }
 
-        try {
-            result.setWinningTickets(jsonMapper.writeValueAsString(Map.of("tickets", List.of(winningTickets))));
-        } catch (JsonProcessingException e) {
-            log.error("Ooops! Convert winning tickets to DrawResult fault");
-            throw new RuntimeException(e);
-        }
+        result.setWinningTickets(jsonMapper.writeValueAsString(Map.of("tickets", List.of(winningTickets))));
 
         return result;
     }

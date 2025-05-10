@@ -16,6 +16,7 @@ import com.example.lottery.repository.DrawResultRepository;
 import com.example.lottery.repository.LotteryTypeRepository;
 import com.example.lottery.repository.PreGeneratedTicketRepository;
 import com.example.lottery.service.Impl.FixedPoolTicketGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,7 +58,7 @@ public class DrawService {
     private ConcurrentHashMap<Long, ScheduledFuture<?>> sсheduledPlannedFutures = null;
 
     @PostConstruct
-    public void init() {
+    public void init() throws JsonProcessingException {
        // System.out.println("Init DrawService bgn");
 
         // Пока что максимальное количество потоков прибито гвоздями, но по хорошему надо сделать его гибким - maxPoolSize = maxLotteryTypes * maxNumberOfLOtteryTypesInDay (то есть максимальное кол-во потоков равно количеству типов лотерей плюс максимальное кол-во лотереи каждого типа в сутки)
@@ -122,7 +123,7 @@ public class DrawService {
         addToPlannedTasks(draw, delayMs);
     }
 
-    public void setComplete(Draw draw) {
+    public void setComplete(Draw draw) throws JsonProcessingException {
       //  System.out.format("Draw: %s set complete\n", draw.getName());
     //        preGeneratedTicketRepo.deleteByDraw(draw); // Очищаем пул предсозданных билетов
         log.debug("Set Draw {} to complite", draw);
@@ -148,7 +149,13 @@ public class DrawService {
     }
 
     public void addToActiveTasks(Draw draw, long delayMs) {
-        var future = executorActive.schedule(()-> setComplete(draw), delayMs, TimeUnit.MILLISECONDS);
+        var future = executorActive.schedule(()-> {
+            try {
+                setComplete(draw);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        }, delayMs, TimeUnit.MILLISECONDS);
         sсheduledActiveFutures.put(draw.getId(), future);
     }
 
@@ -186,13 +193,13 @@ public class DrawService {
 
     // Запускаемся в начале каждых суток и устанавливаем в планировщик задачи
     @Scheduled(cron = "0 0 0 * * ?")
-    public void dailyDrawChecking() {
+    public void dailyDrawChecking() throws JsonProcessingException {
       //  System.out.println("Daily checking for draws status");
         checkActiveDraws();
         checkPlannedDraws();
     }
 
-    private void checkActiveDraws(){
+    private void checkActiveDraws() throws JsonProcessingException {
         // Получаем дату равную началу следующих суток
         LocalDateTime tomorrow = LocalDateTime.now().plusDays(1).truncatedTo(ChronoUnit.DAYS);
         // Получаем все записи из БД с тиражами, которые имеют активный статус и имеют до начала следующих суток, при этом все записи упорядочены по дате от самых старых до самых свежих
