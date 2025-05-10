@@ -42,7 +42,7 @@ public class UserService {
             throw new IllegalArgumentException("Username already exists");
         }
 
-        var newUserRole = roleRepository.findByName(newUser.getRole());
+        var newUserRole = roleRepository.findByName(newUser.getRole().toLowerCase());
         if (newUserRole.isEmpty()) {
             throw new IllegalArgumentException("User with role null");
         }
