@@ -30,16 +30,11 @@ public class LotteryCheckStrategyResolver {
 
         log.debug("Lottery type again: {}", lotteryType);
 
+        // Дальше можно использовать описание типа лотереи или ID для выбора нужной стратегии
         if (lotteryType.getAlgorithmType() == AlgorithmType.RANDOM_UNIQUE_NUMBERS) {
             log.debug("Get random strategy");
             return strategyMap.get("simple-match");
         }
-        // Дальше можно использовать описание типа лотереи или ID для выбора нужной стратегии
-        /*if ("SIMPLE".equals(lotteryType.getDescription())) {
-            return strategyMap.get("simple-match");
-        } else if ("COMPLEX".equals(lotteryType.getDescription())) {
-            return strategyMap.get("exact-match");
-        }*/
 
         throw new RuntimeException("No strategy found for this lottery type");
     }
