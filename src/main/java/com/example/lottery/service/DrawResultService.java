@@ -120,6 +120,10 @@ public class DrawResultService {
             log.debug("Ticket: {}", ticket);
             Set<Integer> userNumbers = parseNumbersFromJsonString(ticket.getData());
             boolean win = strategy.isWinning(userNumbers, winsNumber);
+            // Работаем c БД
+            ticket.setStatus(win ? Ticket.Status.WIN : Ticket.Status.LOSE);
+            ticketRepository.save(ticket);
+            // Отправляем сообщение по Telegram
             if (win) {
                 log.debug("WIN ticket: {}", ticket);
                 winningTickets.add(ticket.getId());
@@ -139,10 +143,10 @@ public class DrawResultService {
                     telegramNotificationService.sendTo(chatId, userMessage);
                 } catch (NumberFormatException e) {
                     // лог, если телеграм id кривой
+                    log.error(e.getMessage());
                 }
             }
-            ticket.setStatus(win ? Ticket.Status.WIN : Ticket.Status.LOSE);
-            ticketRepository.save(ticket);
+
         }
 
         try {
