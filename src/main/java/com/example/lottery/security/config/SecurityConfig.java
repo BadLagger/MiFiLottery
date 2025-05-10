@@ -45,8 +45,7 @@ public class SecurityConfig {
                     //юзеры
                     .requestMatchers(HttpMethod.GET,
                             "/api/draws/**",
-                            "/api/tickets/**",
-                            "/test/**")
+                            "/api/tickets/**")
                     .hasAuthority("USER")
 
                     //админы
