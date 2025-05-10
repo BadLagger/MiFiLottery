@@ -62,27 +62,6 @@ public class DrawResultService {
 
         log.debug("Winning numbers: {}", winningNumbers);
 
-        /*DrawResult result = new DrawResult();
-        result.setDraw(draw);
-        result.setWinningCombination(
-                winningNumbers.stream()
-                        .sorted()
-                        .map(String::valueOf)
-                        .collect(Collectors.joining(",")));
-        result.setResultTime(LocalDateTime.now());
-        drawResultRepository.save(result);
-
-        List<Ticket> tickets = ticketRepository.findByDraw(draw);
-        for (Ticket ticket : tickets) {
-            Set<Integer> userNumbers = parseNumbersFromJsonString(ticket.getData());
-            boolean win = strategy.isWinning(userNumbers, winningNumbers);
-            if (win) {
-                log.debug("WINNNNN!!!!!!!!!!!!!!!");
-            }
-            ticket.setStatus(win ? Ticket.Status.WIN : Ticket.Status.LOSE);
-            ticketRepository.save(ticket);
-        }*/
-
         var result = drawResultFormer(draw, winningNumbers, strategy);
 
         log.debug("Try to save DrawResult");
