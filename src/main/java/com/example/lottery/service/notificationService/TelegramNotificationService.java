@@ -1,6 +1,7 @@
 package com.example.lottery.service.notificationService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TelegramNotificationService {
@@ -32,7 +34,13 @@ public class TelegramNotificationService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
 
-        restTemplate.postForObject(url, request, String.class);
+        log.debug("Try to send telegram message");
+        try {
+            restTemplate.postForObject(url, request, String.class);
+        } catch (Exception e) {
+            log.error("Error sending by Telegram: {}", e.getMessage(), e);
+        }
+        log.debug("Send done");
     }
 }
 
