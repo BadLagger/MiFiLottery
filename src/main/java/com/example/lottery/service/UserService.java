@@ -2,6 +2,7 @@ package com.example.lottery.service;
 
 import com.example.lottery.entity.Role;
 import com.example.lottery.entity.User;
+import com.example.lottery.exception.NotFoundException;
 import com.example.lottery.mapper.UserMapper;
 import com.example.lottery.repository.UserRepository;
 import com.example.lottery.security.dto.LoginRequest;
@@ -89,6 +90,12 @@ public class UserService {
 
         return user.get();
 
+    }
+
+    public User findByUsername(String name) {
+    return userRepository
+        .findByName(name)
+        .orElseThrow(() -> new NotFoundException("User with name " + name + " not found"));
     }
 
     // Будет возвращать User без проверки пароля

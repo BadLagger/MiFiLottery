@@ -26,16 +26,13 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class DrawController {
     public final DrawService drawService;
     public final DrawResultService drawResultService;
 
     @Value("${app.default.draw-duration}")
     private Integer defaultDuration;
-
-    public DrawController(DrawService drawService) {
-        this.drawService = drawService;
-    }
 
     @GetMapping("/draws/all")
     public List<Draw> getAllDraws() { return drawService.findAll();}

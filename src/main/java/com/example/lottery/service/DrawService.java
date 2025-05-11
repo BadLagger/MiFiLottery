@@ -154,6 +154,7 @@ public class DrawService {
 //    System.out.format("Draw: %s set complete\n", draw.getName());
     //        preGeneratedTicketRepo.deleteByDraw(draw);
       // TODO: Очищаем пул предсозданных билетов
+      // TODO: отменяем все неоплаченные инвойсы
     setStatus(draw, DrawStatus.COMPLETED);
     sсheduledActiveFutures.remove(draw.getId());
         // Пробуем сгенерировать результат

@@ -5,14 +5,14 @@ spring:
 #  application:
 #    name: lottery
   datasource:
-    url: jdbc:h2:file:./data/testdb;MODE=PostgreSQL
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: password
-#      url: jdbc:postgresql://localhost:5432/lottery
-#      username: postgres
-#      password: 111
-#      driver-class-name: org.postgresql.Driver
+#    url: jdbc:h2:file:./data/testdb;MODE=PostgreSQL
+#    driver-class-name: org.h2.Driver
+#    username: sa
+#    password: password
+      url: jdbc:postgresql://localhost:5432/lottery
+      username: postgres
+      password: 111
+      driver-class-name: org.postgresql.Driver
 
 #  h2:
 #    console:
@@ -25,13 +25,13 @@ spring:
     baseline-on-migrate: true
 
   jpa:
-#    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+#    database-platform: org.hibernate.dialect.H2Dialect
     show-sql: true
     generate-ddl: true
     hibernate:
-      ddl-auto: none
-#      ddl-auto: update
+#      ddl-auto: none
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
