@@ -33,6 +33,6 @@ public class Draw {
   private Integer duration;
 
   @Enumerated(EnumType.STRING)
-  @Column(columnDefinition = "varchar(255) check (status in ('PLANNED','ACTIVE','COMPLETED','CANCELLED'))")
+  //@Column(columnDefinition = "varchar(255) check (status in ('PLANNED','ACTIVE','COMPLETED','CANCELLED'))")
   private DrawStatus status;
 }
