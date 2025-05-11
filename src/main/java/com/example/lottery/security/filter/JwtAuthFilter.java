@@ -35,8 +35,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        log.debug("Get request with checking");
+
         String path = request.getServletPath();
+        log.debug("Get request with checking {}", path);
 
         if (path.startsWith("/auth") || path.startsWith("/h2-console")) {
             filterChain.doFilter(request, response);

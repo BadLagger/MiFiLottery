@@ -24,6 +24,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -257,4 +259,25 @@ public class DrawService {
   public void initPoolForDraw(Draw draw) {
     ticketPoolService.generateTicketsPoolForDraw(draw);
   }
+
+    public Draw getDrawById(Long drawId) {
+
+        var drawRep = drawRepository.findById(drawId);
+
+        if (drawRep.isEmpty()) {
+            throw new IllegalArgumentException("No draw with id");
+        }
+
+        return drawRep.get();
+    }
+
+    public BigDecimal getTicketPriceByDrawId(Long drawId) {
+        var drawPr = drawRepository.findById(drawId);
+
+        if (drawPr.isEmpty()) {
+            throw new IllegalArgumentException("Draw with this id doesn't exists");
+        }
+
+        return drawPr.get().getLotteryType().getTicketPrice();
+    }
 }
