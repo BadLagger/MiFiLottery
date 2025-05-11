@@ -1,5 +1,6 @@
 package com.example.lottery.service;
 
+import com.example.lottery.dto.TicketCreateDto;
 import com.example.lottery.dto.TicketResponseDto;
 import com.example.lottery.dto.algorithm.AlgorithmRules;
 import com.example.lottery.dto.algorithm.UserSelectedRules;
@@ -7,13 +8,12 @@ import com.example.lottery.entity.Draw;
 import com.example.lottery.entity.LotteryType;
 import com.example.lottery.entity.Ticket;
 import com.example.lottery.entity.User;
+import com.example.lottery.mapper.JsonMapper;
 import com.example.lottery.mapper.LotteryTypeMapper;
 import com.example.lottery.mapper.TicketMapper;
+import com.example.lottery.service.Impl.UserSelectedTicketGenerator;
 import com.example.lottery.service.utils.UniqueNumbersGenerator;
-
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +37,8 @@ public abstract class AbstractTicketGenerator implements TicketGenerator {
 
   protected UniqueNumbersGenerator uniqueNumbersGenerator;
 
-  protected AlgorithmRules getRules() {
+  @Override
+  public AlgorithmRules getRules() {
     // Общая логика получения правил для всех генераторов
     LotteryType lotteryType = draw.getLotteryType();
     return lotteryTypeMapper.parseRules(lotteryType.getAlgorithmRules());
@@ -51,16 +52,7 @@ public abstract class AbstractTicketGenerator implements TicketGenerator {
     return uniqueNumbersGenerator.generateNumbers(this.getRules(), draw);
   }
 
-  public Ticket create(User user, List<Integer> numbers) {
-    // TODO: нужно еще пользователя передавать и привязывать
-    Ticket ticket = new Ticket();
-    ticket.setData(ticketMapper.mapNumbersToJson(numbers));
-    ticket.setDraw(draw);
-    ticket.setStatus(Ticket.Status.INGAME);
-    return ticket;
-  }
-
-  public TicketResponseDto createDraft(List<Integer> numbers) {
+  protected TicketResponseDto createDraft(List<Integer> numbers) {
     var draft = new TicketResponseDto();
     draft.setDrawId(draw.getId());
     if (getRules().isSorted()) {
@@ -70,8 +62,8 @@ public abstract class AbstractTicketGenerator implements TicketGenerator {
     return draft;
   }
 
-  public TicketResponseDto createDraft(String numbersJson) {
-    List<Integer> numbers = ticketMapper.mapJsonToNumbers(numbersJson);
+  protected TicketResponseDto createDraft(String numbersJson) {
+    List<Integer> numbers = JsonMapper.mapJsonToNumbers(numbersJson);
     return createDraft(numbers);
   }
 }

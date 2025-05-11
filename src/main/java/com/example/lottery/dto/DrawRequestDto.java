@@ -8,7 +8,11 @@ import java.time.LocalDateTime;
 
 @JsonIgnoreProperties(ignoreUnknown = false)
 public record DrawRequestDto(
-    @NotBlank(message = "Name of Draw is mandatory!") String name,
-    @NotNull(message = "Lottery Type Id is mandatory!") Long lotteryTypeId,
-    @FutureOrPresent(message = "Start Time should be in future!") LocalDateTime startTime,
-    Integer duration) {}
+        @NotBlank(message = "Name of Draw is mandatory!")
+        String name,
+        @NotNull(message = "Lottery Type Id is mandatory!")
+        Long lotteryTypeId,
+        @FutureOrPresent(message = "Start Time should be in future!")
+        LocalDateTime startTime,
+        Integer duration
+) {}

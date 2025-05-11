@@ -11,4 +11,6 @@ public interface PreGeneratedTicketRepository extends JpaRepository<PreGenerated
   void deleteByDraw(Draw draw);
 
   boolean existsByDrawAndNumbers(Draw draw, String s);
+
+  boolean existsByDrawAndNumbersHash(Draw draw, String numbersHash);
 }

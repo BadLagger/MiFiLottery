@@ -7,11 +7,13 @@ import java.util.List;
 
 public interface TicketService {
 
-  void saveTicket(Ticket ticket);
+  Ticket saveTicket(Ticket ticket);
 
   TicketResponseDto getTicketDraft(TicketCreateDto dto);
 
   TicketResponseDto getTicketById(Long id, Long userId);
 
   List<TicketResponseDto> getUserTickets(Long userId);
+
+  List<Long> getTicketIdsByDrawId(Long drawId);
 }

@@ -17,10 +17,12 @@ public class TicketController {
   private final TicketService ticketService;
 
   @PostMapping("/new")
-  public ResponseEntity<TicketResponseDto> createTicketDraft(@Valid @RequestBody TicketCreateDto dto
-      //          , @RequestHeader("Authorization") String token
-      ) {
-    return ResponseEntity.status(HttpStatus.CREATED).body(ticketService.getTicketDraft(dto));
+  public ResponseEntity<TicketResponseDto> createTicketDraft(
+      @Valid @RequestBody TicketCreateDto dto) {
+    // TODO: ручку оставим на будущее, когда можно будет делать несколько билетов в одном инвойсе
+
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ticketService.getTicketDraft(dto));
   }
 
   @GetMapping("/{id}")

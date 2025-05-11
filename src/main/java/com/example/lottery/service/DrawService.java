@@ -1,6 +1,5 @@
 package com.example.lottery.service;
 
-import ch.qos.logback.core.CoreConstants;
 import com.example.lottery.dto.DrawRequestDto;
 import com.example.lottery.dto.DrawStatus;
 import com.example.lottery.dto.algorithm.AlgorithmRules;
@@ -39,8 +38,12 @@ import java.util.concurrent.*;
 @RequiredArgsConstructor
 public class DrawService {
     private final DrawRepository drawRepository;
+
+    private final DrawResultRepository drawResultRepository;
+
     private final DrawResultService drawResultService;
     private final LotteryTypeRepository lotteryTypeRepository;
+    private final TicketPoolService ticketPoolService;
     private TicketMapper ticketMapper;
     private FixedPoolTicketGenerator fixedPoolTicketGenerator;
     private PreGeneratedTicketRepository preGeneratedRepo;
@@ -250,36 +253,8 @@ public class DrawService {
         }
     }
 
-  // Вызываем этот метод при переходе тиража в статус ACTIVE.
-  @Transactional
+  // TODO: Вызываем этот метод при создании тиража (после проверки на тип тиража).
   public void initPoolForDraw(Draw draw) {
-    // Получаем генератор через фабрику
-    TicketGenerator generator = ticketsFactory.getGenerator(draw);
-
-    // Проверяем, что это именно FixedPool генератор
-    if (!(generator instanceof FixedPoolTicketGenerator)) {
-      throw new IllegalStateException(
-          "Метод initPoolForDraw поддерживает только FixedPool тиражи. Получен: "
-              + generator.getClass().getSimpleName());
-    }
-
-    // Получаем правила для проверки размера пула
-    AlgorithmRules rules = ((FixedPoolTicketGenerator) generator).getRules();
-    FixedPoolRules fixedPoolRules = (FixedPoolRules) rules;
-
-    // Генерируем пул билетов
-    List<PreGeneratedTicket> poolTickets = new ArrayList<>();
-    for (int i = 0; i < fixedPoolRules.getPoolSize(); i++) {
-      // Используем генератор для создания билетов
-      List<Integer> numbers = generator.generateNumbers();
-
-      PreGeneratedTicket pgTicket = new PreGeneratedTicket();
-      pgTicket.setDraw(draw);
-      pgTicket.setNumbers(ticketMapper.mapNumbersToJson(numbers));
-      poolTickets.add(pgTicket);
-    }
-
-    // Сохраняем пул в БД
-    preGeneratedRepo.saveAll(poolTickets);
+    ticketPoolService.generateTicketsPoolForDraw(draw);
   }
 }
