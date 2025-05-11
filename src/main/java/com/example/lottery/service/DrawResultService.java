@@ -8,24 +8,25 @@ import com.example.lottery.entity.Ticket;
 import com.example.lottery.repository.DrawRepository;
 import com.example.lottery.repository.DrawResultRepository;
 import com.example.lottery.repository.TicketRepository;
-import com.example.lottery.repository.UserRepository;
 import com.example.lottery.service.notificationService.TelegramNotificationService;
 import com.example.lottery.strategy.LotteryCheckStrategy;
 import com.example.lottery.strategy.LotteryCheckStrategyResolver;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DrawResultService {
@@ -33,14 +34,13 @@ public class DrawResultService {
     private final DrawRepository drawRepository;
     private final DrawResultRepository drawResultRepository;
     private final TicketRepository ticketRepository;
-    private final UserRepository userRepository;
     private final LotteryCheckStrategyResolver strategyResolver;
     private final TelegramNotificationService telegramNotificationService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final SecureRandom random = new SecureRandom();
 
-    public DrawResult generateResult(Long drawId) {
+    public DrawResult generateResult(Long drawId) throws JsonProcessingException {
         Draw draw = drawRepository.findById(drawId)
                 .orElseThrow(() -> new RuntimeException("Draw not found"));
 
@@ -48,60 +48,81 @@ public class DrawResultService {
             throw new RuntimeException("Draw is not completed");
         }
 
+        log.debug("Try to generate result for draw: {}", draw);
+
         LotteryType lotteryType = draw.getLotteryType();
+
+        log.debug("Draw type: {}", lotteryType);
+
         LotteryCheckStrategy strategy = strategyResolver.resolve(lotteryType.getId());
+
+        log.debug("Lotery strategy: {}", strategy);
 
         Set<Integer> winningNumbers = selectWinningNumbers(draw);
 
-        DrawResult result = new DrawResult();
-        result.setDraw(draw);
-        result.setWinningCombination(
-                winningNumbers.stream()
-                        .sorted()
-                        .map(String::valueOf)
-                        .collect(Collectors.joining(",")));
-        result.setResultTime(LocalDateTime.now());
+        log.debug("Winning numbers: {}", winningNumbers);
+
+        var result = drawResultFormer(draw, winningNumbers, strategy);
+
+        log.debug("Try to save DrawResult");
+
         drawResultRepository.save(result);
+
+        log.debug("Save DrawResult DONE!");
+
+        return result;
+    }
+
+    private DrawResult drawResultFormer(Draw draw, Set<Integer> winsNumber, LotteryCheckStrategy strategy) throws JsonProcessingException {
+
+        ObjectMapper jsonMapper = new ObjectMapper();
+        DrawResult result = new DrawResult();
+        List<Long> winningTickets = new ArrayList<>();
+
+        result.setDraw(draw);
+        result.setResultTime(LocalDateTime.now());
+        result.setPrizePool(new BigDecimal(1000000)); // Гвозди-гвозди ))))
+
+
+        result.setWinningCombination(jsonMapper.writeValueAsString(Map.of("numbers", List.of(winsNumber))));
 
         List<Ticket> tickets = ticketRepository.findByDraw(draw);
         for (Ticket ticket : tickets) {
+            log.debug("Ticket: {}", ticket);
             Set<Integer> userNumbers = parseNumbersFromJsonString(ticket.getData());
-            boolean win = strategy.isWinning(userNumbers, winningNumbers);
+            boolean win = strategy.isWinning(userNumbers, winsNumber);
+            // Работаем c БД
             ticket.setStatus(win ? Ticket.Status.WIN : Ticket.Status.LOSE);
             ticketRepository.save(ticket);
-
-        // Уведомление пользователя
-            userRepository.findById(ticket.getUser().getId()).ifPresent(user -> {
-                String userMessage = String.format("""
+            // Отправляем сообщение по Telegram
+            if (win) {
+                log.debug("WIN ticket: {}", ticket);
+                winningTickets.add(ticket.getId());
+                try {
+                    String userMessage = String.format("""
                                 Тираж #%d завершён!
                                 Ваш билет: %s
                                 Выигрышная комбинация: %s
                                 Результат: %s
                                 """,
-                        draw.getId(),
-                        userNumbers.stream().sorted().map(String::valueOf).collect(Collectors.joining(",")),
-                        result.getWinningCombination(),
-                        ticket.getStatus()
-                );
-
-                try {
-                    Long chatId = Long.parseLong(user.getTelegram());
+                            draw.getId(),
+                            userNumbers.stream().sorted().map(String::valueOf).collect(Collectors.joining(",")),
+                            result.getWinningCombination(),
+                            ticket.getStatus()
+                    );
+                    Long chatId = Long.parseLong(ticket.getUser().getTelegram());
                     telegramNotificationService.sendTo(chatId, userMessage);
                 } catch (NumberFormatException e) {
                     // лог, если телеграм id кривой
+                    log.error(e.getMessage());
                 }
-            });
+            }
+
         }
 
+        result.setWinningTickets(jsonMapper.writeValueAsString(Map.of("tickets", List.of(winningTickets))));
 
         return result;
-    }
-
-
-    private Long getUserTelegramChatId(Long userId) {
-        return userRepository.findById(userId)
-                .map(user -> Long.valueOf(user.getTelegram())) // ⚠️ если в БД telegram хранится как строка
-                .orElseThrow(() -> new RuntimeException("User not found for ID: " + userId));
     }
 
     private Set<Integer> selectWinningNumbers(Draw draw) {
@@ -118,10 +139,18 @@ public class DrawResultService {
 
     private Set<Integer> parseNumbersFromJsonString(String jsonString) {
         try {
-            List<Integer> list = objectMapper.readValue(jsonString, new TypeReference<List>() {
-            });
-            return new HashSet<>(list);
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode rootNode = mapper.readTree(jsonString);
+            JsonNode numbersNode = rootNode.path("numbers");
+            List<Integer> numbersList = new ArrayList<>();
+            Iterator<JsonNode> elements = numbersNode.elements();
+            while(elements.hasNext()) {
+                Integer val = elements.next().asInt();
+                numbersList.add(val);
+            }
+            return new HashSet<>(numbersList);
         } catch (Exception e) {
+            log.error("Error parse ticket numbers");
             throw new RuntimeException("Failed to parse numbers from ticket data: " + jsonString, e);
         }
     }
