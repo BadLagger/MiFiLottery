@@ -81,11 +81,11 @@ public class UserService {
         var user = userRepository.findByName(inUser.name());
 
         if (user.isEmpty()) {
-            throw new UsernameNotFoundException(null);
+            throw new UsernameNotFoundException("User not found");
         }
 
         if (!passwordEncoder.matches(inUser.password(), user.get().getPassword())) {
-            throw new BadCredentialsException(null);
+            throw new BadCredentialsException("Bad registration");
         }
 
         return user.get();
