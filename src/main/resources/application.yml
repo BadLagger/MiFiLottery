@@ -1,0 +1,70 @@
+server:
+  port: 8082
+
+spring:
+#  application:
+#    name: lottery
+  datasource:
+    #url: jdbc:h2:file:./data/testdb;MODE=PostgreSQL
+    #driver-class-name: org.h2.Driver
+    #username: sa
+    #password: password
+    url: jdbc:postgresql://localhost:5432/mlot
+    username: lanyn
+    password:
+    driver-class-name: org.postgresql.Driver
+
+#  h2:
+#    console:
+#      enabled: true
+#      path: /h2-console
+
+  flyway:
+    enabled: true
+    locations: classpath:/db/migration
+    baseline-on-migrate: true
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+#    database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto: none
+#      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+
+  jackson:
+    serialization:
+      WRITE_ENUMS_USING_TO_STRING: true
+    deserialization:
+      READ_ENUMS_USING_TO_STRING: true
+
+logging:
+  level:
+    com.example.lottery: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg [%file:%line]%n"
+
+#  file:
+#    name: ./logs/lottery.log
+
+
+# Default global values
+app:
+  default:
+    draw-duration: 60
+    max-pool-size: 3
+  secret_key: "26c585456f8017e4ead2dafd2e5d3306" # 16, 24 или 32 байта
+  payment_base_url: "http://localhost:8082/api/payments"
+
+telegram:
+  bot:
+    token: 8083037723:AAEnT5yt6QCNDJ4ZxfbqDADIoqa1bDRLsGo
