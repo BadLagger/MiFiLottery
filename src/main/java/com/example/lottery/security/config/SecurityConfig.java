@@ -50,6 +50,8 @@ public class SecurityConfig {
 
                     //админы
                     .requestMatchers(HttpMethod.PUT, "/api/admin/draws/**").hasAuthority("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/admin/lottery-types").hasAuthority("ADMIN")
+
                     .anyRequest().authenticated()
             )
             .headers(headers -> headers

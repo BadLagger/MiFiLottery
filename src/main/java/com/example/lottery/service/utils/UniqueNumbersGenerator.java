@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class UniqueNumbersGenerator {
-  private final SecureRandom random;
+  private final SecureRandom random = new SecureRandom();
   private final PreGeneratedTicketRepository preGeneratedTicketRepository;
 
   public List<Integer> generateNumbers(AlgorithmRules rules, Draw draw) {

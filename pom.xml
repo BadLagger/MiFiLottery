@@ -117,6 +117,22 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>11.3.1</version>
+                <configuration>
+                    <url>jdbc:postgresql://localhost:5432/lottery</url> <!-- Упрощенный URL -->
+                    <user>postgres</user>
+                    <password>111</password>
+                    <baselineVersion>1</baselineVersion> <!-- Базовая версия через конфиг -->
+                    <baselineDescription>Base version</baselineDescription>
+                    <cleanDisabled>false</cleanDisabled> <!-- Разрешить clean :cite[5] -->
+                    <locations>
+                        <location>classpath:db/migration</location>
+                    </locations>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

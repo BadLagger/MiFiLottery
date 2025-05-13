@@ -56,7 +56,7 @@ public class InvoiceService {
     InvoiceDto invoiceDto = new InvoiceDto();
     invoiceDto.setUserId(userId);
     invoiceDto.setRegisterTime(now);
-    invoiceDto.setTicketData(JsonMapper.toJson(dto));
+    invoiceDto.setTicketData(dto);
     invoiceDto.setStatus(Invoice.Status.UNPAID);
 
     TicketInInvoiceDto ticketInInvoice = new TicketInInvoiceDto();

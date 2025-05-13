@@ -2,6 +2,7 @@ package com.example.lottery.strategy;
 
 import com.example.lottery.entity.AlgorithmType;
 import com.example.lottery.entity.LotteryType;
+import com.example.lottery.exception.NotFoundException;
 import com.example.lottery.repository.LotteryTypeRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +26,16 @@ public class LotteryCheckStrategyResolver {
     public LotteryCheckStrategy resolve(Long lotteryTypeId) {
         // Получаем тип лотереи по ID из базы данных
         log.debug("Try to find lottery id");
-        LotteryType lotteryType = lotteryTypeRepository.findById(lotteryTypeId)
-                .orElseThrow(() -> new RuntimeException("LotteryType not found"));
+    LotteryType lotteryType =
+        lotteryTypeRepository
+            .findById(lotteryTypeId)
+            .orElseThrow(() -> new NotFoundException("LotteryType with id " + lotteryTypeId + " is not found"));
 
         log.debug("Lottery type again: {}", lotteryType);
 
         // Дальше можно использовать описание типа лотереи или ID для выбора нужной стратегии
-        if (lotteryType.getAlgorithmType() == AlgorithmType.RANDOM_UNIQUE_NUMBERS) {
+//        if (lotteryType.getAlgorithmType() == AlgorithmType.RANDOM_UNIQUE_NUMBERS) {
+        if (true) {
             log.debug("Get random strategy");
             return strategyMap.get("simple-match");
         }

@@ -13,6 +13,7 @@ import com.example.lottery.service.TicketsFactory;
 import com.example.lottery.service.validator.Validator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,7 +54,11 @@ public class TicketServiceImpl implements TicketService {
         .findById(id)
         .filter(ticket -> ticket.getUser().getId().equals(userId))
         .map(ticketMapper::toDto)
-        .orElseThrow(() -> new NotFoundException("Билет с ID " + id + " не найден"));
+        .orElseThrow(
+            () ->
+                ticketRepository.existsById(id)
+                    ? new AccessDeniedException("Вы не можете просматривать этот билет")
+                    : new NotFoundException("Билет с ID " + id + " не найден"));
   }
 
   @Override

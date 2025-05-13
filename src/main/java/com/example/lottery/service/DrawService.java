@@ -46,10 +46,8 @@ public class DrawService {
     private final DrawResultService drawResultService;
     private final LotteryTypeRepository lotteryTypeRepository;
     private final TicketPoolService ticketPoolService;
-    private TicketMapper ticketMapper;
-    private FixedPoolTicketGenerator fixedPoolTicketGenerator;
+    private final LotteryTypeService lotteryTypeService;
     private PreGeneratedTicketRepository preGeneratedRepo;
-    private TicketsFactory ticketsFactory;
 
     private final DrawMapper drawMapper;
 
@@ -101,6 +99,11 @@ public class DrawService {
             // Если запланирован не на сегодня, то сохраняем только в БД
             setStatus(draw, DrawStatus.PLANNED);
         }
+
+        // если тип лотереи FIXED_POOL, то инициализируем пул билетов по правилам лотереи
+        if (lotteryTypeService.getAlgorithmRulesByDraw(draw) instanceof FixedPoolRules) {
+            initPoolForDraw(draw);
+        }
         return draw;
     }
 
@@ -117,7 +120,6 @@ public class DrawService {
         long delayMs = ChronoUnit.MILLIS.between(LocalDateTime.now(), draw.getStartTime().plusMinutes(draw.getDuration()));
         addToActiveTasks(draw, delayMs);
         // Удаляем из списка планировщика запланированных задач
-        // TODO: Если тираж с предсозданными билетами - запустить initPoolForDraw
         sсheduledPlannedFutures.remove(draw.getId());
     }
 
@@ -131,9 +133,12 @@ public class DrawService {
     public void setComplete(Draw draw) throws JsonProcessingException {
       //  System.out.format("Draw: %s set complete\n", draw.getName());
     //        preGeneratedTicketRepo.deleteByDraw(draw);
-      // TODO: Очищаем пул предсозданных билетов
-      // TODO: отменяем все неоплаченные инвойсы
-    //        preGeneratedTicketRepo.deleteByDraw(draw); // Очищаем пул предсозданных билетов
+      // отменяем все неоплаченные инвойсы
+//        invoiceService.cancelUnpaidInvoicesWhenDrawStopped(draw.getId());
+        // если тип лотереи FIXED_POOL, то очищаем пул предсозданных билетов
+        if (lotteryTypeService.getAlgorithmRulesByDraw(draw) instanceof FixedPoolRules) {
+            preGeneratedRepo.deleteByDraw(draw);
+        }
         log.debug("Set Draw {} to complite", draw);
         setStatus(draw, DrawStatus.COMPLETED);
         sсheduledActiveFutures.remove(draw.getId());
@@ -154,6 +159,12 @@ public class DrawService {
         }
       //  System.out.format("Draw: %s set cancelled\n", draw.getName());
         setStatus(draw, DrawStatus.CANCELLED);
+        // если тип лотереи FIXED_POOL, то очищаем пул предсозданных билетов
+        if (lotteryTypeService.getAlgorithmRulesByDraw(draw) instanceof FixedPoolRules) {
+            preGeneratedRepo.deleteByDraw(draw);
+        }
+        // отменяем все неоплаченные инвойсы
+//        invoiceService.cancelUnpaidInvoicesWhenDrawStopped(draw.getId());
     }
 
     public void addToActiveTasks(Draw draw, long delayMs) {

@@ -1,7 +1,7 @@
 -- Создаем enum тип для статусов инвойсов
-CREATE TYPE invoice_status AS ENUM ('UNPAID', 'PENDING', 'PAID', 'REFUNDED');
+-- CREATE TYPE invoice_status AS ENUM ('UNPAID', 'PENDING', 'PAID', 'REFUNDED');
 
-CREATE TABLE invoice (
+CREATE TABLE IF NOT EXISTS invoice (
                          id BIGSERIAL PRIMARY KEY,
                          user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
                          ticket_data JSONB NOT NULL,

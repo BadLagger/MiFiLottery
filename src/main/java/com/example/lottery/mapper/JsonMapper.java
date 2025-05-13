@@ -49,4 +49,12 @@ public class JsonMapper {
       throw new RuntimeException("Ошибка десериализации из JSON", e);
     }
   }
+
+  public static <T> T fromJson(String json, TypeReference<T> typeReference) {
+      try {
+          return objectMapper.readValue(json, typeReference);
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException("Ошибка десериализации из JSON", e);
+      }
+  }
 }
