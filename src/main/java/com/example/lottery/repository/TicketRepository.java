@@ -10,5 +10,5 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
   List<Ticket> findAllTicketsByDrawId(Long drawId);
 
-    List<Ticket> findByDraw(Draw draw);
+  List<Ticket> findByDraw(Draw draw);
 }

@@ -9,9 +9,9 @@ spring:
     #driver-class-name: org.h2.Driver
     #username: sa
     #password: password
-    url: jdbc:postgresql://localhost:5432/mlot
-    username: lanyn
-    password:
+    url: jdbc:postgresql://localhost:5432/lottery
+    username: postgres
+    password: 111
     driver-class-name: org.postgresql.Driver
 
 #  h2:
@@ -30,12 +30,11 @@ spring:
     show-sql: true
     generate-ddl: true
     hibernate:
-      ddl-auto: none
-#      ddl-auto: update
+#      ddl-auto: none
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
 
 
   jackson:

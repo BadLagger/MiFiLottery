@@ -23,7 +23,6 @@ public class TicketPoolService {
 
   @Transactional
   public void generateTicketsPoolForDraw(Draw draw) {
-//    Draw draw = drawService.getDrawById(drawId);
 
     // Получаем генератор через фабрику
     TicketGenerator generator = ticketsFactory.getGenerator(draw);
@@ -42,7 +41,7 @@ public class TicketPoolService {
     List<PreGeneratedTicket> poolTickets = new ArrayList<>();
     for (int i = 0; i < fixedPoolRules.getPoolSize(); i++) {
       // Используем генератор для создания билетов
-      List<Integer> numbers = generator.generateNumbers();
+      List<Integer> numbers = generator.generateNumbers().stream().sorted().toList();
 
       PreGeneratedTicket pgTicket = new PreGeneratedTicket();
       pgTicket.setDraw(draw);

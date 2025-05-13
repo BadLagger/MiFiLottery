@@ -38,46 +38,70 @@ public class GlobalExceptionHandler {
     return new ResponseEntity<>(new AppError(status.value(), e.getMessage()), status);
   }
 
-  @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<Map<String, String>> handleValidationExceptions(
-      MethodArgumentNotValidException e) {
-    Map<String, String> errors = new HashMap<>();
-    e.getBindingResult()
-        .getAllErrors()
-        .forEach(
-            (error) -> {
-              String fieldName = ((FieldError) error).getField();
-              String errorMessage = error.getDefaultMessage();
-              errors.put(fieldName, errorMessage);
-            });
-    log.error(errors.toString(), e);
-    return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-  }
+//  @ExceptionHandler(MethodArgumentNotValidException.class)
+//  public ResponseEntity<Map<String, String>> handleValidationExceptions(
+//      MethodArgumentNotValidException e) {
+//    Map<String, String> errors = new HashMap<>();
+//    e.getBindingResult()
+//        .getAllErrors()
+//        .forEach(
+//            (error) -> {
+//              String fieldName = ((FieldError) error).getField();
+//              String errorMessage = error.getDefaultMessage();
+//              errors.put(fieldName, errorMessage);
+//            });
+//    log.error(errors.toString(), e);
+//    return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+//  }
 
-  @ExceptionHandler(RuntimeException.class)
-  public ResponseEntity<AppError> catchRuntimeException(RuntimeException e) {
-    log.error(e.getMessage(), e);
-    return new ResponseEntity<>(
-        new AppError(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()),
-        HttpStatus.INTERNAL_SERVER_ERROR);
-  }
+//  @ExceptionHandler(RuntimeException.class)
+//  public ResponseEntity<AppError> catchRuntimeException(RuntimeException e) {
+//    log.error(e.getMessage(), e);
+//    return new ResponseEntity<>(
+//        new AppError(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()),
+//        HttpStatus.INTERNAL_SERVER_ERROR);
+//  }
+//
+//  @ExceptionHandler(ConstraintViolationException.class)
+//  public ResponseEntity<?> handleConstraintViolation(ConstraintViolationException e) {
+//    Map<String, String> errors = new HashMap<>();
+//    e.getConstraintViolations().forEach(v -> {
+//      String field = v.getPropertyPath().toString();
+//      String message = v.getMessage();
+//      errors.put(field, message);
+//    });
+//    log.error(errors.toString(), e);
+//    return ResponseEntity.badRequest().body(errors);
+//  }
 
-  @ExceptionHandler(ConstraintViolationException.class)
-  public ResponseEntity<?> handleConstraintViolation(ConstraintViolationException e) {
-    Map<String, String> errors = new HashMap<>();
-    e.getConstraintViolations().forEach(v -> {
-      String field = v.getPropertyPath().toString();
-      String message = v.getMessage();
-      errors.put(field, message);
-    });
-    log.error(errors.toString(), e);
-    return ResponseEntity.badRequest().body(errors);
-  }
+//
+//  @ExceptionHandler(BadCredentialsException.class)
+//  public ResponseEntity<String> handleBadCredentials(BadCredentialsException ex) {
+//    return errorResponseWithStatus(
+//            "Error: wrong login or password!",
+//            HttpStatus.UNAUTHORIZED);
+//  }
 
-  @ExceptionHandler(UsernameNotFoundException.class)
-  public ResponseEntity<?> handleUserNotFound(UsernameNotFoundException e) {
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-  }
+//  @ExceptionHandler(AccessDeniedException.class)
+//  public ResponseEntity<String> handleAccessDenied(AccessDeniedException ex) {
+//    return errorResponseWithStatus(
+//            "Error: don't have enough permissions",
+//            HttpStatus.UNAUTHORIZED);
+//  }
+
+//  @ExceptionHandler(SessionAuthenticationException.class)
+//  public ResponseEntity<String> handleSessionAuthenticationException(SessionAuthenticationException ex) {
+//    return errorResponseWithStatus(
+//            "Error: This session already exists",
+//            HttpStatus.FORBIDDEN);
+//  }
+//
+//  @ExceptionHandler(UsernameNotFoundException.class)
+//  public ResponseEntity<String> usernameNotFound(UsernameNotFoundException ex) {
+//    return errorResponseWithStatus(
+//            ex.getMessage(),
+//            HttpStatus.NOT_FOUND);
+//  }
 
   private ResponseEntity<String> errorResponseWithStatus(String msg, HttpStatus status) {
     log.error(msg);

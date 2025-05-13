@@ -1,10 +1,12 @@
 package com.example.lottery.service;
 
+import aj.org.objectweb.asm.commons.Remapper;
 import com.example.lottery.dto.PaymentCreateDto;
 import com.example.lottery.dto.PaymentDto;
 import com.example.lottery.dto.TicketInInvoiceDto;
 import com.example.lottery.entity.Invoice;
 import com.example.lottery.entity.Payment;
+import com.example.lottery.exception.NotFoundException;
 import com.example.lottery.exception.ValidationException;
 import com.example.lottery.mapper.PaymentMapper;
 import com.example.lottery.mock.MockPaymentProcessor;
@@ -15,6 +17,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -26,9 +29,10 @@ public class PaymentService {
   private final InvoiceService invoiceService;
   private final PaymentMapper paymentMapper;
   private final PaymentLinkGenerator paymentLinkGenerator;
+  private final UserService userService;
 
   @Transactional
-  public String process(PaymentCreateDto dto, Long UserId) {
+  public String process(PaymentCreateDto dto, Long userId) {
     Long invoiceId = dto.getInvoiceId();
     Invoice invoice = invoiceService.getInvoice(invoiceId);
     String cardNumber = dto.getCardNumber();
@@ -46,7 +50,7 @@ public class PaymentService {
     invoiceService.validateBuyingByInvoice(invoice);
 
     // в пендинг до оплаты
-    invoiceService.setPending(invoiceId, 1L);
+    invoiceService.setPending(invoiceId, userId);
 
     // Обработка платежа
     Payment.Status paymentResponseStatus = mockPaymentProcessor.process(cardNumber, cvc);
@@ -68,5 +72,14 @@ public class PaymentService {
 
   public Optional<PaymentDto> getPaymentById(Long id) {
     return paymentRepository.findById(id).map(paymentMapper::toDto);
+  }
+
+  public PaymentDto getPaymentByIdAndUser(Long id, Long userId) {
+    return paymentRepository.findById(id)
+            .filter(payment -> payment.getInvoice().getUser().getId().equals(userId))
+            .map(paymentMapper::toDto)
+            .orElseThrow(() -> paymentRepository.existsById(id)
+                    ? new AccessDeniedException("Вы не можете просматривать этот платёж")
+                    : new NotFoundException("Платёж не найден"));
   }
 }
