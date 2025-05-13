@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.HashMap;
 import java.util.Map;
 
-@ControllerAdvice
+@ControllerAdvice(basePackages = "com.example.lottery.security")
 public class SecurityGlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
